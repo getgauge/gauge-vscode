@@ -32,7 +32,8 @@
           "Gauge",
           "Specification",
           "Spec"
-        ]
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
