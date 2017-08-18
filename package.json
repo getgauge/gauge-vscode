@@ -1,5 +1,5 @@
 {
-  "name": "gauge",
+  "name": "Gauge",
   "repository": {
     "type": "git",
     "url": "git://github.com/getgauge/guage-vscode.git"
@@ -41,7 +41,13 @@
         "scopeName": "text.gauge",
         "path": "./syntaxes/gauge.tmLanguage"
       }
-    ]
+    ],
+    "snippets": [
+      {
+          "language": "gauge",
+          "path": "./snippets/gauge.json"
+      }
+  ]
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",

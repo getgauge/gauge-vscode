@@ -1,0 +1,76 @@
+{
+	".source.gauge": {
+		"specification": {
+			"prefix": "spec",
+			"body": [
+				"${1:SPECIFICATION_HEADING}",
+				"=====================",
+				"$0"
+			],
+			"description" : "New Specification"
+		},
+		"scenario": {
+			"prefix": "sce",
+			"body": [
+				"${1:Scenario Heading}",
+				"----------------",
+				"$0"
+			],
+			"description" : "New Scenario"
+		},
+		"table_1": {
+			"prefix": "table:1",
+			"body": [
+				"|${1:HEADER}|",
+				"|${2:value}|",
+				"|${3:value}$0|"
+			],
+			"description" : "table with 1 column"
+		},
+		"table_2": {
+			"prefix": "table:2",
+			"body": [
+				"|${1:HEADER}|${2:HEADER}|",
+				"|${3:value}|${4:value}|",
+				"|${5:value}|${6:value}$0|"
+			],
+			"description" : "table with 2 columns"
+		},
+		"table_3": {
+			"prefix": "table:3",
+			"body": [
+				"|${1:HEADER}|${2:HEADER}|${3:HEADER}|",
+				"|${4:value}|${5:value}|${6:value}|",
+				"|${7:value}|${8:value}|${9:value}$0|"
+			],
+			"description" : "table with 3 columns"
+		},
+		"table_4": {
+			"prefix": "table:4",
+			"body": [
+				"|${1:HEADER}|${2:HEADER}|${3:HEADER}|${4:HEADER}|",
+				"|${5:value}|${6:value}|${7:value}|${8:value}|",
+				"|${9:value}|${10:value}|${11:value}|${12:value}$0|"
+			],
+			"description" : "table with 4 columns"
+		},
+		"table_5": {
+			"prefix": "table:5",
+			"body": [
+				"|${1:HEADER}|${2:HEADER}|${3:HEADER}|${4:HEADER}|${5:HEADER}|",
+				"|${6:value}|${7:value}|${8:value}|${9:value}|${10:value}|",
+				"|${11:value}|${12:value}|${13:value}|${14:value}|${15:value}$0|"
+			],
+			"description" : "table with 5 columns"
+		},
+		"table_6": {
+			"prefix": "table:6",
+			"body": [
+				"|${1:HEADER}|${2:HEADER}|${3:HEADER}|${4:HEADER}|${5:HEADER}|${6:HEADER}|",
+				"|${7:value}|${8:value}|${9:value}|${10:value}|${11:value}|${12:value}|",
+				"|${13:value}|${14:value}|${15:value}|${16:value}|${17:value}|${18:value}$0|"
+			],
+			"description" : "table with 5 columns"
+		}
+	}
+}
