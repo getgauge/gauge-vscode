@@ -3117,18 +3117,6 @@
 						</dict>
 					</array>
 				</dict>
-				<key>bracket</key>
-				<dict>
-					<key>comment</key>
-					<string>
-						Markdown will convert this for us. We match it so that the
-						HTML grammar will not mark it up as invalid.
-					</string>
-					<key>match</key>
-					<string>&lt;(?![a-z/?\$!])</string>
-					<key>name</key>
-					<string>meta.other.valid-bracket.markdown</string>
-				</dict>
 				<key>escape</key>
 				<dict>
 					<key>match</key>
