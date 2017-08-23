@@ -301,7 +301,7 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>punctuation.definition.string.begin.gauge</string>
+							<string>entity.name.static.type.begin.gauge</string>
 						</dict>
 					</dict>
 					<key>end</key>
@@ -311,11 +311,11 @@
 						<key>0</key>
 						<dict>
 							<key>name</key>
-							<string>punctuation.definition.string.end.gauge</string>
+							<string>entity.name.type.static.end.gauge</string>
 						</dict>
 					</dict>
 					<key>name</key>
-					<string>comment.block.string.gauge.param.static</string>
+					<string>entity.name.type.static.gauge</string>
 				</dict>
 				<key>dynamic-param</key>
 				<dict>
@@ -323,9 +323,21 @@
 					<array>
 						<dict>
 							<key>match</key>
-							<string><[^(<)|.]*></string>
+							<string><[^(<)|]*></string>
 							<key>name</key>
-							<string>keyword.control.markup.italic.gauge.param.dynamic</string>
+							<string>keyword.control.dynamic.gauge</string>
+						</dict>
+					</array>
+				</dict>
+				<key>tags</key>
+				<dict>
+					<key>patterns</key>
+					<array>
+						<dict>
+							<key>match</key>
+							<string>^\s*[tT][aA][gG][sS]\s*:</string>
+							<key>name</key>
+							<string>comment.line.tags.gauge</string>
 						</dict>
 					</array>
 				</dict>
@@ -622,6 +634,10 @@
 						<dict>
 							<key>include</key>
 							<string>#heading-setext</string>
+						</dict>
+						<dict>
+							<key>include</key>
+							<string>#tags</string>
 						</dict>
 					</array>
 					<key>while</key>
