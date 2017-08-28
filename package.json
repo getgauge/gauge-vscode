@@ -18,6 +18,11 @@
   "activationEvents": [
     "onLanguage:gauge"
   ],
+  "icon": "images/gauge-icon.png",
+  "galleryBanner": {
+    "color": "#F5C20F",
+    "theme": "dark"
+  },
   "main": "./out/extension",
   "contributes": {
     "languages": [
