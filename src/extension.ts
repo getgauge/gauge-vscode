@@ -15,9 +15,15 @@ export function activate(context: ExtensionContext) {
 					args: ["daemon", "--lsp", "--dir=" + vscode.workspace.rootPath],
 				},
 				{
-					documentSelector: ['gauge'],
+					documentSelector: ['markdown'],
 				}
 			).start();
 		context.subscriptions.push(disposable);
+		return {
+			extendMarkdownIt(md) {
+				md.options.html = false;
+				return md;
+			}
+		}
 	}
 }

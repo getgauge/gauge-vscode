@@ -16,7 +16,7 @@
     "Languages"
   ],
   "activationEvents": [
-    "onLanguage:gauge"
+    "onLanguage:markdown"
   ],
   "icon": "images/gauge-icon.png",
   "galleryBanner": {
@@ -27,10 +27,9 @@
   "contributes": {
     "languages": [
       {
-        "id": "gauge",
+        "id": "markdown",
         "extensions": [
           ".spec",
-          ".md",
           ".cpt"
         ],
         "aliases": [
@@ -41,19 +40,13 @@
         "configuration": "./language-configuration.json"
       }
     ],
-    "grammars": [
-      {
-        "language": "gauge",
-        "scopeName": "text.gauge",
-        "path": "./syntaxes/gauge.tmLanguage"
-      }
-    ],
     "snippets": [
       {
-          "language": "gauge",
+          "language": "markdown",
           "path": "./snippets/gauge.json"
       }
-  ]
+    ],
+    "markdown.markdownItPlugins": true
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
