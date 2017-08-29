@@ -1,8 +1,16 @@
 # gauge-vscode
 
-## Installation
+Gauge extension for VSCode.
 
-```shell 
+This extension adds language support for the Gauge projects, including:
+* Autocomplete of steps and parameters
+
+IDE Features :
+* Snippets for specification, scenarion and tables.
+
+## Install from source
+
+```shell
 $ npm run build
 ```
 

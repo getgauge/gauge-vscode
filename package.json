@@ -8,7 +8,7 @@
   "author": "ThoughtWorks",
   "license": "MIT",
   "version": "0.0.1",
-  "publisher": "ThoughtWorks",
+  "publisher": "GetGauge",
   "engines": {
     "vscode": "^1.8.0"
   },
@@ -54,7 +54,7 @@
     "build": "npm install && vsce package",
     "update-vscode": "node ./node_modules/vscode/bin/install",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "publish": "npm run build && vsce publish"
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/node": "^6.0.52",
