@@ -1,6 +1,7 @@
 {
     "version": "0.1.0",
-    "configurations": [{
+    "configurations": [
+        {
         "name": "Launch Extension",
         "type": "extensionHost",
         "request": "launch",
@@ -9,7 +10,19 @@
         "stopOnEntry": false,
         "sourceMaps": true,
         "outFiles": ["${workspaceRoot}/out/**/*.js"]
-    }],
+        },
+        {
+            "name": "Launch Tests",
+            "type": "extensionHost",
+            "request": "launch",
+            "runtimeExecutable": "${execPath}",
+            "args": ["--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out/test", "./test/testdata/sampleProject" ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": [ "${workspaceRoot}/out/test/**/*.js" ],
+            "preLaunchTask": "npm"
+        }
+    ],
     "compounds": [{
         "name": "Extension + Debug server",
         "configurations": ["Launch Extension", "Launch as server"]

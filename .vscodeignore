@@ -1,7 +1,8 @@
 .vscode/**
-src/**
 .gitignore
 tsconfig.json
 tslint.json
 *.vsix
 *.sh
+test/**
+.vscode-test/**
