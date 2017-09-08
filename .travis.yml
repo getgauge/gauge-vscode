@@ -25,4 +25,5 @@ script:
   - echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" >> skel/gauge.properties
   - go run build/make.go
   - go run build/make.go --install --prefix=$GAUGE_ROOT
+  - cd $TRAVIS_BUILD_DIR
   - npm test
