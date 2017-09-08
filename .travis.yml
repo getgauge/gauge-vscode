@@ -1,5 +1,5 @@
 os:
-  - linux
+  - osx
 env:
   - GOPATH="/tmp" GAUGE_ROOT="/tmp/gauge"
 before_install:
