@@ -6,3 +6,4 @@ tslint.json
 *.sh
 test/**
 .vscode-test/**
+.travis.yml
