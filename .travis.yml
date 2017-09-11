@@ -1,5 +1,9 @@
 os:
+  - linux
   - osx
+langauge: node_js
+node_js:
+  - "7"
 env:
   - GOPATH="/tmp" GAUGE_ROOT="/tmp/gauge"
 before_install:
