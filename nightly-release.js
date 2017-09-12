@@ -9,7 +9,7 @@ fs.readFile(packageJsonFile, (err, content) => {
 	parsedContent.displayName = 'Gauge Nightly';
 	parsedContent.version = updateVersion(parsedContent.version);
 	var today = new Date();
-	parsedContent.description = parsedContent.description + " Nightly version for date :  " + today.getFullYear() + "-" + (today.getMonth() + 1) + "-" today.getDate();
+	parsedContent.description = parsedContent.description + " Nightly version for date :  " + today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
 	fs.truncate(packageJsonFile, 0, (err) => {
 		if (err) {
 			throw err;
