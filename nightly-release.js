@@ -7,9 +7,9 @@ fs.readFile(packageJsonFile, (err, content) => {
 	var parsedContent = JSON.parse(content);
 	parsedContent.name = 'gauge-nightly';
 	parsedContent.displayName = 'Gauge Nightly';
+	parsedContent.version = updateVersion(parsedContent.version);
 	var today = new Date();
-	var nightlyVersion = 'nightly.' + today.getFullYear() + '.' + today.getMonth() + '.' + today.getDate();
-	parsedContent.version = parsedContent.version + '.' + nightlyVersion;
+	parsedContent.description = parsedContent.description + " Nightly version for date :  " + today.getFullYear() + "-" + (today.getMonth() + 1) + "-" today.getDate();
 	fs.truncate(packageJsonFile, 0, (err) => {
 		if (err) {
 			throw err;
@@ -21,3 +21,9 @@ fs.readFile(packageJsonFile, (err, content) => {
 		});
 	});
 });
+
+var updateVersion = function (version) {
+	var v = version.split(".");
+	v[2] = parseInt(v[2]) + 1;
+	return v.join(".");
+}

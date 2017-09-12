@@ -5,7 +5,7 @@
     "type": "git",
     "url": "git://github.com/getgauge/gauge-vscode.git"
   },
-  "description": "Gauge support for VScode",
+  "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
   "version": "0.0.1",
