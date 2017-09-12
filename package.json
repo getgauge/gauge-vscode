@@ -9,7 +9,7 @@
   "author": "ThoughtWorks",
   "license": "MIT",
   "version": "0.0.1",
-  "publisher": "GetGauge",
+  "publisher": "getgauge",
   "engines": {
     "vscode": "^1.15.1"
   },

@@ -8,7 +8,7 @@ fs.readFile(packageJsonFile, (err, content) => {
 	parsedContent.name = 'gauge-nightly';
 	parsedContent.displayName = 'Gauge Nightly';
 	var today = new Date();
-	var nightlyVersion = 'nightly-' + today.getFullYear() + '-' + today.getMonth() + '-' + today.getDate();
+	var nightlyVersion = 'nightly.' + today.getFullYear() + '.' + today.getMonth() + '.' + today.getDate();
 	parsedContent.version = parsedContent.version + '-' + nightlyVersion;
 	fs.truncate(packageJsonFile, 0, (err) => {
 		if (err) {
