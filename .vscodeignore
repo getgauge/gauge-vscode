@@ -7,3 +7,4 @@ tslint.json
 test/**
 .vscode-test/**
 .travis.yml
+nightly-release.js

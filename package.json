@@ -1,8 +1,9 @@
 {
-  "name": "Gauge",
+  "name": "gauge",
+  "displayName": "Gauge",
   "repository": {
     "type": "git",
-    "url": "git://github.com/getgauge/guage-vscode.git"
+    "url": "git://github.com/getgauge/gauge-vscode.git"
   },
   "description": "Gauge support for VScode",
   "author": "ThoughtWorks",
@@ -55,7 +56,8 @@
     "update-vscode": "node ./node_modules/vscode/bin/install",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "node ./node_modules/vscode/bin/test",
-    "publish": "vsce publish"
+    "publish": "vsce publish",
+    "publish-nightly": "node ./nightly-release.js && npm run build"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",
