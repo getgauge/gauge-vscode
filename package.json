@@ -22,7 +22,7 @@
   "icon": "images/gauge-icon.png",
   "galleryBanner": {
     "color": "#F5C20F",
-    "theme": "dark"
+    "theme": "light"
   },
   "main": "./out/src/extension",
   "contributes": {
