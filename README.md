@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/getgauge/gauge-vscode.svg?branch=master)](https://travis-ci.org/getgauge/gauge-vscode)
 
-[ ![Download Nightly](https://api.bintray.com/packages/gauge/gauge-vscode/Nightly/images/download.svg) ](https://bintray.com/gauge/gauge-vscode/Nightly/_latestVersion)
-
 Gauge extension for VSCode.
 
 This extension adds language support for the Gauge projects, including:
