@@ -8,7 +8,7 @@ This extension adds language support for the Gauge projects, including:
 * Autocomplete of steps and parameters
 
 IDE Features :
-* Snippets for specification, scenarion and tables.
+* Snippets for specification, scenarios and tables.
 
 ## Install from source
 
