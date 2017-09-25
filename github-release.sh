@@ -5,8 +5,6 @@ if [ -z "$GITHUB_TOKEN" ]; then
   exit 1
 fi
 
-cd artifacts
-
 version=$(ls artifact/gauge-*.vsix | sed "s/^artifact\/gauge-\([^;]*\).vsix/\1/")
 repoName="gauge-vscode"
 releaseName="Gauge VSCode Extension $version"
