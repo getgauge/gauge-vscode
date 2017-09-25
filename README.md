@@ -24,3 +24,14 @@ Nightly version of vscode is available in bintray. To install a nightly version,
 - [Uninstall](https://code.visualstudio.com/docs/editor/extension-gallery#_manage-extensions) existing version of gauge extension.
 - Download the latest [nightly version of gauge extension](https://bintray.com/gauge/gauge-vscode/Nightly/_latestVersion) from bintray.
 - [Install](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix) gauge extension from source.
+
+## Troubleshooting
+
+- Files not associated with Gauge.
+If gauge features are not listed, the gauge extension may not be activated. The `.spec` and `.cpt` files may be associated with a different langauge. To fix this, you can add this to [user settings](https://code.visualstudio.com/docs/getstarted/settings).
+```
+"files.associations": {
+	"*.spec": "markdown",
+	"*.cpt": "markdown"
+}
+```
