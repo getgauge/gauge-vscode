@@ -19,7 +19,7 @@ before_install:
   - sudo tar -xvf go1.7.4.linux-amd64.tar.gz
   - sudo mv go /usr/local
   - export GOROOT=/usr/local/go
-  - export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+  - export PATH=$GOPATH/bin:$GOROOT/bin:$GAUGE_ROOT/bin:$PATH
   - go get github.com/tools/godep
 install:
   - echo $GOROOT
@@ -28,9 +28,10 @@ install:
   - go get -d -u -v github.com/getgauge/gauge
   - cd $GOPATH/src/github.com/getgauge/gauge
   - godep restore
-  - echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" >> skel/gauge.properties
   - go run build/make.go
   - go run build/make.go --install --prefix=$GAUGE_ROOT
+  - gauge -v
+  - gauge install js
 script:
   - cd $TRAVIS_BUILD_DIR
   - npm run build

@@ -6,7 +6,7 @@ suite('Gauge Extension Tests', () => {
 	let testDataPath = path.join(__dirname, '..', '..', 'test', 'testdata', 'sampleProject');
 
 	test('should activate for spec and concept files', (done) => {
-		let specFile = vscode.Uri.file(path.join(testDataPath, 'example.spec'));
+		let specFile = vscode.Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
 		assert.ok((typeof vscode.extensions.getExtension('getgauge.gauge') === 'undefined') || !(vscode.extensions.getExtension('getgauge.gauge').isActive))
 		vscode.workspace.openTextDocument(specFile).then((textDocument) => {
 			return vscode.window.showTextDocument(textDocument).then(() => {
