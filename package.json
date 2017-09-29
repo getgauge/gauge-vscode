@@ -43,8 +43,8 @@
     ],
     "snippets": [
       {
-          "language": "markdown",
-          "path": "./snippets/gauge.json"
+        "language": "markdown",
+        "path": "./snippets/gauge.json"
       }
     ],
     "markdown.markdownItPlugins": true
