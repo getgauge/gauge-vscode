@@ -41,6 +41,13 @@
         "configuration": "./language-configuration.json"
       }
     ],
+    "commands": [
+      {
+        "command": "gauge.execute.failed",
+        "title": "Re-run Failed Scenario(s)",
+        "category": "Gauge"
+      }
+    ],
     "snippets": [
       {
         "language": "markdown",

@@ -9,11 +9,12 @@ const gauge = 'gauge';
 const run = 'run';
 const parallel = '--parallel';
 const simpleConsole = '--simple-console';
+const rerunFailed = '--failed';
 const outputChannelName = 'Gauge Execution'
 
-export function execute(spec: string, inParallel: boolean) {
+export function execute(spec: string, config: any) {
 	return new Promise<boolean>((resolve, reject) => {
-		let args = (!inParallel) ? [run, spec, simpleConsole] : [run, parallel, spec];
+		let args = getArgs(spec, config);
 		let chan = new OutputChannel(outputChannelName, ['Running tool:', gauge, args.join(' ')].join(' '));
 		let process = cp.spawn(gauge, args, { cwd: vscode.workspace.rootPath });
 		process.stdout.on('data', chunk => chan.appendOutBuf(chunk.toString()));
@@ -22,3 +23,9 @@ export function execute(spec: string, inParallel: boolean) {
 	});
 }
 
+let getArgs = function (spec, config): Array<string> {
+	if (config.rerunFailed) {
+		return [run, rerunFailed];
+	}
+	return (!config.inParallel) ? [run, spec, simpleConsole] : [run, parallel, spec];
+}
