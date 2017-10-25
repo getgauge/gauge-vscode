@@ -6,8 +6,11 @@ Gauge extension for VSCode.
 
 This extension adds language support for the Gauge projects, including:
 * Autocomplete of steps and parameters
-
-IDE Features :
+![Autocomplete preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/autocomplete.gif)
+* Goto definition for steps
+* Formating
+* Diagnostics - parse errors
+* Run specifications and scenarios
 * Snippets for specification, scenarios and tables.
 
 ## Install from source
