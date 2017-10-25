@@ -10,10 +10,11 @@ export class OutputChannel {
 	private errBuf: LineBuffer;
 	private chan: vscode.OutputChannel
 
-	constructor(name, initial: string) {
+	constructor(outputChannel, initial: string) {
 		this.outBuf = new LineBuffer();
 		this.errBuf = new LineBuffer();
-		this.chan = vscode.window.createOutputChannel(name);
+		this.chan = outputChannel;
+		this.chan.clear();
 		this.chan.appendLine(initial);
 		this.setup();
 	}
