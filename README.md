@@ -8,6 +8,7 @@ This extension adds language support for the Gauge projects, including:
 * Autocomplete of steps and parameters
 ![Autocomplete preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/autocomplete.gif)
 * Goto definition for steps
+![Goto Definition preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/gotoDefination.gif)
 * Formating
 * Diagnostics - parse errors
 * Run specifications and scenarios
