@@ -10,8 +10,11 @@ This extension adds language support for the Gauge projects, including:
 * Goto definition for steps
 ![Goto Definition preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/gotoDefination.gif)
 * Formating
+![Formatting preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/format.gif)
 * Diagnostics - parse errors
+![Diagnostics preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/diagnostics.gif)
 * Run specifications and scenarios
+![Execution preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/execute.gif)
 * Snippets for specification, scenarios and tables.
 
 ## Install from source
