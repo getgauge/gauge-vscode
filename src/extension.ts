@@ -11,7 +11,7 @@ import { execute } from "./execution/gaugeExecution"
 
 export function activate(context: ExtensionContext) {
 	let languageClient = new LanguageClient(
-		'langserver',
+		'Gauge Language Server',
 		{
 			command: 'gauge',
 			args: ["daemon", "--lsp", "--dir=" + vscode.workspace.rootPath],

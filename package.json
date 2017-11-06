@@ -17,7 +17,7 @@
     "Languages"
   ],
   "activationEvents": [
-    "workspaceContains:**/manifest.json"
+    "workspaceContains:manifest.json"
   ],
   "icon": "images/gauge-icon.png",
   "galleryBanner": {
