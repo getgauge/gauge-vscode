@@ -9,7 +9,10 @@ suite('Gauge Execution Tests', () => {
 		execute(spec,false).then((status) => {
 			assert.ok(status);
 			done();
-		})
+		}, (err) => {
+            assert.ok(false,  'Error: ' + err);
+            done();
+        });
 	});
 
 	test('should execute given scenario', (done) => {
@@ -17,6 +20,9 @@ suite('Gauge Execution Tests', () => {
 		execute(spec,false).then((status) => {
 			assert.ok(status);
 			done();
-		})
+		}, (err) => {
+            assert.ok(false,  'Error: ' + err);
+            done();
+        });
 	});
 });
