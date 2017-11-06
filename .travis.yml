@@ -1,4 +1,5 @@
 os:
+  - osx
   - linux
 language: node_js
 node_js:
@@ -8,31 +9,18 @@ addons:
     packages:
       - libsecret-1-dev
 env:
-  - GOPATH="/tmp" GAUGE_ROOT="/tmp/gauge"
+  - GAUGE_TELEMETRY_ENABLED=false GAUGE_PREFIX=/tmp
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
       export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
       sh -e /etc/init.d/xvfb start;
       sleep 3;
     fi
-  - wget https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz
-  - sudo tar -xvf go1.7.4.linux-amd64.tar.gz
-  - sudo mv go /usr/local
-  - export GOROOT=/usr/local/go
-  - export PATH=$GOPATH/bin:$GOROOT/bin:$GAUGE_ROOT/bin:$PATH
-  - go get github.com/tools/godep
+  - curl -sSfL https://github.com/getgauge/gauge-tests/raw/master/install_latest_gauge_nightly.sh | bash
+  - export PATH=$PATH:$GAUGE_PREFIX/bin
 install:
-  - echo $GOROOT
-  - echo $GOPATH
-  - go version
-  - go get -d -u -v github.com/getgauge/gauge
-  - cd $GOPATH/src/github.com/getgauge/gauge
-  - godep restore
-  - go run build/make.go
-  - go run build/make.go --install --prefix=$GAUGE_ROOT
   - gauge -v
   - gauge install js
 script:
-  - cd $TRAVIS_BUILD_DIR
   - npm run build
   - npm test --silent
