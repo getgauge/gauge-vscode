@@ -6,7 +6,7 @@ suite('Gauge Extension Tests', () => {
     let testDataPath = path.join(__dirname, '..', '..', 'test', 'testdata', 'sampleProject');
 
     test('should activate when manifest file found in path', () => {
-        assert.equal(vscode.workspace.rootPath, testDataPath);
+        assert.equal(vscode.workspace.rootPath, vscode.Uri.file(testDataPath).fsPath);
         assert.ok(vscode.extensions.getExtension('getgauge.gauge').isActive);
     });
 });
