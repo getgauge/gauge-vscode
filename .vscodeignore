@@ -9,3 +9,5 @@ test/**
 .travis.yml
 **/*.gif
 out/test/**
+!images/gauge-icon.png
+images/**
