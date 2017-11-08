@@ -2,9 +2,10 @@
 .gitignore
 tsconfig.json
 tslint.json
-*.vsix
-*.sh
+**/*.vsix
+**/*.sh
 test/**
 .vscode-test/**
 .travis.yml
-*.gif
+**/*.gif
+out/test/**

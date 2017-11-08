@@ -3,7 +3,7 @@
   "displayName": "Gauge",
   "repository": {
     "type": "git",
-    "url": "git://github.com/getgauge/gauge-vscode.git"
+    "url": "https://github.com/getgauge/gauge-vscode.git"
   },
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
