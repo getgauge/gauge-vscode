@@ -17,6 +17,9 @@ This extension adds language support for the Gauge projects, including:
 ![Execution preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/execute.gif)
 * Snippets for specification, scenarios and tables.
 
+## Configuration
+* `gauge.launch.enableDebugLogs` :  Starts gauge lsp server with log-level `debug`. Defaults to `false`.
+
 ## Install from source
 
 ```shell

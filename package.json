@@ -48,6 +48,17 @@
         "category": "Gauge"
       }
     ],
+    "configuration": {
+      "type": "object",
+      "title": "Gauge configuration",
+      "properties": {
+        "gauge.launch.enableDebugLogs": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, communication between vscode and gauge server will be logged."
+        }
+      }
+    },
     "snippets": [
       {
         "language": "markdown",
