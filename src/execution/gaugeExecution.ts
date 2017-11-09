@@ -10,6 +10,7 @@ const run = 'run';
 const parallel = '--parallel';
 const simpleConsole = '--simple-console';
 const rerunFailed = '--failed';
+const hideSuggestion = '--hide-suggestion'
 const outputChannelName = 'Gauge Execution'
 let outputChannel = vscode.window.createOutputChannel(outputChannelName);
 
@@ -28,5 +29,5 @@ let getArgs = function (spec, config): Array<string> {
 	if (config.rerunFailed) {
 		return [run, rerunFailed];
 	}
-	return (!config.inParallel) ? [run, spec, simpleConsole] : [run, parallel, spec];
+	return (!config.inParallel) ? [run, spec, simpleConsole, hideSuggestion] : [run, parallel, spec, hideSuggestion];
 }
