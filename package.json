@@ -44,7 +44,27 @@
     "commands": [
       {
         "command": "gauge.execute.failed",
-        "title": "Re-run Failed Scenario(s)",
+        "title": "Re-Run Failed Scenario(s)",
+        "category": "Gauge"
+      },
+      {
+        "command": "gauge.execute.specification",
+        "title": "Run Specification",
+        "category": "Gauge"
+      },
+      {
+        "command": "gauge.execute.specification.all",
+        "title": "Run All Apecification",
+        "category": "Gauge"
+      },
+      {
+        "command": "gauge.execute.scenario",
+        "title": "Run Scenario At Cursor",
+        "category": "Gauge"
+      },
+      {
+        "command": "gauge.execute.scenarios",
+        "title": "Run Scenario",
         "category": "Gauge"
       }
     ],
@@ -56,6 +76,13 @@
           "type": "boolean",
           "default": false,
           "description": "When true, communication between vscode and gauge server will be logged."
+        },
+        "gauge.execution.specDirs": {
+          "type": "array",
+          "default": [
+            "specs"
+          ],
+          "description": "List of specification dirs."
         }
       }
     },
