@@ -7,8 +7,9 @@ import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, T
 import vscode = require('vscode');
 import fs = require('fs');
 import cp = require('child_process');
-import opn = require('opn')
-import { execute } from "./execution/gaugeExecution"
+import opn = require('opn');
+import copyPaste = require('copy-paste');
+import { execute } from "./execution/gaugeExecution";
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -41,6 +42,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, false) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, true) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.failed', () => { execute(null, { rerunFailed: true }) }));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => { copyPaste.copy(code); }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', (uri: string, position: LSPosition, locations: LSLocation[]) => {
         if (locations && locations.length > 0) {
             vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
