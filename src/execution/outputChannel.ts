@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { LineBuffer } from './lineBuffer';
 import * as cp from 'child_process';
+import * as path from 'path';
 
 export class OutputChannel {
 	private process: cp.ChildProcess;
@@ -28,6 +29,13 @@ export class OutputChannel {
 	}
 
 	public appendOutBuf(line: string) {
+		let prefixes :string[] = ["Specification: ","at Object.<anonymous> ("]
+		for (var i = 0; i < prefixes.length; i++) {
+			var prefix = prefixes[i];
+			if(line.includes(prefix)){
+				line = line.replace(prefix, prefix + vscode.workspace.rootPath + path.sep)
+			}
+		}
 		this.outBuf.append(line);
 	}
 
