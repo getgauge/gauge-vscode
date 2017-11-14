@@ -14,7 +14,7 @@ suite('Output Channel', () => {
 			this.text = value;
 		}
 		clear(): void {
-			throw new Error("Method not implemented.");
+			this.text='';
 		}
 		show(preserveFocus?: boolean): void;
 		show(column?: vscode.ViewColumn, preserveFocus?: boolean): void;
