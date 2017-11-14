@@ -8,7 +8,7 @@ suite('Output Channel', () => {
 		name: string;
 		text: string;
 		append(value: string): void {
-			throw new Error("Method not implemented.");
+			this.text += value;
 		}
 		appendLine(value: string): void {
 			this.text = value;
@@ -18,15 +18,9 @@ suite('Output Channel', () => {
 		}
 		show(preserveFocus?: boolean): void;
 		show(column?: vscode.ViewColumn, preserveFocus?: boolean): void;
-		show(column?: any, preserveFocus?: any) {
-			throw new Error("Method not implemented.");
-		}
-		hide(): void {
-			throw new Error("Method not implemented.");
-		}
-		dispose(): void {
-			throw new Error("Method not implemented.");
-		}
+		show(column?: any, preserveFocus?: any) {};
+		hide(): void {};
+		dispose(): void {};
 
 		read() : string {
 			return this.text;
