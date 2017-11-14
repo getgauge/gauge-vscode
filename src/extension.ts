@@ -3,7 +3,7 @@
 import * as path from 'path';
 
 import { workspace, Disposable, ExtensionContext, Uri } from 'vscode';
-import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn } from 'vscode-languageclient';
+import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn, CancellationToken } from 'vscode-languageclient';
 import vscode = require('vscode');
 import fs = require('fs');
 import cp = require('child_process');
@@ -43,10 +43,12 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, true) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.failed', () => { execute(null, { rerunFailed: true }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => { copyPaste.copy(code); }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', (uri: string, position: LSPosition, locations: LSLocation[]) => {
-        if (locations && locations.length > 0) {
-            vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', (uri: string, position: LSPosition, stepValue: string, count: number) => {
+        if (count > 0) {
+            languageClient.sendRequest("gauge/stepReferences", stepValue, new vscode.CancellationTokenSource().token).then((locations: LSLocation[]) => {
+                vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
                 locations.map(languageClient.protocol2CodeConverter.asLocation))
+            });
         }
     }));
     context.subscriptions.push(onConfigurationChange());
