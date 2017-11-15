@@ -54,17 +54,22 @@
       },
       {
         "command": "gauge.execute.specification.all",
-        "title": "Run All Apecification",
+        "title": "Run All Specifications",
         "category": "Gauge"
       },
       {
-        "command": "gauge.execute.scenario",
+        "command": "gauge.execute.scenario.atCursor",
         "title": "Run Scenario At Cursor",
         "category": "Gauge"
       },
       {
         "command": "gauge.execute.scenarios",
         "title": "Run Scenario",
+        "category": "Gauge"
+      },
+      {
+        "command": "gauge.help.reportIssue",
+        "title": "Report Issue",
         "category": "Gauge"
       }
     ],
@@ -82,7 +87,7 @@
           "default": [
             "specs"
           ],
-          "description": "List of specification dirs."
+          "description": "List of specification directories."
         }
       }
     },

@@ -2,8 +2,8 @@
 
 import * as path from 'path';
 
-import { workspace, Disposable, ExtensionContext, Uri } from 'vscode';
-import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn, CancellationToken } from 'vscode-languageclient';
+import { workspace, Disposable, ExtensionContext, Uri, extensions } from 'vscode';
+import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn } from 'vscode-languageclient';
 import vscode = require('vscode');
 import fs = require('fs');
 import cp = require('child_process');
@@ -16,7 +16,8 @@ const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
 let launchConfig;
 
 export function activate(context: ExtensionContext) {
-    if (cp.spawnSync('gauge', []).error) {
+    let gaugeVersion = cp.spawnSync('gauge', ['-v']);
+    if (gaugeVersion.error) {
         vscode.window.showWarningMessage("Cannot find 'gauge' executable in PATH.", 'Install').then(selected => {
             if (selected === 'Install') {
                 opn('https://getgauge.io/get-started.html');
@@ -39,26 +40,17 @@ export function activate(context: ExtensionContext) {
     };
     let languageClient = new LanguageClient('Gauge', serverOptions, clientOptions);
     let disposable = languageClient.start();
+
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.failed', () => { return execute(null, { rerunFailed: true }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.specification', () => { return runSpecification() }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.specification.all', () => { return runSpecification(true) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenario', () => { return runScenario(languageClient, true) }));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenario.atCursor', () => { return runScenario(languageClient, true) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenarios', () => { return runScenario(languageClient, false) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => { copyPaste.copy(code); }));
-<<<<<<< HEAD
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', (uri: string, position: LSPosition, stepValue: string, count: number) => {
-        if (count > 0) {
-            languageClient.sendRequest("gauge/stepReferences", stepValue, new vscode.CancellationTokenSource().token).then((locations: LSLocation[]) => {
-                vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
-                locations.map(languageClient.protocol2CodeConverter.asLocation))
-            });
-        }
-    }));
-=======
     context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showReferences(languageClient)));
->>>>>>> Added global command to run scenarios from command pellate #24
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion); }));
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(disposable);
 
@@ -70,14 +62,28 @@ export function activate(context: ExtensionContext) {
     }
 }
 
+function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
+    let extVersion = extensions.getExtension("getgauge.gauge").packageJSON.version;
+    let issueTemplate = `\`\`\`
+VS-Code version: ${vscode.version}
+Gauge Extension Version: ${extVersion}
+${gaugeVersion.stdout.toString()}
+\`\`\``;
+
+    return opn(`https://github.com/getgauge/gauge-vscode/issues/new?body=${issueTemplate}`).then(() => { }, (err) => {
+        vscode.window.showErrorMessage("Can't open issue URL. " + err);
+    });
+}
 
 function showReferences(languageClient: LanguageClient): any {
-    return (uri: string, position: LSPosition, locations: LSLocation[]) => {
-        if (locations && locations.length > 0) {
-            vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
-                locations.map(languageClient.protocol2CodeConverter.asLocation));
+    return (uri: string, position: LSPosition, stepValue: string, count: number) => {
+        if (count > 0) {
+            languageClient.sendRequest("gauge/stepReferences", stepValue, new vscode.CancellationTokenSource().token).then((locations: LSLocation[]) => {
+                vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
+                    locations.map(languageClient.protocol2CodeConverter.asLocation))
+            });
         }
-    }
+    };
 }
 
 function onConfigurationChange() {

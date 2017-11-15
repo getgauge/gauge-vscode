@@ -42,15 +42,13 @@ export function runSpecification(all?: boolean): Thenable<any> {
 	if (all) {
 		let dirs = vscode.workspace.getConfiguration(GAUGE_EXECUTION_CONFIG).get<Array<string>>("specDirs");
 		return execute(dirs.join(" "), { inParallel: false });
-	} else {
-		let spec = vscode.window.activeTextEditor.document.fileName;
-		if (!extensions.includes(path.extname(spec))) {
-			vscode.window.showWarningMessage(`${spec} is not a valid specifcation.`);
-			return Promise.reject(new Error(`${spec} is not a valid specifcation.`));
-		} else {
-			return execute(spec, { inParallel: false });
-		}
 	}
+	let spec = vscode.window.activeTextEditor.document.fileName;
+	if (!extensions.includes(path.extname(spec))) {
+		vscode.window.showWarningMessage(`${spec} is not a valid specifcation.`);
+		return Promise.reject(new Error(`${spec} is not a valid specifcation.`));
+	}
+	return execute(spec, { inParallel: false });
 };
 
 export function runScenario(languageClient: LanguageClient, atCusrsor: boolean): Thenable<any> {
@@ -58,18 +56,16 @@ export function runScenario(languageClient: LanguageClient, atCusrsor: boolean):
 	if (!extensions.includes(path.extname(spec))) {
 		vscode.window.showWarningMessage(`${spec} is not a valid specifcation.`);
 		return Promise.reject(new Error(`${spec} is not a valid specifcation.`));
-	} else {
-		return getAllScenarios(languageClient, atCusrsor).then((scenarios: any): Thenable<any> => {
-			if (atCusrsor) {
-				return executeAtCursor(scenarios);
-			} else {
-				return executeOptedScenario(scenarios);
-			}
-		}, (reason: any) => {
-			vscode.window.showErrorMessage(`found some problems in ${spec}. Fix all problems before running scenarios.`);
-			return Promise.reject(reason);
-		})
 	}
+	return getAllScenarios(languageClient, atCusrsor).then((scenarios: any): Thenable<any> => {
+		if (atCusrsor) {
+			return executeAtCursor(scenarios);
+		}
+		return executeOptedScenario(scenarios);
+	}, (reason: any) => {
+		vscode.window.showErrorMessage(`found some problems in ${spec}. Fix all problems before running scenarios.`);
+		return Promise.reject(reason);
+	});
 };
 
 function getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Thenable<any> {
@@ -102,7 +98,6 @@ function executeOptedScenario(scenarios: any): Thenable<any> {
 function executeAtCursor(scenarios: any): Thenable<any> {
 	if (scenarios instanceof Array) {
 		return executeOptedScenario(scenarios);
-	} else {
-		return execute(scenarios.executionIdentifier, { inParallel: false });
 	}
+	return execute(scenarios.executionIdentifier, { inParallel: false });
 }
