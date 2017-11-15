@@ -48,13 +48,13 @@ suite('Gauge Execution Tests', () => {
 		}, errorHandler(done));
 	}).timeout(10000);
 
-	test('should execute scenarios', (done) => {
+	test('should execute scenario at cursor', (done) => {
 		let specFile = vscode.Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
 		vscode.window.showTextDocument(specFile).then((editor) => {
 			vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup").then(() => {
 				let cm = { to: 'down', by: 'line', value: 8 };
 				vscode.commands.executeCommand("cursorMove", cm).then(() => {
-					vscode.commands.executeCommand('gauge.execute.scenario').then(statusHandler(done), errorHandler(done));
+					vscode.commands.executeCommand('gauge.execute.scenario.atCursor').then(statusHandler(done), errorHandler(done));
 				}, errorHandler(done));
 			}, errorHandler(done));
 		}, errorHandler(done));

@@ -13,13 +13,29 @@ This extension adds language support for the Gauge projects, including:
 ![Formatting preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/format.gif)
 * Diagnostics - parse errors
 ![Diagnostics preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/diagnostics.gif)
-* Run specifications and scenarios
+* Run specifications and scenarios using codeLens
 ![Execution preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/execute.gif)
+
+* Run all specifications from command palette
+
+	Execute command `Gauge: Run All Specification` to run all the specification in `specs` (default) directory. Use `gauge.execution.specDirs` configuration to add or remove spec directories.
+
+* Run specification from command palette
+
+	Execute command `Gauge: Run Specification` to run the current open specification.
+
+* Run scenarios from command palette
+
+	Execute command `Gauge: Run Scenarios` to choose a scenario form current specification and run.
+* Run scenario at cursor from command palette
+
+	Execute command `Gauge: Run Scenario At Cursor` to the scenario at cursor. It will ask to choose a scenario If cursor is not in scenario context.
+
 * Snippets for specification, scenarios and tables.
 
 ## Configuration
 * `gauge.launch.enableDebugLogs` :  Starts gauge lsp server with log-level `debug`. Defaults to `false`.
-
+* `gauge.execution.specDirs` : List of specification directories which can be run by executing `Gauge: Run All Specifications` from command palette.
 ## Install from source
 
 ```shell
@@ -38,7 +54,7 @@ Nightly version of vscode is available in bintray. To install a nightly version,
 ## Troubleshooting
 
 - Files not associated with Gauge.
-If gauge features are not listed, the gauge extension may not be activated. The `.spec` and `.cpt` files may be associated with a different langauge. To fix this, you can add this to [user settings](https://code.visualstudio.com/docs/getstarted/settings).
+If gauge features are not listed, the gauge extension may not be activated. The `.spec` and `.cpt` files may be associated with a different language. To fix this, you can add this to [user settings](https://code.visualstudio.com/docs/getstarted/settings).
 ```
 "files.associations": {
 	"*.spec": "markdown",
