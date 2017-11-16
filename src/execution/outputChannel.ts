@@ -1,4 +1,4 @@
-'use trict'
+'use strict'
 
 import * as vscode from 'vscode';
 import { LineBuffer } from './lineBuffer';
