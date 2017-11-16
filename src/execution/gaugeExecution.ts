@@ -45,20 +45,20 @@ export function runSpecification(all?: boolean): Thenable<any> {
 	}
 	let spec = vscode.window.activeTextEditor.document.fileName;
 	if (!extensions.includes(path.extname(spec))) {
-		vscode.window.showWarningMessage(`${spec} is not a valid specifcation.`);
-		return Promise.reject(new Error(`${spec} is not a valid specifcation.`));
+		vscode.window.showWarningMessage(`${spec} is not a valid specification.`);
+		return Promise.reject(new Error(`${spec} is not a valid specification.`));
 	}
 	return execute(spec, { inParallel: false });
 };
 
-export function runScenario(languageClient: LanguageClient, atCusrsor: boolean): Thenable<any> {
+export function runScenario(languageClient: LanguageClient, atCursor: boolean): Thenable<any> {
 	let spec = vscode.window.activeTextEditor.document.fileName;
 	if (!extensions.includes(path.extname(spec))) {
-		vscode.window.showWarningMessage(`${spec} is not a valid specifcation.`);
-		return Promise.reject(new Error(`${spec} is not a valid specifcation.`));
+		vscode.window.showWarningMessage(`${spec} is not a valid specification.`);
+		return Promise.reject(new Error(`${spec} is not a valid specification.`));
 	}
-	return getAllScenarios(languageClient, atCusrsor).then((scenarios: any): Thenable<any> => {
-		if (atCusrsor) {
+	return getAllScenarios(languageClient, atCursor).then((scenarios: any): Thenable<any> => {
+		if (atCursor) {
 			return executeAtCursor(scenarios);
 		}
 		return executeOptedScenario(scenarios);
