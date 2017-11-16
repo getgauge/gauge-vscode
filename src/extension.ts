@@ -49,7 +49,10 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.specification.all', () => { return runSpecification(true) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenario.atCursor', () => { return runScenario(languageClient, true) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenarios', () => { return runScenario(languageClient, false) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => { copyPaste.copy(code); }));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => {
+        copyPaste.copy(code);
+        vscode.window.showInformationMessage("Step Implementation copied to clipboard");
+     }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showReferences(languageClient)));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion); }));
     context.subscriptions.push(onConfigurationChange());
