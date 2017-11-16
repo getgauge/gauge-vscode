@@ -4,6 +4,7 @@ import * as path from 'path';
 
 import { workspace, Disposable, ExtensionContext, Uri, extensions } from 'vscode';
 import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn } from 'vscode-languageclient';
+import { escape } from "querystring";
 import vscode = require('vscode');
 import fs = require('fs');
 import cp = require('child_process');
@@ -67,10 +68,11 @@ function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
     let issueTemplate = `\`\`\`
 VS-Code version: ${vscode.version}
 Gauge Extension Version: ${extVersion}
+
 ${gaugeVersion.stdout.toString()}
 \`\`\``;
 
-    return opn(`https://github.com/getgauge/gauge-vscode/issues/new?body=${issueTemplate}`).then(() => { }, (err) => {
+    return opn(`https://github.com/getgauge/gauge-vscode/issues/new?body=${escape(issueTemplate)}`).then(() => { }, (err) => {
         vscode.window.showErrorMessage("Can't open issue URL. " + err);
     });
 }
