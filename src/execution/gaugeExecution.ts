@@ -13,6 +13,7 @@ const run = 'run';
 const parallel = '--parallel';
 const simpleConsole = '--simple-console';
 const rerunFailed = '--failed';
+const repeat = '--repeat';
 const hideSuggestion = '--hide-suggestion';
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -34,6 +35,9 @@ function getArgs(spec, config): Array<string> {
 	if (config.rerunFailed) {
 		return [run, rerunFailed];
 	}
+	if (config.repeat) {
+		return [run, repeat];
+	}
 	return (!config.inParallel) ? [run, spec, simpleConsole, hideSuggestion] : [run, parallel, spec, hideSuggestion];
 }
 
@@ -45,8 +49,8 @@ export function runSpecification(all?: boolean): Thenable<any> {
 	}
 	let spec = vscode.window.activeTextEditor.document.fileName;
 	if (!extensions.includes(path.extname(spec))) {
-		vscode.window.showWarningMessage(`${spec} is not a valid specification.`);
-		return Promise.reject(new Error(`${spec} is not a valid specification.`));
+		vscode.window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
+		return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
 	}
 	return execute(spec, { inParallel: false });
 };
@@ -54,8 +58,8 @@ export function runSpecification(all?: boolean): Thenable<any> {
 export function runScenario(languageClient: LanguageClient, atCursor: boolean): Thenable<any> {
 	let spec = vscode.window.activeTextEditor.document.fileName;
 	if (!extensions.includes(path.extname(spec))) {
-		vscode.window.showWarningMessage(`${spec} is not a valid specification.`);
-		return Promise.reject(new Error(`${spec} is not a valid specification.`));
+		vscode.window.showWarningMessage(`No scenario(s) found. Current file is not a gauge specification.`);
+		return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
 	}
 	return getAllScenarios(languageClient, atCursor).then((scenarios: any): Thenable<any> => {
 		if (atCursor) {
@@ -79,8 +83,8 @@ function getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Th
 	return languageClient.sendRequest("gauge/scenarios", params, new vscode.CancellationTokenSource().token);
 }
 
-function getQuickPickItems(scenHeadings: Array<any>) {
-	return scenHeadings.map((sh) => {
+function getQuickPickItems(sceHeadings: Array<any>) {
+	return sceHeadings.map((sh) => {
 		return { label: sh, detail: 'Scenario' };
 	});
 }

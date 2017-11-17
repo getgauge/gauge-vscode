@@ -48,6 +48,11 @@
         "category": "Gauge"
       },
       {
+        "command": "gauge.execute.repeat",
+        "title": "Repeat Last Run",
+        "category": "Gauge"
+      },
+      {
         "command": "gauge.execute.specification",
         "title": "Run Specification",
         "category": "Gauge"
@@ -58,8 +63,8 @@
         "category": "Gauge"
       },
       {
-        "command": "gauge.execute.scenario.atCursor",
-        "title": "Run Scenario At Cursor",
+        "command": "gauge.execute.scenario",
+        "title": "Run Scenario",
         "category": "Gauge"
       },
       {
