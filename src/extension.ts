@@ -11,6 +11,7 @@ import cp = require('child_process');
 import opn = require('opn');
 import copyPaste = require('copy-paste');
 import { execute, runScenario, runSpecification } from "./execution/gaugeExecution";
+import { SpecNodeProvider } from './explorer/specExplorer'
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -29,6 +30,7 @@ export function activate(context: ExtensionContext) {
         });
         return
     }
+
     let serverOptions = {
         command: 'gauge',
         args: ["daemon", "--lsp", "--dir=" + vscode.workspace.rootPath],
@@ -65,6 +67,9 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion) }));
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(disposable);
+
+    const specNodeProvider = new SpecNodeProvider(vscode.workspace.rootPath);
+    vscode.window.registerTreeDataProvider('gaugeSpecs', specNodeProvider);
 }
 
 function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
