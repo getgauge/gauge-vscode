@@ -54,7 +54,7 @@ suite('Gauge Execution Tests', () => {
 			vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup").then(() => {
 				let cm = { to: 'down', by: 'line', value: 8 };
 				vscode.commands.executeCommand("cursorMove", cm).then(() => {
-					vscode.commands.executeCommand('gauge.execute.scenario.atCursor').then(statusHandler(done), errorHandler(done));
+					vscode.commands.executeCommand('gauge.execute.scenario').then(statusHandler(done), errorHandler(done));
 				}, errorHandler(done));
 			}, errorHandler(done));
 		}, errorHandler(done));

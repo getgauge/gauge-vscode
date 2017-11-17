@@ -45,9 +45,10 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.failed', () => { return execute(null, { rerunFailed: true }) }));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.repeat', () => { return execute(null, { repeat: true }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.specification', () => { return runSpecification() }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.specification.all', () => { return runSpecification(true) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenario.atCursor', () => { return runScenario(languageClient, true) }));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenario', () => { return runScenario(languageClient, true) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenarios', () => { return runScenario(languageClient, false) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => {
         copyPaste.copy(code);
