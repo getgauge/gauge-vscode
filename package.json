@@ -76,6 +76,11 @@
         "command": "gauge.help.reportIssue",
         "title": "Report Issue",
         "category": "Gauge"
+      },
+      {
+        "command": "gauge.showReferences.atCursor",
+        "title": "Find All Step References",
+        "category": "Gauge"
       }
     ],
     "configuration": {
