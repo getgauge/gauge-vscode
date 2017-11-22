@@ -12,6 +12,7 @@ import opn = require('opn');
 import copyPaste = require('copy-paste');
 import { execute, runScenario, runSpecification } from "./execution/gaugeExecution";
 import { SpecNodeProvider } from './explorer/specExplorer'
+import * as gaugeCommands from './commands'
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -68,8 +69,22 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(disposable);
 
-    const specNodeProvider = new SpecNodeProvider(vscode.workspace.rootPath);
+    const specNodeProvider = new SpecNodeProvider(vscode.workspace.rootPath, languageClient);
     vscode.window.registerTreeDataProvider('gaugeSpecs', specNodeProvider);
+    languageClient.onReady().then(
+        () => {
+            let treeDataProvider =  vscode.window.registerTreeDataProvider(gaugeCommands.GaugeCommandContext.GaugeTestExplorer, new SpecNodeProvider(vscode.workspace.rootPath, languageClient));
+            context.subscriptions.push(treeDataProvider);
+            setTimeout(gaugeCommands.setCommandContext, 1000, gaugeCommands.GaugeCommandContext.Activated, true);
+        }
+    );
+
+    return {
+        extendMarkdownIt(md) {
+            md.options.html = false;
+            return md;
+        }
+    }
 }
 
 function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
@@ -106,7 +121,7 @@ function showStepReferencesAtCursor(languageClient: LanguageClient): () => Thena
 
 function showReferences(locations: LSLocation[], uri: string, languageClient: LanguageClient, position: LSPosition): Thenable<any> {
     if (locations) {
-        return vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
+        return vscode.commands.executeCommand(gaugeCommands.VSCodeCommands.ShowReferences, Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
             locations.map(languageClient.protocol2CodeConverter.asLocation));
     }
     vscode.window.showInformationMessage('No reference found!');
