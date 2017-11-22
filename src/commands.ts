@@ -16,7 +16,7 @@ export enum GaugeCommands {
 	ExecuteSpec = 'gauge.execute.specification',
 	ExecuteAllSpecs = 'gauge.execute.specification.all',
 	ExecuteScenarioAtCursor = 'gauge.execute.scenario.atCursor',
-	ExecuteScenarios = 'gauge.execute.scenarios',
+	ExecuteScenario = 'gauge.execute.scenarios',
 	CopyStub = 'gauge.copy.unimplemented.stub',
 	ShowReferences = 'gauge.showReferences',
 	ShowReferencesAtCursor = 'gauge.showReferences.atCursor',
@@ -28,7 +28,7 @@ export enum GaugeCommands {
 export enum GaugeCommandContext {
 	Enabled = 'gauge:enabled',
 	Activated = 'gauge:activated',
-    GaugeTestExplorer = 'gauge:testExplorer',
+    GaugeSpecExplorer = 'gauge:specExplorer',
 }
 
 export function setCommandContext(key: GaugeCommandContext | string, value: any) {

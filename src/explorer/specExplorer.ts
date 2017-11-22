@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
+import { GaugeCommands } from '../commands';
 
 export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 
@@ -57,7 +58,7 @@ export abstract class GaugeNode extends vscode.TreeItem{
 	) {
 		super(label, vscode.TreeItemCollapsibleState.Collapsed);
 	}
-	command = {title:'Open File', command: 'gauge.open', arguments: [this]}
+	command = {title:'Open File', command: GaugeCommands.Open, arguments: [this]}
 }
 
 class Spec extends GaugeNode {
@@ -82,10 +83,12 @@ export class Scenario extends GaugeNode {
 	constructor(
 		public readonly label: string,
 		public readonly file: string,
-		public readonly lineNo: number
+		public readonly lineNo: number,
 	) {
 		super(label, vscode.TreeItemCollapsibleState.None, file);
 	}
+
+	readonly executionIdentifier = this.file + ":" + this.lineNo;
 
 	iconPath = {
 		light: path.join(__filename, '..', '..', '..', '..', 'resources', 'light', 'document.svg'),
