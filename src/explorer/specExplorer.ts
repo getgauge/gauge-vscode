@@ -30,7 +30,10 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 				let uri = TextDocumentIdentifier.create(element.file);
 				return this.languageClient.sendRequest("gauge/scenarios", { textDocument: uri, position: new vscode.Position(1,1) }, new vscode.CancellationTokenSource().token).then(
 					(val: any[]) => {
-						resolve(val.map(x => new Scenario(x.heading, x.executionIdentifier)));
+						resolve(val.map(x => {
+							var specFile = x.executionIdentifier.split(":" + x.lineNo)[0];
+							return new Scenario(x.heading, specFile, x.lineNo);
+						}));
 					},
 					(reason) => {console.log(reason);reject(reason)}
 				);
@@ -46,7 +49,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 }
 
 
-abstract class GaugeNode extends vscode.TreeItem{
+export abstract class GaugeNode extends vscode.TreeItem{
 	constructor(
 		public readonly label: string,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
@@ -54,8 +57,9 @@ abstract class GaugeNode extends vscode.TreeItem{
 	) {
 		super(label, vscode.TreeItemCollapsibleState.Collapsed);
 	}
-	command= {title:'Open File', command: 'vscode.window.showTextDocument', args: {uri: this.file}}
+	command = {title:'Open File', command: 'gauge.open', arguments: [this]}
 }
+
 class Spec extends GaugeNode {
 
 	constructor(
@@ -71,15 +75,14 @@ class Spec extends GaugeNode {
 	};
 
 	contextValue = 'specification';
-
-	command= {title:'Open File', command: 'vscode.window.open', args: {uri: this.file}}
 }
 
-class Scenario extends GaugeNode {
+export class Scenario extends GaugeNode {
 
 	constructor(
 		public readonly label: string,
-		public readonly file: string
+		public readonly file: string,
+		public readonly lineNo: number
 	) {
 		super(label, vscode.TreeItemCollapsibleState.None, file);
 	}
@@ -90,6 +93,4 @@ class Scenario extends GaugeNode {
 	};
 
 	contextValue = 'scenario';
-
-	command= {title:'Open File', command: 'vscode.window.showTextDocument', args: {uri: this.file}}
 }
