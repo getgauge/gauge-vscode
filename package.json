@@ -29,8 +29,9 @@
     "views": {
       "explorer": [
         {
-          "id": "gaugeSpecs",
-          "name": "Gauge Specs"
+          "id": "gauge:testExplorer",
+          "name": "Gauge Specs",
+          "when": "gauge:activated"
         }
       ]
     },

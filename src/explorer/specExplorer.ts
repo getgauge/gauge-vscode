@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 
 export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 
 	private _onDidChangeTreeData: vscode.EventEmitter<Spec | undefined> = new vscode.EventEmitter<Spec | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<Spec | undefined> = this._onDidChangeTreeData.event;
 
-	constructor(private workspaceRoot: string) {
+	constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
 	}
 
 	refresh(): void {
@@ -24,17 +25,21 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 			return Promise.resolve([]);
 		}
 
-		return new Promise(resolve => {
+		return new Promise((resolve,reject) => {
 			if (element && element.contextValue==="specification") {
-				resolve([
-					new Scenario(element.label+"scn1", ""),
-					new Scenario(element.label+"scn1", "")
-				]);
+				let uri = TextDocumentIdentifier.create(element.file);
+				return this.languageClient.sendRequest("gauge/scenarios", { textDocument: uri, position: new vscode.Position(1,1) }, new vscode.CancellationTokenSource().token).then(
+					(val: any[]) => {
+						resolve(val.map(x => new Scenario(x.heading, x.executionIdentifier)));
+					},
+					(reason) => {console.log(reason);reject(reason)}
+				);
 			} else {
-				resolve([
-					new Spec("foo", ""),
-					new Spec("bar", "")
-				]);
+				return this.languageClient.sendRequest("gauge/specs", {}, new vscode.CancellationTokenSource().token).then(
+					(val: any[]) => {
+						resolve(val.map(x => new Spec(x.heading, x.executionIdentifier)));
+					}
+				);
 			}
 		});
 	}
@@ -66,6 +71,8 @@ class Spec extends GaugeNode {
 	};
 
 	contextValue = 'specification';
+
+	command= {title:'Open File', command: 'vscode.window.open', args: {uri: this.file}}
 }
 
 class Scenario extends GaugeNode {
@@ -83,4 +90,6 @@ class Scenario extends GaugeNode {
 	};
 
 	contextValue = 'scenario';
+
+	command= {title:'Open File', command: 'vscode.window.showTextDocument', args: {uri: this.file}}
 }
