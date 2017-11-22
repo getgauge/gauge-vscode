@@ -69,7 +69,7 @@
       },
       {
         "command": "gauge.execute.scenarios",
-        "title": "Run Scenario",
+        "title": "Run Scenarios",
         "category": "Gauge"
       },
       {
