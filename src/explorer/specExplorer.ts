@@ -1,3 +1,5 @@
+'use strict';
+
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -6,14 +8,14 @@ import { GaugeCommands } from '../commands';
 
 export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 
-	private _onDidChangeTreeData: vscode.EventEmitter<Spec | undefined> = new vscode.EventEmitter<Spec | undefined>();
-	readonly onDidChangeTreeData: vscode.Event<Spec | undefined> = this._onDidChangeTreeData.event;
+	private _onDidChangeTreeData: vscode.EventEmitter<GaugeNode | undefined> = new vscode.EventEmitter<GaugeNode | undefined>();
+	readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
 	constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
 	}
 
-	refresh(): void {
-		this._onDidChangeTreeData.fire();
+	refresh(element? : GaugeNode): void {
+		this._onDidChangeTreeData.fire(element);
 	}
 
 	getTreeItem(element: GaugeNode): vscode.TreeItem {
