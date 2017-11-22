@@ -29,7 +29,7 @@
     "views": {
       "explorer": [
         {
-          "id": "gauge:testExplorer",
+          "id": "gauge:specExplorer",
           "name": "Gauge Specs",
           "when": "gauge:activated"
         }
@@ -113,21 +113,27 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "gauge.specexplorer.refresh",
+          "when": "1 == 2"
+        }
+      ],
       "view/title": [
         {
           "command": "gauge.specexplorer.refresh",
-          "when": "view == gaugeSpecs",
+          "when": "view == gauge:specExplorer",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
           "command": "gauge.execute.specification",
-          "when": "view == gaugeSpecs && viewItem == specification"
+          "when": "view == gauge:specExplorer && viewItem == specification"
         },
         {
           "command": "gauge.execute.scenarios",
-          "when": "view == gaugeSpecs && viewItem == scenario"
+          "when": "view == gauge:specExplorer && viewItem == scenario"
         }
       ]
     },

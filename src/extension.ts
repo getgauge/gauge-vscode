@@ -58,7 +58,12 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteSpec, () => { return runSpecification() }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteAllSpecs, () => { return runSpecification(true) }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenarioAtCursor, () => { return runScenario(languageClient, true) }));
-    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenarios, () => { return runScenario(languageClient, false) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenario, (scn: Scenario) => {
+        if(scn){
+            return execute(scn.executionIdentifier, {inParallel: false})
+        }
+        return runScenario(languageClient, false)
+    }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.CopyStub, (code: string) => {
         copyPaste.copy(code);
         vscode.window.showInformationMessage("Step Implementation copied to clipboard");
@@ -88,19 +93,12 @@ export function activate(context: ExtensionContext) {
     languageClient.onReady().then(
         () => {
             let provider = new SpecNodeProvider(vscode.workspace.rootPath, languageClient);
-            let treeDataProvider =  vscode.window.registerTreeDataProvider(GaugeCommandContext.GaugeTestExplorer, provider);
+            let treeDataProvider =  vscode.window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
             context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.RefreshExplorer, () => provider.refresh()));
             context.subscriptions.push(treeDataProvider);
             setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
         }
     );
-
-    return {
-        extendMarkdownIt(md) {
-            md.options.html = false;
-            return md;
-        }
-    }
 }
 
 function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
