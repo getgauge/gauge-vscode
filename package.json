@@ -103,8 +103,8 @@
         "category": "Gauge"
       },
       {
-        "command": "gauge.execute",
-        "title": "Run All",
+        "command": "gauge.specexplorer.refresh",
+        "title": "Refresh Explorer",
         "category": "Gauge",
         "icon": {
           "light": "resources/light/refresh.svg",
@@ -115,7 +115,7 @@
     "menus": {
       "view/title": [
         {
-          "command": "gauge.execute.specification.all",
+          "command": "gauge.specexplorer.refresh",
           "when": "view == gaugeSpecs",
           "group": "navigation"
         }
