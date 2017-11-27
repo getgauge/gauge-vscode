@@ -55,7 +55,7 @@ export function activate(context: ExtensionContext) {
         vscode.window.showInformationMessage("Step Implementation copied to clipboard");
     }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences.atCursor', showStepReferencesAtCursor(languageClient)));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showCodeLensReferences(languageClient)));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showStepReferences(languageClient)));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion) }));
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(disposable);
@@ -82,7 +82,7 @@ ${gaugeVersion.stdout.toString()}
     });
 }
 
-function showCodeLensReferences(languageClient: LanguageClient): (uri: string, position: LSPosition, stepValue: string) => Thenable<any> {
+function showStepReferences(languageClient: LanguageClient): (uri: string, position: LSPosition, stepValue: string) => Thenable<any> {
     return (uri: string, position: LSPosition, stepValue: string) => {
         return languageClient.sendRequest("gauge/stepReferences", stepValue, new vscode.CancellationTokenSource().token).then((locations: LSLocation[]) => {
             return showReferences(locations, uri, languageClient, position);
@@ -95,7 +95,7 @@ function showStepReferencesAtCursor(languageClient: LanguageClient): () => Thena
         let position = vscode.window.activeTextEditor.selection.active;
         let documentId = TextDocumentIdentifier.create(vscode.window.activeTextEditor.document.uri.toString());
         return languageClient.sendRequest("gauge/stepValueAt", { textDocument: documentId, position: position }, new vscode.CancellationTokenSource().token).then((stepValue: string) => {
-            return showCodeLensReferences(languageClient)(documentId.uri, position, stepValue);
+            return showStepReferences(languageClient)(documentId.uri, position, stepValue);
         });
     }
 }
