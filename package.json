@@ -11,7 +11,7 @@
   "version": "0.0.3",
   "publisher": "getgauge",
   "engines": {
-    "vscode": "^1.15.1"
+    "vscode": "^1.18.1"
   },
   "categories": [
     "Languages"
@@ -28,7 +28,7 @@
   "contributes": {
     "languages": [
       {
-        "id": "markdown",
+        "id": "gauge",
         "extensions": [
           ".spec",
           ".cpt"
@@ -39,6 +39,13 @@
           "Spec"
         ],
         "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "gauge",
+        "scopeName": "text.html.markdown",
+        "path": "./syntaxes/markdown.tmLanguage"
       }
     ],
     "commands": [
@@ -98,11 +105,10 @@
     },
     "snippets": [
       {
-        "language": "markdown",
+        "language": "gauge",
         "path": "./snippets/gauge.json"
       }
-    ],
-    "markdown.markdownItPlugins": true
+    ]
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
