@@ -119,10 +119,8 @@ function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion:
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
 
-    // First time installation
     if (gaugeVsCodePreviousVersion === undefined) return;
 
-    // Not applicable for same version
     if (gaugeVsCodePreviousVersion === latestVersion) return;
 
     showUpdateMessage(latestVersion);
