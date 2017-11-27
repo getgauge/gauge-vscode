@@ -14,6 +14,13 @@ import { execute, runScenario, runSpecification } from "./execution/gaugeExecuti
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
+
+//Extension Id for the Gauge VsCode Plugin
+const GAUGE_EXTENSION_ID = 'getgauge.gauge';
+
+//Storing the Latest Gauge VsCode Plugin version in globalState under this name
+const GAUGE_VSCODE_VERSION = 'gaugeVsCodeVersion';
+
 let launchConfig;
 
 export function activate(context: ExtensionContext) {
@@ -42,6 +49,10 @@ export function activate(context: ExtensionContext) {
     let languageClient = new LanguageClient('Gauge', serverOptions, clientOptions);
     let disposable = languageClient.start();
 
+    const gauge = extensions.getExtension(GAUGE_EXTENSION_ID)!;
+    const gaugeVsCodeLatestVersion = gauge.packageJSON.version;
+    notifyOnNewGaugeVsCodeVersion(context, gaugeVsCodeLatestVersion);
+
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.failed', () => { return execute(null, { rerunFailed: true }) }));
@@ -53,7 +64,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => {
         copyPaste.copy(code);
         vscode.window.showInformationMessage("Step Implementation copied to clipboard");
-     }));
+    }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showReferences(languageClient)));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion); }));
     context.subscriptions.push(onConfigurationChange());
@@ -106,4 +117,41 @@ function onConfigurationChange() {
             });
         }
     });
+}
+
+/**
+ * Notifies user when Gauge VsCode Plugin updates.
+ *
+ * The functionality is to give users an option to see release notes when
+ * the version of the plugin changes irrespective of an upgrade or downgrade
+ *
+ * @param context ExtensionContext from activation
+ * @param latestVersion Latest Version of the plugin
+ * @return {void}
+ */
+function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string) {
+    const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
+
+    // First time installation
+    if (gaugeVsCodePreviousVersion === undefined) return;
+
+    // Not applicable for same version
+    if (gaugeVsCodePreviousVersion === latestVersion) return;
+
+    showUpdateMessage(latestVersion);
+    context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
+}
+
+/**
+ * Opens actionable button for browser link to release notes for given plugin version.
+ * @param version version of the gauge vscode plugin
+ * @return {void}
+ */
+function showUpdateMessage(version: string) {
+    vscode.window.showWarningMessage("Gauge updated to version " + version, 'Show Release Notes').then(selected => {
+        if (selected === 'Show Release Notes') {
+            opn('https://github.com/getgauge/gauge-vscode/releases/tag/v' + version);
+        }
+    });
+    return
 }
