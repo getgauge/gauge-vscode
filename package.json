@@ -79,7 +79,7 @@
       },
       {
         "command": "gauge.showReferences.atCursor",
-        "title": "Find All Step References",
+        "title": "Find Step References",
         "category": "Gauge"
       }
     ],
