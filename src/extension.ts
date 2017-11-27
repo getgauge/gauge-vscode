@@ -2,8 +2,8 @@
 
 import * as path from 'path';
 
-import { workspace, Disposable, ExtensionContext, Uri, extensions } from 'vscode';
-import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn } from 'vscode-languageclient';
+import { workspace, Disposable, ExtensionContext, Uri, extensions, commands } from 'vscode';
+import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn, TextDocumentIdentifier } from 'vscode-languageclient';
 import { escape } from "querystring";
 import vscode = require('vscode');
 import fs = require('fs');
@@ -39,7 +39,7 @@ export function activate(context: ExtensionContext) {
         serverOptions.args.push("debug")
     };
     let clientOptions = {
-        documentSelector: ['markdown'],
+        documentSelector: ['gauge'],
         revealOutputChannelOn: RevealOutputChannelOn.Never,
     };
     let languageClient = new LanguageClient('Gauge', serverOptions, clientOptions);
@@ -61,17 +61,12 @@ export function activate(context: ExtensionContext) {
         copyPaste.copy(code);
         vscode.window.showInformationMessage("Step Implementation copied to clipboard");
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showReferences(languageClient)));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion); }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences.atCursor', showStepReferencesAtCursor(languageClient)));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showStepReferences(languageClient)));
+    context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion) }));
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(disposable);
-
-    return {
-        extendMarkdownIt(md) {
-            md.options.html = false;
-            return md;
-        }
-    }
 }
 
 function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
@@ -88,15 +83,31 @@ ${gaugeVersion.stdout.toString()}
     });
 }
 
-function showReferences(languageClient: LanguageClient): any {
-    return (uri: string, position: LSPosition, stepValue: string, count: number) => {
-        if (count > 0) {
-            languageClient.sendRequest("gauge/stepReferences", stepValue, new vscode.CancellationTokenSource().token).then((locations: LSLocation[]) => {
-                vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
-                    locations.map(languageClient.protocol2CodeConverter.asLocation))
-            });
-        }
+function showStepReferences(languageClient: LanguageClient): (uri: string, position: LSPosition, stepValue: string) => Thenable<any> {
+    return (uri: string, position: LSPosition, stepValue: string) => {
+        return languageClient.sendRequest("gauge/stepReferences", stepValue, new vscode.CancellationTokenSource().token).then((locations: LSLocation[]) => {
+            return showReferences(locations, uri, languageClient, position);
+        });
     };
+}
+
+function showStepReferencesAtCursor(languageClient: LanguageClient): () => Thenable<any> {
+    return (): Thenable<any> => {
+        let position = vscode.window.activeTextEditor.selection.active;
+        let documentId = TextDocumentIdentifier.create(vscode.window.activeTextEditor.document.uri.toString());
+        return languageClient.sendRequest("gauge/stepValueAt", { textDocument: documentId, position: position }, new vscode.CancellationTokenSource().token).then((stepValue: string) => {
+            return showStepReferences(languageClient)(documentId.uri, position, stepValue);
+        });
+    }
+}
+
+function showReferences(locations: LSLocation[], uri: string, languageClient: LanguageClient, position: LSPosition): Thenable<any> {
+    if (locations) {
+        return vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
+            locations.map(languageClient.protocol2CodeConverter.asLocation));
+    }
+    vscode.window.showInformationMessage('No reference found!');
+    return Promise.resolve(false);
 }
 
 function onConfigurationChange() {

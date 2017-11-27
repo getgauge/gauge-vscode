@@ -20,6 +20,7 @@ before_install:
   - export PATH=$PATH:$GAUGE_PREFIX/bin
 install:
   - gauge -v
+  - echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" >> $HOME/.gauge/config/gauge.properties
   - gauge install js
 script:
   - npm run build
