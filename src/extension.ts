@@ -36,7 +36,7 @@ export function activate(context: ExtensionContext) {
         serverOptions.args.push("debug")
     };
     let clientOptions = {
-        documentSelector: ['markdown'],
+        documentSelector: ['gauge'],
         revealOutputChannelOn: RevealOutputChannelOn.Never,
     };
     let languageClient = new LanguageClient('Gauge', serverOptions, clientOptions);
@@ -59,13 +59,6 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion) }));
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(disposable);
-
-    return {
-        extendMarkdownIt(md) {
-            md.options.html = false;
-            return md;
-        }
-    }
 }
 
 function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
