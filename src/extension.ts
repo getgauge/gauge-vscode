@@ -2,7 +2,7 @@
 
 import * as path from 'path';
 
-import { workspace, Disposable, ExtensionContext, Uri, extensions, commands } from 'vscode';
+import { workspace, Disposable, ExtensionContext, Uri, extensions, commands, Memento } from 'vscode';
 import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn, TextDocumentIdentifier } from 'vscode-languageclient';
 import { escape } from "querystring";
 import vscode = require('vscode');
@@ -47,7 +47,8 @@ export function activate(context: ExtensionContext) {
 
     const gauge = extensions.getExtension(GAUGE_EXTENSION_ID)!;
     const gaugeVsCodeLatestVersion = gauge.packageJSON.version;
-    notifyOnNewGaugeVsCodeVersion(context, gaugeVsCodeLatestVersion);
+    var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context.globalState, gaugeVsCodeLatestVersion);
+    if (notifyNewVersion) showUpdateMessage(gaugeVsCodeLatestVersion);
 
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, { inParallel: false }) }));
@@ -126,19 +127,19 @@ function onConfigurationChange() {
     });
 }
 
-function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string) {
-    const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
-    context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
+export function notifyOnNewGaugeVsCodeVersion(globalState: Memento, latestVersion: string): boolean{
+    const gaugeVsCodePreviousVersion = globalState.get<string>(GAUGE_VSCODE_VERSION);
+    globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
 
-    if (gaugeVsCodePreviousVersion === undefined) return;
+    if (gaugeVsCodePreviousVersion === undefined) return false;
 
-    if (gaugeVsCodePreviousVersion === latestVersion) return;
+    if (gaugeVsCodePreviousVersion === latestVersion) return false;
 
-    showUpdateMessage(latestVersion);
+    return true;
 }
 
 function showUpdateMessage(version: string) {
-    vscode.window.showWarningMessage("Gauge updated to version " + version, 'Show Release Notes').then(selected => {
+    vscode.window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes').then(selected => {
         if (selected === 'Show Release Notes') {
             opn('https://github.com/getgauge/gauge-vscode/releases/tag/v' + version);
         }
