@@ -29,11 +29,11 @@ export class OutputChannel {
 	}
 
 	public appendOutBuf(line: string) {
-		let prefixes :string[] = ["Specification: ","at Object.<anonymous> ("]
-		for (var i = 0; i < prefixes.length; i++) {
-			var prefix = prefixes[i];
-			if(line.includes(prefix)){
-				line = line.replace(prefix, prefix + vscode.workspace.rootPath + path.sep)
+		let regexes: RegExp[] = [/Specification: /, /at Object.* \(/];
+		for (var i = 0; i < regexes.length; i++) {
+			let matches = line.match(regexes[i]);
+			if (matches) {
+				line = line.replace(matches[0], matches[0] + vscode.workspace.rootPath + path.sep)
 			}
 		}
 		this.outBuf.append(line);
@@ -51,6 +51,6 @@ export class OutputChannel {
 		} else {
 			this.chan.appendLine('Success: Tests passed.');
 		}
-		resolve(code === 0)
+		resolve(code === 0);
 	}
 }

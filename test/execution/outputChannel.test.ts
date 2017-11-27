@@ -42,4 +42,22 @@ suite('Output Channel', () => {
 		assert.equal(chan.read(), "      at Object.<anonymous> ("+ path.join(vscode.workspace.rootPath,"tests", "step_implementation.js:24:10)"));
 		done();
 	});
+
+	test('should convert implementation path from relative to absolute for lamda methods', (done) => {
+		var chan = new MockVSOutputChannel();
+		var outputChannel = new OutputChannel(chan, "");
+		outputChannel.appendOutBuf("      at Object.step (" + path.join("tests", "step_implementation.js:24:10") +")\n");
+
+		assert.equal(chan.read(), "      at Object.step ("+ path.join(vscode.workspace.rootPath,"tests", "step_implementation.js:24:10)"));
+		done();
+	});
+
+	test('should convert implementation path from relative to absolute for lamda methods in hooks', (done) => {
+		var chan = new MockVSOutputChannel();
+		var outputChannel = new OutputChannel(chan, "");
+		outputChannel.appendOutBuf("      at Object.beforeSpec (" + path.join("tests", "step_implementation.js:24:10") +")\n");
+
+		assert.equal(chan.read(), "      at Object.beforeSpec ("+ path.join(vscode.workspace.rootPath,"tests", "step_implementation.js:24:10)"));
+		done();
+	});
 });
