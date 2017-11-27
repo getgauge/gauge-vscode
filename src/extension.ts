@@ -14,11 +14,7 @@ import { execute, runScenario, runSpecification } from "./execution/gaugeExecuti
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
-
-//Extension Id for the Gauge VsCode Plugin
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
-
-//Storing the Latest Gauge VsCode Plugin version in globalState under this name
 const GAUGE_VSCODE_VERSION = 'gaugeVsCodeVersion';
 
 let launchConfig;
@@ -119,18 +115,9 @@ function onConfigurationChange() {
     });
 }
 
-/**
- * Notifies user when Gauge VsCode Plugin updates.
- *
- * The functionality is to give users an option to see release notes when
- * the version of the plugin changes irrespective of an upgrade or downgrade
- *
- * @param context ExtensionContext from activation
- * @param latestVersion Latest Version of the plugin
- * @return {void}
- */
 function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string) {
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
+    context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
 
     // First time installation
     if (gaugeVsCodePreviousVersion === undefined) return;
@@ -139,14 +126,8 @@ function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion:
     if (gaugeVsCodePreviousVersion === latestVersion) return;
 
     showUpdateMessage(latestVersion);
-    context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
 }
 
-/**
- * Opens actionable button for browser link to release notes for given plugin version.
- * @param version version of the gauge vscode plugin
- * @return {void}
- */
 function showUpdateMessage(version: string) {
     vscode.window.showWarningMessage("Gauge updated to version " + version, 'Show Release Notes').then(selected => {
         if (selected === 'Show Release Notes') {
