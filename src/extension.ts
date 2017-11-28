@@ -14,6 +14,9 @@ import { execute, runScenario, runSpecification } from "./execution/gaugeExecuti
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
+const GAUGE_EXTENSION_ID = 'getgauge.gauge';
+const GAUGE_VSCODE_VERSION = 'gaugeVsCodeVersion';
+
 let launchConfig;
 
 export function activate(context: ExtensionContext) {
@@ -41,6 +44,9 @@ export function activate(context: ExtensionContext) {
     };
     let languageClient = new LanguageClient('Gauge', serverOptions, clientOptions);
     let disposable = languageClient.start();
+
+    var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context,
+        extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
 
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, { inParallel: false }) }));
@@ -116,4 +122,24 @@ function onConfigurationChange() {
             });
         }
     });
+}
+
+function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string) {
+    const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
+    context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
+
+    if (gaugeVsCodePreviousVersion === undefined) return;
+
+    if (gaugeVsCodePreviousVersion === latestVersion) return;
+
+    showUpdateMessage(latestVersion);
+}
+
+function showUpdateMessage(version: string) {
+    vscode.window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes').then(selected => {
+        if (selected === 'Show Release Notes') {
+            opn('https://github.com/getgauge/gauge-vscode/releases/tag/v' + version);
+        }
+    });
+    return
 }
