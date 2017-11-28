@@ -45,10 +45,8 @@ export function activate(context: ExtensionContext) {
     let languageClient = new LanguageClient('Gauge', serverOptions, clientOptions);
     let disposable = languageClient.start();
 
-    const gauge = extensions.getExtension(GAUGE_EXTENSION_ID)!;
-    const gaugeVsCodeLatestVersion = gauge.packageJSON.version;
-    var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context.globalState, gaugeVsCodeLatestVersion);
-    if (notifyNewVersion) showUpdateMessage(gaugeVsCodeLatestVersion);
+    var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context,
+        extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
 
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, { inParallel: false }) }));
@@ -127,15 +125,15 @@ function onConfigurationChange() {
     });
 }
 
-export function notifyOnNewGaugeVsCodeVersion(globalState: Memento, latestVersion: string): boolean{
-    const gaugeVsCodePreviousVersion = globalState.get<string>(GAUGE_VSCODE_VERSION);
-    globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
+export function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string){
+    const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
+    context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
 
-    if (gaugeVsCodePreviousVersion === undefined) return false;
+    if (gaugeVsCodePreviousVersion === undefined) return;
 
-    if (gaugeVsCodePreviousVersion === latestVersion) return false;
+    if (gaugeVsCodePreviousVersion === latestVersion) return;
 
-    return true;
+    showUpdateMessage(latestVersion);
 }
 
 function showUpdateMessage(version: string) {
