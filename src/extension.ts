@@ -60,7 +60,6 @@ export function activate(context: ExtensionContext) {
         copyPaste.copy(code);
         vscode.window.showInformationMessage("Step Implementation copied to clipboard");
     }));
-
     context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences.atCursor', showStepReferencesAtCursor(languageClient)));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showStepReferences(languageClient)));
     context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion) }));
@@ -125,7 +124,7 @@ function onConfigurationChange() {
     });
 }
 
-export function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string){
+function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string) {
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
 
