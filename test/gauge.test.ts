@@ -1,8 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { extensions, ExtensionContext, Memento } from 'vscode'
-import {notifyOnNewGaugeVsCodeVersion} from '../src/extension'
 
 suite('Gauge Extension Tests', () => {
     let testDataPath = path.join(__dirname, '..', '..', 'test', 'testdata', 'sampleProject');

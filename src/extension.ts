@@ -2,7 +2,7 @@
 
 import * as path from 'path';
 
-import { workspace, Disposable, ExtensionContext, Uri, extensions, commands, Memento } from 'vscode';
+import { workspace, Disposable, ExtensionContext, Uri, extensions, commands } from 'vscode';
 import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn, TextDocumentIdentifier } from 'vscode-languageclient';
 import { escape } from "querystring";
 import vscode = require('vscode');
