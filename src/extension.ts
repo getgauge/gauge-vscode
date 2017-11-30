@@ -16,6 +16,7 @@ const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_VSCODE_VERSION = 'gaugeVsCodeVersion';
+const GAUGE_SUPPRESS_UPDATE_NOTIF = 'gauge.notification.suppressUpdateNotification';
 
 let launchConfig;
 
@@ -125,6 +126,7 @@ function onConfigurationChange() {
 }
 
 function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string) {
+    if (vscode.workspace.getConfiguration().get<boolean>(GAUGE_SUPPRESS_UPDATE_NOTIF)) return
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
 
@@ -136,9 +138,12 @@ function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion:
 }
 
 function showUpdateMessage(version: string) {
-    vscode.window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes').then(selected => {
+    vscode.window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes','Do not show this again').then(selected => {
         if (selected === 'Show Release Notes') {
             opn('https://github.com/getgauge/gauge-vscode/releases/tag/v' + version);
+        }
+        if (selected === 'Do not show this again') {
+            vscode.workspace.getConfiguration().update(GAUGE_SUPPRESS_UPDATE_NOTIF, true);
         }
     });
     return

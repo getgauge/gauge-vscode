@@ -55,6 +55,7 @@ This extension adds language support for the Gauge projects, including:
 These configurations can be configured in [VSCode settings](https://code.visualstudio.com/docs/getstarted/settings).
 * `gauge.launch.enableDebugLogs` :  Starts gauge lsp server with log-level `debug`. Defaults to `false`.
 * `gauge.execution.specDirs` : List of specification directories which can be run by executing `Gauge: Run All Specifications` from command palette.
+* `gauge.notification.suppressUpdateNotification` :  Stops showing notifications for gauge-vscode plugin auto-updates. Defaults to `false`.
 ## Install from source
 
 ```shell
