@@ -105,6 +105,11 @@
             "specs"
           ],
           "description": "List of specification directories."
+        },
+        "gauge.notification.suppressUpdateNotification": {
+          "type": "boolean",
+          "default": false,
+          "description": "Suppress information bar on gauge auto update."
         }
       }
     },
