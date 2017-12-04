@@ -57,8 +57,8 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteFailed, () => { return execute(null, { rerunFailed: true }) }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteSpec, () => { return runSpecification() }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteAllSpecs, () => { return runSpecification(true) }));
-    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenarioAtCursor, () => { return runScenario(languageClient, true) }));
-    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenario, (scn: Scenario) => {
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenario, () => { return runScenario(languageClient, true) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenarios, (scn: Scenario) => {
         if(scn){
             return execute(scn.executionIdentifier, {inParallel: false})
         }
