@@ -141,6 +141,11 @@
       "type": "object",
       "title": "Gauge configuration",
       "properties": {
+        "gauge.specExplorer.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, gauge specs explorer will be alive and loaded."
+        },
         "gauge.launch.enableDebugLogs": {
           "type": "boolean",
           "default": false,

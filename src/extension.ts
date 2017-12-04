@@ -17,8 +17,8 @@ import { VSCodeCommands, GaugeCommands, GaugeCommandContext, setCommandContext }
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
-const GAUGE_VSCODE_VERSION = 'gaugeVsCodeVersion';
 const GAUGE_SUPPRESS_UPDATE_NOTIF = 'gauge.notification.suppressUpdateNotification';
+const GAUGE_VSCODE_VERSION = 'gauge.vscode.version';
 
 let launchConfig;
 
@@ -92,11 +92,14 @@ export function activate(context: ExtensionContext) {
     vscode.window.registerTreeDataProvider('gaugeSpecs', specNodeProvider);
     languageClient.onReady().then(
         () => {
-            let provider = new SpecNodeProvider(vscode.workspace.rootPath, languageClient);
-            let treeDataProvider =  vscode.window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
-            context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.RefreshExplorer, () => provider.refresh()));
-            context.subscriptions.push(treeDataProvider);
-            setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
+            let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
+            if(specExplorerConfig && specExplorerConfig.get<boolean>('enabled')){
+                let provider = new SpecNodeProvider(vscode.workspace.rootPath, languageClient);
+                let treeDataProvider =  vscode.window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
+                context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.RefreshExplorer, () => provider.refresh()));
+                context.subscriptions.push(treeDataProvider);
+                setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
+            }
         }
     );
 }
