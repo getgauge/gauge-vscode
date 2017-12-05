@@ -59,6 +59,12 @@
     ],
     "commands": [
       {
+        "command": "gauge.stopExecution",
+        "title": "Stop current gauge execution",
+        "category": "Gauge",
+        "when": "gauge:executing"
+      },
+      {
         "command": "gauge.execute.failed",
         "title": "Re-Run Failed Scenario(s)",
         "category": "Gauge"

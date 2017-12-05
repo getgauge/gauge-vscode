@@ -7,6 +7,8 @@ import cp = require('child_process');
 import path = require('path');
 import { LineBuffer } from './lineBuffer'
 import { OutputChannel } from './outputChannel'
+import { GaugeCommands } from '../commands';
+import { ChildProcess } from 'child_process';
 
 const gauge = 'gauge';
 const run = 'run';
@@ -19,18 +21,36 @@ const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution"
 let outputChannel = vscode.window.createOutputChannel(outputChannelName);
+let executing : boolean
+let process : ChildProcess
 
 export function execute(spec: string, config: any): Thenable<any> {
 	return new Promise<boolean>((resolve, reject) => {
+		if(executing){
+			reject("An execution is already in progress.");
+			return;
+		}
+
+		executing = true;
 		let args = getArgs(spec, config);
 		let chan = new OutputChannel(outputChannel, ['Running tool:', gauge, args.join(' ')].join(' '));
-		let process = cp.spawn(gauge, args, { cwd: vscode.workspace.rootPath });
+		process = cp.spawn(gauge, args, { cwd: vscode.workspace.rootPath });
 		process.stdout.on('data', chunk => chan.appendOutBuf(chunk.toString()));
 		process.stderr.on('data', chunk => chan.appendErrBuf(chunk.toString()));
-		process.on('close', code => chan.onFinish(resolve, code));
+		process.on('exit', (code, signal) => {
+			if(signal){
+				chan.appendOutBuf("Execution stopped by user.")
+			}
+			chan.onFinish(resolve, code);
+			executing = false;
+		});
 	});
 }
 
+export function cancel(){
+	if(process && !process.killed)
+		process.kill();
+}
 function getArgs(spec, config): Array<string> {
 	if (config.rerunFailed) {
 		return [run, rerunFailed];

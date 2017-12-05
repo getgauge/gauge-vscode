@@ -10,7 +10,7 @@ import fs = require('fs');
 import cp = require('child_process');
 import opn = require('opn');
 import copyPaste = require('copy-paste');
-import { execute, runScenario, runSpecification } from "./execution/gaugeExecution";
+import { execute, runScenario, runSpecification, cancel } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario} from './explorer/specExplorer'
 import { VSCodeCommands, GaugeCommands, GaugeCommandContext, setCommandContext } from './commands';
 
@@ -52,8 +52,9 @@ export function activate(context: ExtensionContext) {
     var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context,
         extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
 
-    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.Execute, (args) => { execute(args, { inParallel: false }) }));
-    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteInParallel, (args) => { execute(args, { inParallel: false }) }));
+	context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.StopExecution, () => {cancel()}));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.Execute, (args) => { return execute(args, { inParallel: false }) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteInParallel, (args) => { return execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteFailed, () => { return execute(null, { rerunFailed: true }) }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteSpec, () => { return runSpecification() }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteAllSpecs, () => { return runSpecification(true) }));
