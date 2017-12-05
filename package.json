@@ -26,6 +26,15 @@
   },
   "main": "./out/src/extension",
   "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "gauge:specExplorer",
+          "name": "Gauge Specs",
+          "when": "gauge:activated"
+        }
+      ]
+    },
     "languages": [
       {
         "id": "gauge",
@@ -67,7 +76,11 @@
       {
         "command": "gauge.execute.specification.all",
         "title": "Run All Specifications",
-        "category": "Gauge"
+        "category": "Gauge",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
       },
       {
         "command": "gauge.execute.scenario",
@@ -88,12 +101,51 @@
         "command": "gauge.showReferences.atCursor",
         "title": "Find Step References",
         "category": "Gauge"
+      },
+      {
+        "command": "gauge.specexplorer.refresh",
+        "title": "Refresh Explorer",
+        "category": "Gauge",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "gauge.specexplorer.refresh",
+          "when": "1 == 2"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "gauge.specexplorer.refresh",
+          "when": "view == gauge:specExplorer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gauge.execute.specification",
+          "when": "view == gauge:specExplorer && viewItem == specification"
+        },
+        {
+          "command": "gauge.execute.scenarios",
+          "when": "view == gauge:specExplorer && viewItem == scenario"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Gauge configuration",
       "properties": {
+        "gauge.specExplorer.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, gauge specs explorer will be alive and loaded."
+        },
         "gauge.launch.enableDebugLogs": {
           "type": "boolean",
           "default": false,
@@ -131,11 +183,11 @@
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",
-    "@types/node": "^6.0.52",
+    "@types/node": "^6.0.92",
     "cross-env": "^5.1.1",
     "typescript": "^2.1.5",
-    "vsce": "^1.30.0",
-    "vscode": "^1.1.5"
+    "vsce": "^1.33.2",
+    "vscode": "^1.1.7"
   },
   "dependencies": {
     "copy-paste": "^1.3.0",

@@ -2,8 +2,8 @@
 
 import * as path from 'path';
 
-import { workspace, Disposable, ExtensionContext, Uri, extensions, commands } from 'vscode';
-import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn, TextDocumentIdentifier } from 'vscode-languageclient';
+import { workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range } from 'vscode';
+import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, TextDocumentIdentifier, Location as LSLocation, Position as LSPosition, RevealOutputChannelOn } from 'vscode-languageclient';
 import { escape } from "querystring";
 import vscode = require('vscode');
 import fs = require('fs');
@@ -11,12 +11,14 @@ import cp = require('child_process');
 import opn = require('opn');
 import copyPaste = require('copy-paste');
 import { execute, runScenario, runSpecification } from "./execution/gaugeExecution";
+import { SpecNodeProvider, GaugeNode, Scenario} from './explorer/specExplorer'
+import { VSCodeCommands, GaugeCommands, GaugeCommandContext, setCommandContext } from './commands';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
-const GAUGE_VSCODE_VERSION = 'gaugeVsCodeVersion';
 const GAUGE_SUPPRESS_UPDATE_NOTIF = 'gauge.notification.suppressUpdateNotification';
+const GAUGE_VSCODE_VERSION = 'gauge.vscode.version';
 
 let launchConfig;
 
@@ -30,6 +32,7 @@ export function activate(context: ExtensionContext) {
         });
         return
     }
+
     let serverOptions = {
         command: 'gauge',
         args: ["daemon", "--lsp", "--dir=" + vscode.workspace.rootPath],
@@ -49,23 +52,56 @@ export function activate(context: ExtensionContext) {
     var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context,
         extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
 
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute', (args) => { execute(args, { inParallel: false }) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.inParallel', (args) => { execute(args, { inParallel: false }) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.failed', () => { return execute(null, { rerunFailed: true }) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.repeat', () => { return execute(null, { repeat: true }) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.specification', () => { return runSpecification() }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.specification.all', () => { return runSpecification(true) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenario', () => { return runScenario(languageClient, true) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.execute.scenarios', () => { return runScenario(languageClient, false) }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.copy.unimplemented.stub', (code: string) => {
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.Execute, (args) => { execute(args, { inParallel: false }) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteInParallel, (args) => { execute(args, { inParallel: false }) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteFailed, () => { return execute(null, { rerunFailed: true }) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteSpec, () => { return runSpecification() }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteAllSpecs, () => { return runSpecification(true) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenario, () => { return runScenario(languageClient, true) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteScenarios, (scn: Scenario) => {
+        if(scn){
+            return execute(scn.executionIdentifier, {inParallel: false})
+        }
+        return runScenario(languageClient, false)
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.CopyStub, (code: string) => {
         copyPaste.copy(code);
         vscode.window.showInformationMessage("Step Implementation copied to clipboard");
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences.atCursor', showStepReferencesAtCursor(languageClient)));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.showReferences', showStepReferences(languageClient)));
-    context.subscriptions.push(vscode.commands.registerCommand('gauge.help.reportIssue', () => { reportIssue(gaugeVersion) }));
+     }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ShowReferencesAtCursor, showStepReferencesAtCursor(languageClient)));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.RepeatExecution, () => { return execute(null, { repeat: true }) }));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ShowReferences, showStepReferences(languageClient)));
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ReportIssue, () => { reportIssue(gaugeVersion); }));
+	context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.Open, (node: GaugeNode) => {
+		return vscode.workspace.openTextDocument(node.file).then(document => {
+            if (node instanceof Scenario) {
+                let scenarioNode: Scenario = node
+                let options: TextDocumentShowOptions = {
+                    selection: new Range(new Position(scenarioNode.lineNo-1, 0), new Position(scenarioNode.lineNo-1, 0))
+                }
+                return vscode.window.showTextDocument(document, options)
+            }
+			return vscode.window.showTextDocument(document);
+		});
+	}));
+
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(disposable);
+
+    const specNodeProvider = new SpecNodeProvider(vscode.workspace.rootPath, languageClient);
+    vscode.window.registerTreeDataProvider('gaugeSpecs', specNodeProvider);
+    languageClient.onReady().then(
+        () => {
+            let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
+            if(specExplorerConfig && specExplorerConfig.get<boolean>('enabled')){
+                let provider = new SpecNodeProvider(vscode.workspace.rootPath, languageClient);
+                let treeDataProvider =  vscode.window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
+                context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.RefreshExplorer, () => provider.refresh()));
+                context.subscriptions.push(treeDataProvider);
+                setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
+            }
+        }
+    );
 }
 
 function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
@@ -102,7 +138,7 @@ function showStepReferencesAtCursor(languageClient: LanguageClient): () => Thena
 
 function showReferences(locations: LSLocation[], uri: string, languageClient: LanguageClient, position: LSPosition): Thenable<any> {
     if (locations) {
-        return vscode.commands.executeCommand('editor.action.showReferences', Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
+        return vscode.commands.executeCommand(VSCodeCommands.ShowReferences, Uri.parse(uri), languageClient.protocol2CodeConverter.asPosition(position),
             locations.map(languageClient.protocol2CodeConverter.asLocation));
     }
     vscode.window.showInformationMessage('No reference found!');
