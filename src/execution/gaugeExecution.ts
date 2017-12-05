@@ -92,8 +92,10 @@ function getQuickPickItems(sceHeadings: Array<any>) {
 function executeOptedScenario(scenarios: any): Thenable<any> {
 	let sceHeadings = scenarios.map(sce => sce.heading);
 	return vscode.window.showQuickPick<any>(getQuickPickItems(sceHeadings)).then((selected) => {
-		let sce = scenarios.find(sce => selected.label == sce.heading);
-		return execute(sce.executionIdentifier, { inParallel: false });
+		if (selected) {
+			let sce = scenarios.find(sce => selected.label == sce.heading);
+			return execute(sce.executionIdentifier, { inParallel: false });
+		}
 	}, (reason: any) => {
 		return Promise.reject(reason);
 	});
