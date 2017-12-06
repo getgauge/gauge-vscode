@@ -10,7 +10,7 @@ import fs = require('fs');
 import cp = require('child_process');
 import opn = require('opn');
 import copyPaste = require('copy-paste');
-import { execute, runScenario, runSpecification, cancel } from "./execution/gaugeExecution";
+import { execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario} from './explorer/specExplorer'
 import { VSCodeCommands, GaugeCommands, GaugeCommandContext, setCommandContext } from './commands';
 
@@ -51,6 +51,16 @@ export function activate(context: ExtensionContext) {
 
     var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context,
         extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
+
+    let stopExecution = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 2);
+    stopExecution.command = GaugeCommands.StopExecution;
+    stopExecution.tooltip = 'Click to Stop Run';
+    context.subscriptions.push(stopExecution);
+    onBeforeExecute((s) => {
+        stopExecution.text = `$(primitive-square) Running ${s}`;
+        stopExecution.show();
+    });
+    onExecuted(() => stopExecution.hide());
 
 	context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.StopExecution, () => {cancel()}));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.Execute, (args) => { return execute(args, { inParallel: false }) }));
