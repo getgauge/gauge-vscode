@@ -52,17 +52,7 @@ export function activate(context: ExtensionContext) {
     var notifyNewVersion = notifyOnNewGaugeVsCodeVersion(context,
         extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
 
-    let stopExecution = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 2);
-    stopExecution.command = GaugeCommands.StopExecution;
-    stopExecution.tooltip = 'Click to Stop Run';
-    context.subscriptions.push(stopExecution);
-    onBeforeExecute((s) => {
-        stopExecution.text = `$(primitive-square) Running ${s}`;
-        stopExecution.show();
-    });
-    onExecuted(() => stopExecution.hide());
-
-	context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.StopExecution, () => {cancel()}));
+    registerStopExecution(context);
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.Execute, (args) => { return execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteInParallel, (args) => { return execute(args, { inParallel: false }) }));
     context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.ExecuteFailed, () => { return execute(null, { rerunFailed: true }) }));
@@ -113,6 +103,19 @@ export function activate(context: ExtensionContext) {
             }
         }
     );
+}
+
+function registerStopExecution(context: ExtensionContext) {
+    let stopExecution = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 2);
+    stopExecution.command = GaugeCommands.StopExecution;
+    stopExecution.tooltip = 'Click to Stop Run';
+    context.subscriptions.push(stopExecution);
+    onBeforeExecute((s) => {
+        stopExecution.text = `$(primitive-square) Running ${s}`;
+        stopExecution.show();
+    });
+    onExecuted(() => stopExecution.hide());
+    context.subscriptions.push(vscode.commands.registerCommand(GaugeCommands.StopExecution, () => { cancel(); }));
 }
 
 function reportIssue(gaugeVersion: cp.SpawnSyncReturns<string>) {
