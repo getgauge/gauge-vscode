@@ -7,6 +7,8 @@ import cp = require('child_process');
 import path = require('path');
 import { LineBuffer } from './lineBuffer'
 import { OutputChannel } from './outputChannel'
+import { GaugeCommands } from '../commands';
+import { ChildProcess } from 'child_process';
 
 const gauge = 'gauge';
 const run = 'run';
@@ -19,16 +21,44 @@ const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution"
 let outputChannel = vscode.window.createOutputChannel(outputChannelName);
+let executing : boolean;
+let process : ChildProcess;
+let preExecute : Function[] = [];
+let postExecute : Function[] = [];
 
 export function execute(spec: string, config: any): Thenable<any> {
-	return new Promise<boolean>((resolve, reject) => {
+	return new Promise((resolve, reject) => {
+		if(executing){
+			reject('A Specification or Scenario is still running!');
+			return;
+		}
+
+		executing = true;
+		preExecute.forEach(f => f.call(null, path.relative(vscode.workspace.rootPath, spec)))
 		let args = getArgs(spec, config);
 		let chan = new OutputChannel(outputChannel, ['Running tool:', gauge, args.join(' ')].join(' '));
-		let process = cp.spawn(gauge, args, { cwd: vscode.workspace.rootPath });
+		process = cp.spawn(gauge, args, { cwd: vscode.workspace.rootPath });
 		process.stdout.on('data', chunk => chan.appendOutBuf(chunk.toString()));
 		process.stderr.on('data', chunk => chan.appendErrBuf(chunk.toString()));
-		process.on('close', code => chan.onFinish(resolve, code));
+		process.on('exit', (code, signal) => {
+			chan.onFinish(resolve, code, signal !== null);
+			executing = false;
+			postExecute.forEach(f => f.call(null));
+		});
 	});
+}
+
+export function cancel(){
+	if(process && !process.killed)
+		process.kill();
+}
+
+export function onBeforeExecute(hook : Function) {
+	preExecute.push(hook);
+}
+
+export function onExecuted(hook : Function) {
+	postExecute.push(hook);
 }
 
 function getArgs(spec, config): Array<string> {

@@ -43,9 +43,16 @@ export class OutputChannel {
 		this.errBuf.append(line);
 	}
 
-	public onFinish(resolve: (value?: boolean | PromiseLike<boolean>) => void, code: number) {
+	public onFinish(resolve: (value?: boolean | PromiseLike<boolean>) => void, code: number, aborted? : boolean) {
 		this.outBuf.done();
 		this.errBuf.done();
+
+		if(aborted){
+			this.chan.appendLine('Run stopped by user.');
+			resolve(false);
+			return;
+		}
+
 		if (code) {
 			this.chan.appendLine('Error: Tests failed.');
 		} else {

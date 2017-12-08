@@ -60,4 +60,21 @@ suite('Gauge Execution Tests', () => {
 		}, errorHandler(done));
 	}).timeout(10000);
 
+	test('should abort execution', (done) => {
+		let spec = path.join(testDataPath, 'specs', 'example.spec');
+		execute(spec, false).then((status) => {
+			assert.equal(status, false);
+			done();
+		}, err => done(err));
+		vscode.commands.executeCommand('gauge.stopExecution').then(() => {}, () => {});
+	}).timeout(10000);
+
+	test('should reject execution when another is already in progress', (done) => {
+		let spec = path.join(testDataPath, 'specs', 'example.spec');
+		execute(spec, false)
+		execute(spec, false).then(() => {}, err => {
+			assert.equal(err, "A Specification or Scenario is still running!")
+			done();
+		});
+	}).timeout(10000);
 });

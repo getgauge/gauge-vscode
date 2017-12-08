@@ -9,6 +9,7 @@ export enum VSCodeCommands {
 }
 
 export enum GaugeCommands {
+	StopExecution = 'gauge.stopExecution',
 	RefreshExplorer = 'gauge.specexplorer.refresh',
 	Execute = 'gauge.execute',
 	ExecuteInParallel = 'gauge.execute.inParallel',
@@ -28,7 +29,7 @@ export enum GaugeCommands {
 export enum GaugeCommandContext {
 	Enabled = 'gauge:enabled',
 	Activated = 'gauge:activated',
-    GaugeSpecExplorer = 'gauge:specExplorer',
+	GaugeSpecExplorer = 'gauge:specExplorer',
 }
 
 export function setCommandContext(key: GaugeCommandContext | string, value: any) {
