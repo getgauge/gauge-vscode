@@ -29,12 +29,12 @@ suite('Gauge Execution Tests', () => {
 
 	test('should execute given specification', (done) => {
 		let spec = path.join(testDataPath, 'specs', 'example.spec');
-		execute(spec, false).then(statusHandler(done), errorHandler(done));
+		execute(spec, {inParallel: false, status: spec}).then(statusHandler(done), errorHandler(done));
 	}).timeout(10000);
 
 	test('should execute given scenario', (done) => {
 		let spec = path.join(testDataPath, 'specs', 'example.spec:6');
-		execute(spec, false).then(statusHandler(done), errorHandler(done));
+		execute(spec, {inParallel: false, status: spec}).then(statusHandler(done), errorHandler(done));
 	}).timeout(10000);
 
 	test('should execute all specification in spec dir', (done) => {
@@ -62,7 +62,7 @@ suite('Gauge Execution Tests', () => {
 
 	test('should abort execution', (done) => {
 		let spec = path.join(testDataPath, 'specs', 'example.spec');
-		execute(spec, false).then((status) => {
+		execute(spec, {inParallel: false, status: spec}).then((status) => {
 			assert.equal(status, false);
 			done();
 		}, err => done(err));
@@ -71,8 +71,8 @@ suite('Gauge Execution Tests', () => {
 
 	test('should reject execution when another is already in progress', (done) => {
 		let spec = path.join(testDataPath, 'specs', 'example.spec');
-		execute(spec, false)
-		execute(spec, false).then(() => {}, err => {
+		execute(spec, {inParallel: false, status: spec})
+		execute(spec, {inParallel: false, status: spec}).then(() => {}, err => {
 			assert.equal(err, "A Specification or Scenario is still running!")
 			done();
 		});

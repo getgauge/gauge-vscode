@@ -34,7 +34,7 @@ export function execute(spec: string, config: any): Thenable<any> {
 		}
 
 		executing = true;
-		preExecute.forEach(f => f.call(null, path.relative(vscode.workspace.rootPath, spec)))
+		preExecute.forEach(f => f.call(null, path.relative(vscode.workspace.rootPath, config.status)))
 		let args = getArgs(spec, config);
 		let chan = new OutputChannel(outputChannel, ['Running tool:', gauge, args.join(' ')].join(' '));
 		process = cp.spawn(gauge, args, { cwd: vscode.workspace.rootPath });
@@ -75,14 +75,14 @@ function getArgs(spec, config): Array<string> {
 export function runSpecification(all?: boolean): Thenable<any> {
 	if (all) {
 		let dirs = vscode.workspace.getConfiguration(GAUGE_EXECUTION_CONFIG).get<Array<string>>("specDirs");
-		return execute(dirs.join(" "), { inParallel: false });
+		return execute(dirs.join(" "), { inParallel: false , status : dirs.join(" ")});
 	}
 	let spec = vscode.window.activeTextEditor.document.fileName;
 	if (!extensions.includes(path.extname(spec))) {
 		vscode.window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
 		return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
 	}
-	return execute(spec, { inParallel: false });
+	return execute(spec, { inParallel: false , status: spec});
 };
 
 export function runScenario(languageClient: LanguageClient, atCursor: boolean): Thenable<any> {
@@ -124,7 +124,7 @@ function executeOptedScenario(scenarios: any): Thenable<any> {
 	return vscode.window.showQuickPick<any>(getQuickPickItems(sceHeadings)).then((selected) => {
 		if (selected) {
 			let sce = scenarios.find(sce => selected.label == sce.heading);
-			return execute(sce.executionIdentifier, { inParallel: false });
+			return execute(sce.executionIdentifier, { inParallel: false , status : sce.executionIdentifier});
 		}
 	}, (reason: any) => {
 		return Promise.reject(reason);
@@ -135,5 +135,5 @@ function executeAtCursor(scenarios: any): Thenable<any> {
 	if (scenarios instanceof Array) {
 		return executeOptedScenario(scenarios);
 	}
-	return execute(scenarios.executionIdentifier, { inParallel: false });
+	return execute(scenarios.executionIdentifier, { inParallel: false , status: scenarios.executionIdentifier});
 }
