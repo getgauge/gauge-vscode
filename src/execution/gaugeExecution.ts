@@ -7,28 +7,21 @@ import cp = require('child_process');
 import path = require('path');
 import { LineBuffer } from './lineBuffer'
 import { OutputChannel } from './outputChannel'
-import { GaugeCommands } from '../commands';
+import { GaugeVSCodeCommands, GaugeCommands } from '../commands';
 import { ChildProcess } from 'child_process';
 
-const gauge = 'gauge';
-const run = 'run';
-const parallel = '--parallel';
-const simpleConsole = '--simple-console';
-const rerunFailed = '--failed';
-const repeat = '--repeat';
-const hideSuggestion = '--hide-suggestion';
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution"
 let outputChannel = vscode.window.createOutputChannel(outputChannelName);
-let executing : boolean;
-let process : ChildProcess;
-let preExecute : Function[] = [];
-let postExecute : Function[] = [];
+let executing: boolean;
+let process: ChildProcess;
+let preExecute: Function[] = [];
+let postExecute: Function[] = [];
 
 export function execute(spec: string, config: any): Thenable<any> {
 	return new Promise((resolve, reject) => {
-		if(executing){
+		if (executing) {
 			reject('A Specification or Scenario is still running!');
 			return;
 		}
@@ -36,8 +29,8 @@ export function execute(spec: string, config: any): Thenable<any> {
 		executing = true;
 		preExecute.forEach(f => f.call(null, path.relative(vscode.workspace.rootPath, config.status)))
 		let args = getArgs(spec, config);
-		let chan = new OutputChannel(outputChannel, ['Running tool:', gauge, args.join(' ')].join(' '));
-		process = cp.spawn(gauge, args, { cwd: vscode.workspace.rootPath });
+		let chan = new OutputChannel(outputChannel, ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '));
+		process = cp.spawn(GaugeCommands.Gauge, args, { cwd: vscode.workspace.rootPath });
 		process.stdout.on('data', chunk => chan.appendOutBuf(chunk.toString()));
 		process.stderr.on('data', chunk => chan.appendErrBuf(chunk.toString()));
 		process.on('exit', (code, signal) => {
@@ -48,41 +41,44 @@ export function execute(spec: string, config: any): Thenable<any> {
 	});
 }
 
-export function cancel(){
-	if(process && !process.killed)
+export function cancel() {
+	if (process && !process.killed)
 		process.kill();
 }
 
-export function onBeforeExecute(hook : Function) {
+export function onBeforeExecute(hook: Function) {
 	preExecute.push(hook);
 }
 
-export function onExecuted(hook : Function) {
+export function onExecuted(hook: Function) {
 	postExecute.push(hook);
 }
 
 function getArgs(spec, config): Array<string> {
 	if (config.rerunFailed) {
-		return [run, rerunFailed];
+		return [GaugeCommands.Run, GaugeCommands.RerunFailed];
 	}
 	if (config.repeat) {
-		return [run, repeat];
+		return [GaugeCommands.Run, GaugeCommands.Repeat];
 	}
-	return (!config.inParallel) ? [run, spec, simpleConsole, hideSuggestion] : [run, parallel, spec, hideSuggestion];
+	if (config.inParallel) {
+		return [GaugeCommands.Run, GaugeCommands.Parallel, spec, GaugeCommands.HideSuggestion];
+	}
+	return [GaugeCommands.Run, spec, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
 }
 
 
 export function runSpecification(all?: boolean): Thenable<any> {
 	if (all) {
 		let dirs = vscode.workspace.getConfiguration(GAUGE_EXECUTION_CONFIG).get<Array<string>>("specDirs");
-		return execute(dirs.join(" "), { inParallel: false , status : dirs.join(" ")});
+		return execute(dirs.join(" "), { inParallel: false, status: dirs.join(" ") });
 	}
 	let spec = vscode.window.activeTextEditor.document.fileName;
 	if (!extensions.includes(path.extname(spec))) {
 		vscode.window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
 		return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
 	}
-	return execute(spec, { inParallel: false , status: spec});
+	return execute(spec, { inParallel: false, status: spec });
 };
 
 export function runScenario(languageClient: LanguageClient, atCursor: boolean): Thenable<any> {
@@ -124,7 +120,7 @@ function executeOptedScenario(scenarios: any): Thenable<any> {
 	return vscode.window.showQuickPick<any>(getQuickPickItems(sceHeadings)).then((selected) => {
 		if (selected) {
 			let sce = scenarios.find(sce => selected.label == sce.heading);
-			return execute(sce.executionIdentifier, { inParallel: false , status : sce.executionIdentifier});
+			return execute(sce.executionIdentifier, { inParallel: false, status: sce.executionIdentifier });
 		}
 	}, (reason: any) => {
 		return Promise.reject(reason);
@@ -135,5 +131,5 @@ function executeAtCursor(scenarios: any): Thenable<any> {
 	if (scenarios instanceof Array) {
 		return executeOptedScenario(scenarios);
 	}
-	return execute(scenarios.executionIdentifier, { inParallel: false , status: scenarios.executionIdentifier});
+	return execute(scenarios.executionIdentifier, { inParallel: false, status: scenarios.executionIdentifier });
 }

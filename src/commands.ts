@@ -8,7 +8,7 @@ export enum VSCodeCommands {
     ShowReferences = 'editor.action.showReferences'
 }
 
-export enum GaugeCommands {
+export enum GaugeVSCodeCommands {
 	StopExecution = 'gauge.stopExecution',
 	RefreshExplorer = 'gauge.specexplorer.refresh',
 	Execute = 'gauge.execute',
@@ -24,6 +24,18 @@ export enum GaugeCommands {
 	ReportIssue = 'gauge.help.reportIssue',
 	Open = 'gauge.open',
 	RepeatExecution = 'gauge.execute.repeat',
+}
+
+export enum GaugeCommands {
+	Gauge = 'gauge',
+	Version = '--version',
+	MachineReadable = '--machine-readable',
+	Run = 'run',
+	Parallel = '--parallel',
+	SimpleConsole = '--simple-console',
+	RerunFailed = '--failed',
+	Repeat = '--repeat',
+	HideSuggestion = '--hide-suggestion',
 }
 
 export enum GaugeCommandContext {
