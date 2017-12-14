@@ -77,8 +77,8 @@ Nightly version of vscode is available in bintray. To install a nightly version,
 If gauge features are not listed, the gauge extension may not be activated. The `.spec` and `.cpt` files may be associated with a different language. To fix this, you can add this to [user settings](https://code.visualstudio.com/docs/getstarted/settings).
 ```
 "files.associations": {
-	"*.spec": "markdown",
-	"*.cpt": "markdown"
+	"*.spec": "gauge",
+	"*.cpt": "gauge"
 }
 ```
 ### Facing other issues?
