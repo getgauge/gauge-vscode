@@ -17,7 +17,9 @@ before_install:
       sleep 3;
     fi
   - curl -sSfL https://github.com/getgauge/gauge-tests/raw/master/install_latest_gauge_nightly.sh | bash
-  - ln -s $NVM_BIN/node /tmp/bin/node
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then
+      ln -s $NVM_BIN/node /tmp/bin/node
+    fi
   - export PATH=$PATH:$GAUGE_PREFIX/bin
 install:
   - gauge -v
