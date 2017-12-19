@@ -17,11 +17,14 @@ before_install:
       sleep 3;
     fi
   - curl -sSfL https://github.com/getgauge/gauge-tests/raw/master/install_latest_gauge_nightly.sh | bash
+  - ln -s $NVM_BIN/node /tmp/bin/node
   - export PATH=$PATH:$GAUGE_PREFIX/bin
 install:
   - gauge -v
+  - gauge install screenshot
   - echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" >> $HOME/.gauge/config/gauge.properties
   - gauge install js
+  - gauge install html-report
 script:
   - npm run build
   - npm test --silent
