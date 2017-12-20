@@ -4,7 +4,14 @@
 
 Gauge extension for [Visual Studio Code](https://code.visualstudio.com/)
 
+## Install
+
+```
+$ code --install-extension getgauge.gauge
+```
+
 This extension adds language support for the Gauge projects, including:
+
 ### Code Completion for steps, parameters and tags
 ![Code Completion preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/autocomplete.gif)
 
