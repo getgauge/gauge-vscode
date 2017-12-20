@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
-import { GaugeCommands } from '../commands';
+import { GaugeVSCodeCommands } from '../commands';
 
 export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 
@@ -60,7 +60,7 @@ export abstract class GaugeNode extends vscode.TreeItem{
 	) {
 		super(label, vscode.TreeItemCollapsibleState.Collapsed);
 	}
-	command = {title:'Open File', command: GaugeCommands.Open, arguments: [this]}
+	command = {title:'Open File', command: GaugeVSCodeCommands.Open, arguments: [this]}
 }
 
 class Spec extends GaugeNode {
