@@ -1,6 +1,6 @@
 'use strict';
 
-import { Position } from 'vscode';
+import { Position, workspace, Uri, WorkspaceFolder } from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient'
 import vscode = require('vscode');
 import cp = require('child_process');
@@ -81,13 +81,14 @@ export function runSpecification(all?: boolean): Thenable<any> {
 	return execute(spec, { inParallel: false, status: spec });
 };
 
-export function runScenario(languageClient: LanguageClient, atCursor: boolean): Thenable<any> {
+export function runScenario(clients: Map<String, LanguageClient>, atCursor: boolean): Thenable<any> {
 	let spec = vscode.window.activeTextEditor.document.fileName;
+	let lc = clients.get(workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri).uri.fsPath)
 	if (!extensions.includes(path.extname(spec))) {
 		vscode.window.showWarningMessage(`No scenario(s) found. Current file is not a gauge specification.`);
 		return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
 	}
-	return getAllScenarios(languageClient, atCursor).then((scenarios: any): Thenable<any> => {
+	return getAllScenarios(lc, atCursor).then((scenarios: any): Thenable<any> => {
 		if (atCursor) {
 			return executeAtCursor(scenarios);
 		}

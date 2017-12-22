@@ -116,6 +116,15 @@
           "light": "resources/light/refresh.svg",
           "dark": "resources/dark/refresh.svg"
         }
+      },
+      {
+        "command": "gauge.specexplorer.switchProject",
+        "title": "Switch Project",
+        "category": "Gauge",
+        "icon": {
+          "light": "resources/light/icon-list.svg",
+          "dark": "resources/dark/icon-list.svg"
+        }
       }
     ],
     "menus": {
@@ -123,9 +132,18 @@
         {
           "command": "gauge.specexplorer.refresh",
           "when": "1 == 2"
+        },
+        {
+          "command": "gauge.specexplorer.switchProject",
+          "when": "1 == 2"
         }
       ],
       "view/title": [
+        {
+          "command": "gauge.specexplorer.switchProject",
+          "when": "view == gauge:specExplorer",
+          "group": "navigation"
+        },
         {
           "command": "gauge.specexplorer.refresh",
           "when": "view == gauge:specExplorer",
@@ -199,6 +217,6 @@
     "copy-paste": "^1.3.0",
     "opn": "^5.1.0",
     "vscode-jsonrpc": "^3.4.0",
-    "vscode-languageclient": "^3.4.1"
+    "vscode-languageclient": "^3.4.2"
   }
 }
