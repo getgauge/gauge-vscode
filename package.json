@@ -109,6 +109,15 @@
         "category": "Gauge"
       },
       {
+        "command": "gauge.specexplorer.switchProject",
+        "title": "Change Project",
+        "category": "Gauge",
+        "icon": {
+          "light": "resources/light/icon-list.svg",
+          "dark": "resources/dark/icon-list.svg"
+        }
+      },
+      {
         "command": "gauge.specexplorer.refresh",
         "title": "Refresh Explorer",
         "category": "Gauge",
@@ -116,32 +125,23 @@
           "light": "resources/light/refresh.svg",
           "dark": "resources/dark/refresh.svg"
         }
-      },
-      {
-        "command": "gauge.specexplorer.switchProject",
-        "title": "Switch Project",
-        "category": "Gauge",
-        "icon": {
-          "light": "resources/light/icon-list.svg",
-          "dark": "resources/dark/icon-list.svg"
-        }
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "gauge.specexplorer.refresh",
+          "command": "gauge.specexplorer.switchProject",
           "when": "1 == 2"
         },
         {
-          "command": "gauge.specexplorer.switchProject",
+          "command": "gauge.specexplorer.refresh",
           "when": "1 == 2"
         }
       ],
       "view/title": [
         {
           "command": "gauge.specexplorer.switchProject",
-          "when": "view == gauge:specExplorer",
+          "when": "gauge:multipleProjects?",
           "group": "navigation"
         },
         {

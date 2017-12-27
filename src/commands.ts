@@ -43,6 +43,7 @@ export enum GaugeCommandContext {
 	Enabled = 'gauge:enabled',
 	Activated = 'gauge:activated',
 	GaugeSpecExplorer = 'gauge:specExplorer',
+	MultiProject = 'gauge:multipleProjects?',
 }
 
 export function setCommandContext(key: GaugeCommandContext | string, value: any) {
