@@ -43,9 +43,12 @@ export function activate(context: ExtensionContext) {
     }
 
     workspace.workspaceFolders.forEach(folder => startServerFor(folder));
+    setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
+
     workspace.onDidChangeWorkspaceFolders((event) => {
         if (event.added) onFolderAddition(event, context);
         if (event.removed) onFolderDeletion(event, context);
+        setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1)
     });
 
     notifyOnNewGaugeVsCodeVersion(context, extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
