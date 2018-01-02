@@ -43,7 +43,7 @@ export function activate(context: ExtensionContext) {
 
     let clientOptions = {
         documentSelector: ['gauge'],
-        revealOutputChannelOn: RevealOutputChannelOn.Never,
+        revealOutputChannelOn: RevealOutputChannelOn.Error,
     };
     let languageClient = new LanguageClient('Gauge', serverOptions, clientOptions);
     let disposable = languageClient.start();
