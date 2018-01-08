@@ -3,9 +3,9 @@
 import { commands } from 'vscode';
 
 export enum VSCodeCommands {
-    Open = 'vscode.open',
-    SetContext = 'setContext',
-    ShowReferences = 'editor.action.showReferences'
+	Open = 'vscode.open',
+	SetContext = 'setContext',
+	ShowReferences = 'editor.action.showReferences'
 }
 
 export enum GaugeVSCodeCommands {
@@ -47,5 +47,5 @@ export enum GaugeCommandContext {
 }
 
 export function setCommandContext(key: GaugeCommandContext | string, value: any) {
-    return commands.executeCommand(VSCodeCommands.SetContext, key, value);
+	return commands.executeCommand(VSCodeCommands.SetContext, key, value);
 }
