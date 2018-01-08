@@ -10,8 +10,10 @@ export class OutputChannel {
 	private outBuf: LineBuffer;
 	private errBuf: LineBuffer;
 	private chan: vscode.OutputChannel
+	private projectRoot: string
 
-	constructor(outputChannel, initial: string) {
+	constructor(outputChannel, initial: string, projectRoot: string) {
+		this.projectRoot = projectRoot;
 		this.outBuf = new LineBuffer();
 		this.errBuf = new LineBuffer();
 		this.chan = outputChannel;
@@ -34,8 +36,8 @@ export class OutputChannel {
 		for (var j = 0; j < lineArray.length; j++) {
 			for (var i = 0; i < regexes.length; i++) {
 				let matches = lineArray[j].match(regexes[i]);
-				if (matches && !lineArray[j].includes(vscode.workspace.rootPath)) {
-					lineArray[j] = lineArray[j].replace(matches[0], matches[0] + vscode.workspace.rootPath + path.sep)
+				if (matches && !lineArray[j].includes(this.projectRoot)) {
+					lineArray[j] = lineArray[j].replace(matches[0], matches[0] + this.projectRoot + path.sep)
 				}
 			}
 		}

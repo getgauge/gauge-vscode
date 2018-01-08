@@ -54,26 +54,46 @@ export function activate(context: ExtensionContext) {
     notifyOnNewGaugeVsCodeVersion(context, extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
     registerStopExecution(context);
 
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => { return execute(spec, { inParallel: false, status: spec }) }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => { return execute(spec, { inParallel: true, status: spec }) }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteFailed, () => { return execute(null, { rerunFailed: true, status: "failed scenarios" }) }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
+        let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+        return execute(spec, { inParallel: false, status: spec, projectRoot: cwd })
+    }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => { return execute(spec, { inParallel: true, status: spec, projectRoot: workspace.getWorkspaceFolder(spec).uri.fsPath }) }));
+
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteFailed, () => {
+        if (clients.size > 1)
+            return showProjectOptions(context, (context: ExtensionContext, selection: string) => { execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: selection }); });
+        return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: getDefaultFolder() });
+    }));
+
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, () => { return runSpecification() }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecs, () => { return runSpecification(true) }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecs, () => {
+        if (clients.size > 1)
+            return showProjectOptions(context, (context: ExtensionContext, selection: string) => { runSpecification(selection); });
+        return runSpecification(getDefaultFolder());
+    }));
+
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, () => { return runScenario(clients, true) }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, (scn: Scenario) => {
         if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier });
         return runScenario(clients, false);
     }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, copyToClipborad));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, copyToClipboard));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ShowReferencesAtCursor, showStepReferencesAtCursor(clients)));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.RepeatExecution, () => { return execute(null, { repeat: true, status: "previous run" }) }));
+
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.RepeatExecution, () => {
+        if (clients.size > 1)
+            return showProjectOptions(context, (context: ExtensionContext, selection: string) => { execute(null, { repeat: true, status: "previous run", projectRoot: selection }); });
+        return execute(null, { repeat: true, status: "previous run", projectRoot: getDefaultFolder() });
+    }));
+
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ShowReferences, showStepReferences(clients)));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => { reportIssue(gaugeVersionInfo); }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Open, (node: GaugeNode) => workspace.openTextDocument(node.file).then(showDocumentWithSelection(node))));
     context.subscriptions.push(onConfigurationChange());
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject, () => switchProject(context)));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject, () => showProjectOptions(context, switchTreeDataProvider)));
 
-    registerTreeDataProvider(context, getDefaultFolder(), true)
+    registerTreeDataProvider(context, getDefaultFolder(), true);
 }
 
 
@@ -182,13 +202,13 @@ function getDefaultFolder() {
 }
 
 
-function switchProject(context: ExtensionContext) {
+function showProjectOptions(context: ExtensionContext, onChange: Function) {
     let projectItems = [];
     clients.forEach((v, k) => projectItems.push({ label: path.basename(k), description: k }));
-    window.showQuickPick(projectItems).then((selected) => {
-        switchTreeDataProvider(context, selected.description)
+    return window.showQuickPick(projectItems).then((selected) => {
+        return onChange(context, selected.description);
     }, (err) => {
-        window.showErrorMessage('Unable to switch project.', err)
+        window.showErrorMessage('Unable to select project.', err)
     })
 }
 
@@ -284,7 +304,7 @@ function showUpdateMessage(version: string) {
     });
 }
 
-function copyToClipborad(code: string) {
+function copyToClipboard(code: string) {
     copyPaste.copy(code);
     window.showInformationMessage("Step Implementation copied to clipboard");
 }

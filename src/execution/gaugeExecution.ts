@@ -1,8 +1,7 @@
 'use strict';
 
-import { Position, workspace, Uri, WorkspaceFolder } from 'vscode';
+import { window, Position, workspace, Uri, WorkspaceFolder, CancellationTokenSource } from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient'
-import vscode = require('vscode');
 import cp = require('child_process');
 import path = require('path');
 import { LineBuffer } from './lineBuffer'
@@ -13,7 +12,7 @@ import { ChildProcess } from 'child_process';
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution"
-let outputChannel = vscode.window.createOutputChannel(outputChannelName);
+let outputChannel = window.createOutputChannel(outputChannelName);
 let executing: boolean;
 let process: ChildProcess;
 let preExecute: Function[] = [];
@@ -27,10 +26,10 @@ export function execute(spec: string, config: any): Thenable<any> {
 		}
 
 		executing = true;
-		preExecute.forEach(f => f.call(null, path.relative(vscode.workspace.rootPath, config.status)))
+		preExecute.forEach(f => f.call(null, path.relative(config.projectRoot, config.status)))
 		let args = getArgs(spec, config);
-		let chan = new OutputChannel(outputChannel, ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '));
-		process = cp.spawn(GaugeCommands.Gauge, args, { cwd: vscode.workspace.rootPath });
+		let chan = new OutputChannel(outputChannel, ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '), config.projectRoot);
+		process = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot });
 		process.stdout.on('data', chunk => chan.appendOutBuf(chunk.toString()));
 		process.stderr.on('data', chunk => chan.appendErrBuf(chunk.toString()));
 		process.on('exit', (code, signal) => {
@@ -68,24 +67,24 @@ function getArgs(spec, config): Array<string> {
 }
 
 
-export function runSpecification(all?: boolean): Thenable<any> {
-	if (all) {
-		let dirs = vscode.workspace.getConfiguration(GAUGE_EXECUTION_CONFIG).get<Array<string>>("specDirs");
-		return execute(dirs.join(" "), { inParallel: false, status: dirs.join(" ") });
+export function runSpecification(projectRoot?: string): Thenable<any> {
+	if (projectRoot) {
+		let dirs = workspace.getConfiguration(GAUGE_EXECUTION_CONFIG).get<Array<string>>("specDirs");
+		return execute(dirs.join(" "), { inParallel: false, status: dirs.join(" "), projectRoot: projectRoot });
 	}
-	let spec = vscode.window.activeTextEditor.document.fileName;
-	if (!extensions.includes(path.extname(spec))) {
-		vscode.window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
+	let doc = window.activeTextEditor.document;
+	if (!extensions.includes(path.extname(doc.fileName))) {
+		window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
 		return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
 	}
-	return execute(spec, { inParallel: false, status: spec });
+	return execute(doc.fileName, { inParallel: false, status: doc.fileName, projectRoot: workspace.getWorkspaceFolder(doc.uri).uri.fsPath });
 };
 
 export function runScenario(clients: Map<String, LanguageClient>, atCursor: boolean): Thenable<any> {
-	let spec = vscode.window.activeTextEditor.document.fileName;
-	let lc = clients.get(workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri).uri.fsPath)
+	let spec = window.activeTextEditor.document.fileName;
+	let lc = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath)
 	if (!extensions.includes(path.extname(spec))) {
-		vscode.window.showWarningMessage(`No scenario(s) found. Current file is not a gauge specification.`);
+		window.showWarningMessage(`No scenario(s) found. Current file is not a gauge specification.`);
 		return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
 	}
 	return getAllScenarios(lc, atCursor).then((scenarios: any): Thenable<any> => {
@@ -94,20 +93,20 @@ export function runScenario(clients: Map<String, LanguageClient>, atCursor: bool
 		}
 		return executeOptedScenario(scenarios);
 	}, (reason: any) => {
-		vscode.window.showErrorMessage(`found some problems in ${spec}. Fix all problems before running scenarios.`);
+		window.showErrorMessage(`found some problems in ${spec}. Fix all problems before running scenarios.`);
 		return Promise.reject(reason);
 	});
 };
 
 function getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Thenable<any> {
-	let uri = TextDocumentIdentifier.create(vscode.window.activeTextEditor.document.uri.toString());
-	let currPos = vscode.window.activeTextEditor.selection.active;
+	let uri = TextDocumentIdentifier.create(window.activeTextEditor.document.uri.toString());
+	let currPos = window.activeTextEditor.selection.active;
 	let params = { textDocument: uri, position: currPos };
 	if (!atCursor) {
 		//change the position to get all scenarios instead of only related to cursor position
 		params.position = new Position(1, 1);
 	}
-	return languageClient.sendRequest("gauge/scenarios", params, new vscode.CancellationTokenSource().token);
+	return languageClient.sendRequest("gauge/scenarios", params, new CancellationTokenSource().token);
 }
 
 function getQuickPickItems(sceHeadings: Array<any>) {
@@ -118,7 +117,7 @@ function getQuickPickItems(sceHeadings: Array<any>) {
 
 function executeOptedScenario(scenarios: any): Thenable<any> {
 	let sceHeadings = scenarios.map(sce => sce.heading);
-	return vscode.window.showQuickPick<any>(getQuickPickItems(sceHeadings)).then((selected) => {
+	return window.showQuickPick<any>(getQuickPickItems(sceHeadings)).then((selected) => {
 		if (selected) {
 			let sce = scenarios.find(sce => selected.label == sce.heading);
 			return execute(sce.executionIdentifier, { inParallel: false, status: sce.executionIdentifier });
@@ -132,5 +131,6 @@ function executeAtCursor(scenarios: any): Thenable<any> {
 	if (scenarios instanceof Array) {
 		return executeOptedScenario(scenarios);
 	}
-	return execute(scenarios.executionIdentifier, { inParallel: false, status: scenarios.executionIdentifier });
+	let pr = workspace.getWorkspaceFolder(Uri.file(scenarios.executionIdentifier.split(':')[0])).uri.fsPath
+	return execute(scenarios.executionIdentifier, { inParallel: false, status: scenarios.executionIdentifier, projectRoot: pr });
 }
