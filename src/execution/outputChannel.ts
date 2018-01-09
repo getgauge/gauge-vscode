@@ -30,12 +30,16 @@ export class OutputChannel {
 
 	public appendOutBuf(line: string) {
 		let regexes: RegExp[] = [/Specification: /, /at Object.* \(/];
-		for (var i = 0; i < regexes.length; i++) {
-			let matches = line.match(regexes[i]);
-			if (matches) {
-				line = line.replace(matches[0], matches[0] + vscode.workspace.rootPath + path.sep)
+		var lineArray = line.split("\n")
+		for (var j = 0; j < lineArray.length; j++) {
+			for (var i = 0; i < regexes.length; i++) {
+				let matches = lineArray[j].match(regexes[i]);
+				if (matches && !lineArray[j].includes(vscode.workspace.rootPath)) {
+					lineArray[j] = lineArray[j].replace(matches[0], matches[0] + vscode.workspace.rootPath + path.sep)
+				}
 			}
 		}
+		line = lineArray.join("\n")
 		this.outBuf.append(line);
 	}
 
