@@ -43,6 +43,15 @@ suite('Output Channel', () => {
 		done();
 	});
 
+	test('should not change implementation path from relative to absolute if it is already absolute', (done) => {
+		var chan = new MockVSOutputChannel();
+		var outputChannel = new OutputChannel(chan, "");
+		outputChannel.appendOutBuf("      at Object.<anonymous> (" + path.join(vscode.workspace.rootPath,"tests", "step_implementation.js:24:10") +")\n");
+
+		assert.equal(chan.read(), "      at Object.<anonymous> ("+ path.join(vscode.workspace.rootPath,"tests", "step_implementation.js:24:10)"));
+		done();
+	});
+
 	test('should convert implementation path from relative to absolute for lamda methods', (done) => {
 		var chan = new MockVSOutputChannel();
 		var outputChannel = new OutputChannel(chan, "");
