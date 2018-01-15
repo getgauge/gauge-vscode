@@ -77,7 +77,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, () => { return runScenario(clients, true) }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, (scn: Scenario) => {
-        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier });
+        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: getDefaultFolder() });
         return runScenario(clients, false);
     }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, copyToClipboard));
