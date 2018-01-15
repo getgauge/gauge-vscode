@@ -4,7 +4,7 @@ import * as path from 'path';
 
 import {
     workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range, WorkspaceFolder, OutputChannel,
-    commands, WorkspaceFoldersChangeEvent, window, StatusBarAlignment, CancellationTokenSource, version, TextDocument, TextEditor
+    commands, WorkspaceFoldersChangeEvent, window, StatusBarAlignment, CancellationTokenSource, version, TextDocument, TextEditor, languages
 } from 'vscode';
 
 import {
@@ -41,6 +41,9 @@ export function activate(context: ExtensionContext) {
         notifyToInstallGauge(`Cannot find 'gauge' executable or a compatible version (>=${MINIMUM_SUPPORTED_GAUGE_VERSION}) in PATH.`);
         return;
     }
+    languages.setLanguageConfiguration('gauge', {
+		wordPattern: /^(?:[*])([^*].*)$/g
+	});
 
     workspace.workspaceFolders.forEach(folder => startServerFor(folder));
     setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
@@ -50,7 +53,6 @@ export function activate(context: ExtensionContext) {
         if (event.removed) onFolderDeletion(event, context);
         setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1)
     });
-
     notifyOnNewGaugeVsCodeVersion(context, extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
     registerStopExecution(context);
 
@@ -92,7 +94,6 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Open, (node: GaugeNode) => workspace.openTextDocument(node.file).then(showDocumentWithSelection(node))));
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject, () => showProjectOptions(context, switchTreeDataProvider)));
-
     registerTreeDataProvider(context, getDefaultFolder(), true);
 }
 
