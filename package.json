@@ -84,8 +84,8 @@
         "title": "Run All Specifications",
         "category": "Gauge",
         "icon": {
-          "light": "resources/light/refresh.svg",
-          "dark": "resources/dark/refresh.svg"
+          "light": "resources/light/play.svg",
+          "dark": "resources/dark/play.svg"
         }
       },
       {
@@ -148,6 +148,11 @@
           "command": "gauge.specexplorer.refresh",
           "when": "view == gauge:specExplorer",
           "group": "navigation"
+        },
+        {
+          "command": "gauge.execute.specification.all",
+          "when": "view == gauge:specExplorer",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
@@ -167,7 +172,7 @@
       "properties": {
         "gauge.specExplorer.enabled": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "When true, gauge specs explorer will be alive and loaded."
         },
         "gauge.launch.enableDebugLogs": {
