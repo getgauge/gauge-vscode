@@ -9,8 +9,10 @@ import {
 
 import {
     LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, TextDocumentIdentifier, Location as LSLocation,
-    Position as LSPosition, RevealOutputChannelOn, DynamicFeature
+    Position as LSPosition, RevealOutputChannelOn, DynamicFeature, BaseLanguageClient
 } from 'vscode-languageclient';
+
+import { GaugeWorkspaceFeature } from './gaugeWorkspace.proposed';
 
 import { escape } from "querystring";
 
@@ -162,8 +164,15 @@ function startServerFor(folder: WorkspaceFolder) {
     };
     let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
 
+    registerDynamicFeatures(languageClient);
     clients.set(folder.uri.fsPath, languageClient);
     languageClient.start();
+}
+
+function registerDynamicFeatures(languageClient: BaseLanguageClient) {
+    let result: (DynamicFeature<any>)[] = [];
+    result.push(new GaugeWorkspaceFeature(languageClient));
+    languageClient.registerFeatures(result);
 }
 
 function registerTreeDataProvider(context: ExtensionContext, projectPath: string, registerRefresh?: boolean) {
