@@ -60,7 +60,11 @@ export function activate(context: ExtensionContext) {
         let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
         return execute(spec, { inParallel: false, status: spec, projectRoot: cwd })
     }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => { return execute(spec, { inParallel: true, status: spec, projectRoot: workspace.getWorkspaceFolder(spec).uri.fsPath }) }));
+
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => {
+        let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+        return execute(spec, { inParallel: true, status: spec, projectRoot: cwd })
+    }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteFailed, () => {
         if (clients.size > 1)
