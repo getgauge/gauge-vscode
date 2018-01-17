@@ -34,6 +34,7 @@ let launchConfig;
 let treeDataProvider: Disposable = new Disposable(() => undefined);
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
+let specExplorerActiveFolder: string = "";
 
 export function activate(context: ExtensionContext) {
     let gaugeVersionInfo = getGaugeVersionInfo();
@@ -77,6 +78,10 @@ export function activate(context: ExtensionContext) {
         if (clients.size > 1)
             return showProjectOptions(context, (context: ExtensionContext, selection: string) => { runSpecification(selection); });
         return runSpecification(getDefaultFolder());
+    }));
+
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecExplorer, () => {
+        return runSpecification(specExplorerActiveFolder);
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
@@ -186,6 +191,7 @@ function registerTreeDataProvider(context: ExtensionContext, projectPath: string
         if (specExplorerConfig && specExplorerConfig.get<boolean>('enabled')) {
             let provider = new SpecNodeProvider(projectPath, client);
             treeDataProvider = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
+            updateSpecExplorerActiveFolder(projectPath);
             if (registerRefresh) {
                 context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.RefreshExplorer, () => provider.refresh()));
             }
@@ -194,6 +200,10 @@ function registerTreeDataProvider(context: ExtensionContext, projectPath: string
     }).catch((reason) => {
         window.showErrorMessage("Failed to create test explorer.", reason);
     })
+}
+
+function updateSpecExplorerActiveFolder(folder) {
+    specExplorerActiveFolder = folder;
 }
 
 function registerStopExecution(context: ExtensionContext) {

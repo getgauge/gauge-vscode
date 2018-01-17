@@ -82,6 +82,11 @@
       {
         "command": "gauge.execute.specification.all",
         "title": "Run All Specifications",
+        "category": "Gauge"
+      },
+      {
+        "command": "gauge.specexplorer.runAllSpecs",
+        "title": "Run All Specifications",
         "category": "Gauge",
         "icon": {
           "light": "resources/light/play.svg",
@@ -150,7 +155,7 @@
           "group": "navigation"
         },
         {
-          "command": "gauge.execute.specification.all",
+          "command": "gauge.specexplorer.runAllSpecs",
           "when": "view == gauge:specExplorer",
           "group": "navigation"
         }
