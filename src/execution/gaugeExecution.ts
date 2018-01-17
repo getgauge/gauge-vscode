@@ -120,7 +120,8 @@ function executeOptedScenario(scenarios: any): Thenable<any> {
 	return window.showQuickPick<any>(getQuickPickItems(sceHeadings)).then((selected) => {
 		if (selected) {
 			let sce = scenarios.find(sce => selected.label == sce.heading);
-			return execute(sce.executionIdentifier, { inParallel: false, status: sce.executionIdentifier });
+			let pr = workspace.getWorkspaceFolder(Uri.file(sce.executionIdentifier.split(':')[0])).uri.fsPath
+			return execute(sce.executionIdentifier, { inParallel: false, status: sce.executionIdentifier, projectRoot : pr });
 		}
 	}, (reason: any) => {
 		return Promise.reject(reason);
