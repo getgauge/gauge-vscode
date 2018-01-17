@@ -79,7 +79,10 @@ export function activate(context: ExtensionContext) {
         return runSpecification(getDefaultFolder());
     }));
 
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, () => { return runScenario(clients, true) }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
+        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: getBaseFolderByFile(scn.file) });
+        return runScenario(clients, true);
+    }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, (scn: Scenario) => {
         if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: getDefaultFolder() });
         return runScenario(clients, false);
@@ -204,6 +207,16 @@ function getDefaultFolder() {
     let projects: any = [];
     clients.forEach((v, k) => projects.push(k));
     return projects.sort((a: any, b: any) => a > b)[0];
+}
+
+function getBaseFolderByFile(file: string) {
+    let baseFolder: string = "";
+    for (let folder of clients.keys()) {
+        if (file.startsWith(folder)) {
+            baseFolder = folder;
+        }
+    }
+    return baseFolder;
 }
 
 

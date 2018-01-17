@@ -161,7 +161,7 @@
           "when": "view == gauge:specExplorer && viewItem == specification"
         },
         {
-          "command": "gauge.execute.scenarios",
+          "command": "gauge.execute.scenario",
           "when": "view == gauge:specExplorer && viewItem == scenario"
         }
       ]
