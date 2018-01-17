@@ -64,7 +64,7 @@ export abstract class GaugeNode extends vscode.TreeItem{
 	command = {title:'Open File', command: GaugeVSCodeCommands.Open, arguments: [this]}
 }
 
-class Spec extends GaugeNode {
+export class Spec extends GaugeNode {
 
 	constructor(
 		public readonly label: string,

@@ -19,7 +19,7 @@ import cp = require('child_process');
 import opn = require('opn');
 import copyPaste = require('copy-paste');
 import { execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted } from "./execution/gaugeExecution";
-import { SpecNodeProvider, GaugeNode, Scenario } from './explorer/specExplorer'
+import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer'
 import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion'
 
@@ -138,6 +138,12 @@ function showDocumentWithSelection(node: GaugeNode): (value: TextDocument) => Te
             let scenarioNode: Scenario = node;
             let options: TextDocumentShowOptions = {
                 selection: new Range(new Position(scenarioNode.lineNo - 1, 0), new Position(scenarioNode.lineNo - 1, 0))
+            };
+            return window.showTextDocument(document, options);
+        }
+        if (node instanceof Spec) {
+            let options: TextDocumentShowOptions = {
+                selection: new Range(new Position(0, 0), new Position(0, 0))
             };
             return window.showTextDocument(document, options);
         }
