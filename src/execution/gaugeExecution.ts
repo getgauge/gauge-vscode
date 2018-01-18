@@ -72,30 +72,43 @@ export function runSpecification(projectRoot?: string): Thenable<any> {
 		let dirs = workspace.getConfiguration(GAUGE_EXECUTION_CONFIG).get<Array<string>>("specDirs");
 		return execute(dirs.join(" "), { inParallel: false, status: dirs.join(" "), projectRoot: projectRoot });
 	}
-	let doc = window.activeTextEditor.document;
-	if (!extensions.includes(path.extname(doc.fileName))) {
-		window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
-		return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
-	}
-	return execute(doc.fileName, { inParallel: false, status: doc.fileName, projectRoot: workspace.getWorkspaceFolder(doc.uri).uri.fsPath });
-};
+	let activeTextEditor = window.activeTextEditor;
+		if (activeTextEditor){
+			let doc = activeTextEditor.document;
+			if (!extensions.includes(path.extname(doc.fileName))) {
+				window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
+				return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
+			}
+			return execute(doc.fileName, { inParallel: false, status: doc.fileName, projectRoot: workspace.getWorkspaceFolder(doc.uri).uri.fsPath });
+		} else {
+			window.showWarningMessage(`A gauge specification file should be open to run this command.`);
+			return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
+		}
+	};
 
 export function runScenario(clients: Map<String, LanguageClient>, atCursor: boolean): Thenable<any> {
-	let spec = window.activeTextEditor.document.fileName;
-	let lc = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath)
-	if (!extensions.includes(path.extname(spec))) {
-		window.showWarningMessage(`No scenario(s) found. Current file is not a gauge specification.`);
-		return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
-	}
-	return getAllScenarios(lc, atCursor).then((scenarios: any): Thenable<any> => {
-		if (atCursor) {
-			return executeAtCursor(scenarios);
+	let activeTextEditor = window.activeTextEditor;
+	if (activeTextEditor){
+		let spec = activeTextEditor.document.fileName;
+		let lc = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath)
+		if (!extensions.includes(path.extname(spec))) {
+			window.showWarningMessage(`No scenario(s) found. Current file is not a gauge specification.`);
+			return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
 		}
-		return executeOptedScenario(scenarios);
-	}, (reason: any) => {
-		window.showErrorMessage(`found some problems in ${spec}. Fix all problems before running scenarios.`);
-		return Promise.reject(reason);
-	});
+		return getAllScenarios(lc, atCursor).then((scenarios: any): Thenable<any> => {
+			if (atCursor) {
+				return executeAtCursor(scenarios);
+			}
+			return executeOptedScenario(scenarios);
+		}, (reason: any) => {
+			window.showErrorMessage(`found some problems in ${spec}. Fix all problems before running scenarios.`);
+			return Promise.reject(reason);
+		});
+	} else {
+		window.showWarningMessage(`A gauge specification file should be open to run this command.`);
+		return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
+	}
+
 };
 
 function getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Thenable<any> {
