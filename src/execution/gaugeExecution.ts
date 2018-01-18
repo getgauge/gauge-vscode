@@ -133,7 +133,8 @@ function executeOptedScenario(scenarios: any): Thenable<any> {
 	return window.showQuickPick<any>(getQuickPickItems(sceHeadings)).then((selected) => {
 		if (selected) {
 			let sce = scenarios.find(sce => selected.label == sce.heading);
-			let pr = workspace.getWorkspaceFolder(Uri.file(sce.executionIdentifier.split(':')[0])).uri.fsPath
+			let path = sce.executionIdentifier.substring(0, sce.executionIdentifier.lastIndexOf(":"))
+			let pr = workspace.getWorkspaceFolder(Uri.file(path)).uri.fsPath
 			return execute(sce.executionIdentifier, { inParallel: false, status: sce.executionIdentifier, projectRoot : pr });
 		}
 	}, (reason: any) => {
@@ -145,6 +146,8 @@ function executeAtCursor(scenarios: any): Thenable<any> {
 	if (scenarios instanceof Array) {
 		return executeOptedScenario(scenarios);
 	}
-	let pr = workspace.getWorkspaceFolder(Uri.file(scenarios.executionIdentifier.split(':')[0])).uri.fsPath
+	let path = scenarios.executionIdentifier.substring(0, scenarios.executionIdentifier.lastIndexOf(":"))
+	let pr = workspace.getWorkspaceFolder(Uri.file(path)).uri.fsPath
 	return execute(scenarios.executionIdentifier, { inParallel: false, status: scenarios.executionIdentifier, projectRoot: pr });
 }
+
