@@ -240,7 +240,9 @@ function showProjectOptions(context: ExtensionContext, onChange: Function) {
     let projectItems = [];
     clients.forEach((v, k) => projectItems.push({ label: path.basename(k), description: k }));
     return window.showQuickPick(projectItems).then((selected) => {
-        return onChange(context, selected.description);
+        if (selected) {
+            return onChange(context, selected.description);
+        }
     }, (err) => {
         window.showErrorMessage('Unable to select project.', err)
     })
