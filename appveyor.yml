@@ -1,0 +1,27 @@
+environment:
+  nodejs_version: "8"
+
+init:
+- ps: Install-Product node $env:nodejs_version
+- ps: sleep 10
+- ps: npm install npm@latest -g
+- ps: node --version
+- ps: npm --version
+- ps: npm config set package-lock false
+
+build_script:
+- ps: |
+    .\installGaugeNightly.ps1
+    $env:Path = "c:\Program Files\Gauge\bin;" + [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Write-Host "PATH : $($env:PATH)"
+    gauge.exe version
+    gauge.exe install screenshot
+    echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" >> $HOME/.gauge/config/gauge.properties
+    gauge.exe install js
+    gauge.exe install html-report
+    gauge.exe version
+
+test_script:
+- ps: npm --loglevel=error install
+- ps: npm run vscode:prepublish
+- ps: npm test
