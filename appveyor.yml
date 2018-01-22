@@ -16,7 +16,7 @@ build_script:
     Write-Host "PATH : $($env:PATH)"
     gauge.exe version
     gauge.exe install screenshot
-    echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" >> $HOME/.gauge/config/gauge.properties
+    echo "`ngauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" | add-content $env:APPDATA/gauge/config/gauge.properties -Encoding Ascii
     gauge.exe install js
     gauge.exe install html-report
     gauge.exe version
