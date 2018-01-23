@@ -158,7 +158,7 @@ function startServerFor(folder: WorkspaceFolder) {
     }
     ;
     let clientOptions = {
-        documentSelector: [{ scheme: 'file', language: 'gauge', pattern: `${folder.uri.fsPath}/*/**` }],
+        documentSelector: [{ scheme: 'file', language: 'gauge', pattern: `${folder.uri.fsPath}/**/*` }],
         diagnosticCollectionName: 'gauge',
         workspaceFolder: folder,
         outputChannel: outputChannel,
