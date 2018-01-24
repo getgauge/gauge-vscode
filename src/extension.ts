@@ -75,7 +75,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, (spec: Spec) => {
         if (spec) {
-            return runSpecification(workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath)
+            return execute(spec.file, { inParallel: false, status: spec.file, projectRoot: workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath });
         }
         return runSpecification() }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecs, () => {
