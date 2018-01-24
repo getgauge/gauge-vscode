@@ -73,7 +73,11 @@ export function activate(context: ExtensionContext) {
         return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: getDefaultFolder() });
     }));
 
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, () => { return runSpecification() }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, (spec: Spec) => {
+        if (spec) {
+            return runSpecification(workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath)
+        }
+        return runSpecification() }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecs, () => {
         if (clients.size > 1)
             return showProjectOptions(context, (context: ExtensionContext, selection: string) => { runSpecification(selection); });
@@ -85,11 +89,10 @@ export function activate(context: ExtensionContext) {
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
-        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: getBaseFolderByFile(scn.file) });
+        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: workspace.getWorkspaceFolder(Uri.file(scn.file)).uri.fsPath });
         return runScenario(clients, true);
     }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, (scn: Scenario) => {
-        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: getDefaultFolder() });
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, () => {
         return runScenario(clients, false);
     }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, copyToClipboard));
@@ -224,17 +227,6 @@ function getDefaultFolder() {
     clients.forEach((v, k) => projects.push(k));
     return projects.sort((a: any, b: any) => a > b)[0];
 }
-
-function getBaseFolderByFile(file: string) {
-    let baseFolder: string = "";
-    for (let folder of clients.keys()) {
-        if (file.startsWith(folder)) {
-            baseFolder = folder;
-        }
-    }
-    return baseFolder;
-}
-
 
 function showProjectOptions(context: ExtensionContext, onChange: Function) {
     let projectItems = [];

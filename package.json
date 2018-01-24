@@ -141,6 +141,10 @@
         {
           "command": "gauge.specexplorer.refresh",
           "when": "1 == 2"
+        },
+        {
+          "command": "gauge.specexplorer.runAllSpecs",
+          "when": "false"
         }
       ],
       "view/title": [
