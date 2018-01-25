@@ -31,7 +31,7 @@ export class OutputChannel {
 	}
 
 	public appendOutBuf(line: string) {
-		let regexes: RegExp[] = [/Specification: /, /at Object.* \(/];
+		let regexes: RegExp[] = [/Specification: /, /at Object.<anonymous>* \(/];
 		var lineArray = line.split("\n")
 		for (var j = 0; j < lineArray.length; j++) {
 			for (var i = 0; i < regexes.length; i++) {

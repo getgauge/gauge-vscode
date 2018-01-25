@@ -12,6 +12,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 	readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
 	constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
+		vscode.workspace.onDidSaveTextDocument(() => this.refresh());
 	}
 
 	refresh(element? : GaugeNode): void {
@@ -63,7 +64,7 @@ export abstract class GaugeNode extends vscode.TreeItem{
 	command = {title:'Open File', command: GaugeVSCodeCommands.Open, arguments: [this]}
 }
 
-class Spec extends GaugeNode {
+export class Spec extends GaugeNode {
 
 	constructor(
 		public readonly label: string,

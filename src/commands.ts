@@ -16,6 +16,7 @@ export enum GaugeVSCodeCommands {
 	ExecuteFailed = 'gauge.execute.failed',
 	ExecuteSpec = 'gauge.execute.specification',
 	ExecuteAllSpecs = 'gauge.execute.specification.all',
+	ExecuteAllSpecExplorer = 'gauge.specexplorer.runAllActiveProjectSpecs',
 	ExecuteScenario = 'gauge.execute.scenario',
 	ExecuteScenarios = 'gauge.execute.scenarios',
 	CopyStub = 'gauge.copy.unimplemented.stub',
