@@ -82,6 +82,11 @@
       {
         "command": "gauge.execute.specification.all",
         "title": "Run All Specifications",
+        "category": "Gauge"
+      },
+      {
+        "command": "gauge.specexplorer.runAllActiveProjectSpecs",
+        "title": "Run All Active Project Specifications",
         "category": "Gauge",
         "icon": {
           "light": "resources/light/play.svg",
@@ -136,6 +141,10 @@
         {
           "command": "gauge.specexplorer.refresh",
           "when": "1 == 2"
+        },
+        {
+          "command": "gauge.specexplorer.runAllActiveProjectSpecs",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -150,7 +159,7 @@
           "group": "navigation"
         },
         {
-          "command": "gauge.execute.specification.all",
+          "command": "gauge.specexplorer.runAllActiveProjectSpecs",
           "when": "view == gauge:specExplorer",
           "group": "navigation"
         }
@@ -161,7 +170,7 @@
           "when": "view == gauge:specExplorer && viewItem == specification"
         },
         {
-          "command": "gauge.execute.scenarios",
+          "command": "gauge.execute.scenario",
           "when": "view == gauge:specExplorer && viewItem == scenario"
         }
       ]

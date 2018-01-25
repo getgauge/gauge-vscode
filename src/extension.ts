@@ -19,7 +19,7 @@ import cp = require('child_process');
 import opn = require('opn');
 import copyPaste = require('copy-paste');
 import { execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted } from "./execution/gaugeExecution";
-import { SpecNodeProvider, GaugeNode, Scenario } from './explorer/specExplorer'
+import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer'
 import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion'
 
@@ -34,6 +34,7 @@ let launchConfig;
 let treeDataProvider: Disposable = new Disposable(() => undefined);
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
+let specExplorerActiveFolder: string = "";
 
 export function activate(context: ExtensionContext) {
     let gaugeVersionInfo = getGaugeVersionInfo();
@@ -72,16 +73,26 @@ export function activate(context: ExtensionContext) {
         return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: getDefaultFolder() });
     }));
 
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, () => { return runSpecification() }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, (spec: Spec) => {
+        if (spec) {
+            return execute(spec.file, { inParallel: false, status: spec.file, projectRoot: workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath });
+        }
+        return runSpecification() }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecs, () => {
         if (clients.size > 1)
             return showProjectOptions(context, (context: ExtensionContext, selection: string) => { runSpecification(selection); });
         return runSpecification(getDefaultFolder());
     }));
 
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, () => { return runScenario(clients, true) }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, (scn: Scenario) => {
-        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: getDefaultFolder() });
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecExplorer, () => {
+        return runSpecification(specExplorerActiveFolder);
+    }));
+
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
+        if (scn) return execute(scn.executionIdentifier, { inParallel: false, status: scn.executionIdentifier, projectRoot: workspace.getWorkspaceFolder(Uri.file(scn.file)).uri.fsPath });
+        return runScenario(clients, true);
+    }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, () => {
         return runScenario(clients, false);
     }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, copyToClipboard));
@@ -138,6 +149,12 @@ function showDocumentWithSelection(node: GaugeNode): (value: TextDocument) => Te
             };
             return window.showTextDocument(document, options);
         }
+        if (node instanceof Spec) {
+            let options: TextDocumentShowOptions = {
+                selection: new Range(new Position(0, 0), new Position(0, 0))
+            };
+            return window.showTextDocument(document, options);
+        }
         return window.showTextDocument(document);
     };
 }
@@ -177,6 +194,7 @@ function registerTreeDataProvider(context: ExtensionContext, projectPath: string
         if (specExplorerConfig && specExplorerConfig.get<boolean>('enabled')) {
             let provider = new SpecNodeProvider(projectPath, client);
             treeDataProvider = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
+            updateSpecExplorerActiveFolder(projectPath);
             if (registerRefresh) {
                 context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.RefreshExplorer, () => provider.refresh()));
             }
@@ -185,6 +203,10 @@ function registerTreeDataProvider(context: ExtensionContext, projectPath: string
     }).catch((reason) => {
         window.showErrorMessage("Failed to create test explorer.", reason);
     })
+}
+
+function updateSpecExplorerActiveFolder(folder) {
+    specExplorerActiveFolder = folder;
 }
 
 function registerStopExecution(context: ExtensionContext) {
@@ -206,12 +228,13 @@ function getDefaultFolder() {
     return projects.sort((a: any, b: any) => a > b)[0];
 }
 
-
 function showProjectOptions(context: ExtensionContext, onChange: Function) {
     let projectItems = [];
     clients.forEach((v, k) => projectItems.push({ label: path.basename(k), description: k }));
     return window.showQuickPick(projectItems).then((selected) => {
-        return onChange(context, selected.description);
+        if (selected) {
+            return onChange(context, selected.description);
+        }
     }, (err) => {
         window.showErrorMessage('Unable to select project.', err)
     })
