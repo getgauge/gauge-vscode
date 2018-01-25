@@ -12,7 +12,9 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 	readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
 	constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
-		vscode.workspace.onDidSaveTextDocument(() => this.refresh());
+		vscode.workspace.onDidChangeTextDocument(() => this.refresh());
+		vscode.workspace.onDidChangeWorkspaceFolders(() => this.refresh());
+		vscode.workspace.onDidCloseTextDocument(() => this.refresh());
 	}
 
 	refresh(element? : GaugeNode): void {
