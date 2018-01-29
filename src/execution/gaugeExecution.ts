@@ -47,14 +47,14 @@ export function execute(spec: string, config: any): Thenable<any> {
 function setDebugConf(config: any): Thenable<any> {
 	let env = Object.create(process.env);
 	if (config.debug) {
-		env.DEBUG = true;
-		return getPort({ port: 9230 }).then((port) => {
+		env.DEBUGGING = true;
+		return getPort({ port: 9229 }).then((port) => {
 			let debugConfig = {
 				type: "node",
 				name: "Gauge Debugger",
 				request: "attach",
 				port: port,
-				sourceMaps: true
+				protocol: "inspector"
 			};
 			env.DEBUG_PORT = port;
 			debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri), debugConfig);
