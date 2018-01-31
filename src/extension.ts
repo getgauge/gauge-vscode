@@ -9,7 +9,7 @@ import {
 
 import {
     LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, TextDocumentIdentifier, Location as LSLocation,
-    Position as LSPosition, RevealOutputChannelOn, DynamicFeature, BaseLanguageClient
+    Position as LSPosition, RevealOutputChannelOn, DynamicFeature
 } from 'vscode-languageclient';
 
 import { GaugeWorkspaceFeature } from './gaugeWorkspace.proposed';
@@ -61,7 +61,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
         let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
-        return execute(spec, { inParallel: false, status: spec, projectRoot: cwd })
+        return execute(spec, { inParallel: false, status: spec, projectRoot: cwd });
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => {
@@ -190,7 +190,7 @@ function startServerFor(folder: WorkspaceFolder) {
     languageClient.start();
 }
 
-function registerDynamicFeatures(languageClient: BaseLanguageClient) {
+function registerDynamicFeatures(languageClient: LanguageClient) {
     let result: (DynamicFeature<any>)[] = [];
     result.push(new GaugeWorkspaceFeature(languageClient));
     languageClient.registerFeatures(result);
