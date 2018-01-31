@@ -66,7 +66,7 @@ suite('Gauge Execution Tests', () => {
 			assert.equal(status, false);
 			done();
 		}, err => done(err));
-		commands.executeCommand('gauge.stopExecution').then(() => { }, () => { });
+		commands.executeCommand('gauge.stopExecution').then(() => { done(); }, () => { done() });
 	}).timeout(10000);
 
 	test('should reject execution when another is already in progress', (done) => {
