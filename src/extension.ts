@@ -12,6 +12,8 @@ import {
     Position as LSPosition, RevealOutputChannelOn, DynamicFeature
 } from 'vscode-languageclient';
 
+import { GaugeWorkspaceFeature } from './gaugeWorkspace.proposed';
+
 import { escape } from "querystring";
 
 import fs = require('fs');
@@ -59,7 +61,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
         let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
-        return execute(spec, { inParallel: false, status: spec, projectRoot: cwd })
+        return execute(spec, { inParallel: false, status: spec, projectRoot: cwd });
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => {
@@ -183,8 +185,15 @@ function startServerFor(folder: WorkspaceFolder) {
     };
     let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
 
+    registerDynamicFeatures(languageClient);
     clients.set(folder.uri.fsPath, languageClient);
     languageClient.start();
+}
+
+function registerDynamicFeatures(languageClient: LanguageClient) {
+    let result: (DynamicFeature<any>)[] = [];
+    result.push(new GaugeWorkspaceFeature(languageClient));
+    languageClient.registerFeatures(result);
 }
 
 function registerTreeDataProvider(context: ExtensionContext, projectPath: string, registerRefresh?: boolean) {
