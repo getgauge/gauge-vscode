@@ -31,7 +31,7 @@ This extension adds language support for the Gauge projects, including:
 ### References
 
 Shows step usages for a step implementation.
-	
+
 ### Run all specifications from command palette
 
 Execute command `Gauge: Run All Specification` to run all the specification in `specs` (default) directory. Use `gauge.execution.specDirs` configuration to add or remove spec directories.
@@ -43,7 +43,7 @@ Execute command `Gauge: Run Specification` to run the current open specification
 ### Run scenarios from command palette
 
 Execute command `Gauge: Run Scenarios` to choose a scenario form current specification and run.
-	
+
 ### Run scenario at cursor from command palette
 
 Execute command `Gauge: Run Scenario At Cursor` to the scenario at cursor. It will ask to choose a scenario If cursor is not in scenario context.
@@ -51,7 +51,7 @@ Execute command `Gauge: Run Scenario At Cursor` to the scenario at cursor. It wi
 ### Repeat last gauge execution from command palette
 
 Execute command `Gauge: Repeat Last Run` to repeat last gauge execution.
-	
+
 ### Re-run failed scenarios from previous run
 
 Execute command `Gauge: Re-Run Failed Scenario(s)` to repeat only failed scenarios from last gauge execution.
@@ -70,6 +70,7 @@ Execute command `Gauge: Re-Run Failed Scenario(s)` to repeat only failed scenari
 
 These configurations can be configured in [VSCode settings](https://code.visualstudio.com/docs/getstarted/settings).
 * `gauge.launch.enableDebugLogs` :  Starts gauge lsp server with log-level `debug`. Defaults to `false`.
+* `gauge.execution.debugPort` :  Defaults debug port to `9229`.
 * `gauge.execution.specDirs` : List of specification directories which can be run by executing `Gauge: Run All Specifications` from command palette.
 * `gauge.notification.suppressUpdateNotification` :  Stops showing notifications for gauge-vscode plugin auto-updates. Defaults to `false`.
 

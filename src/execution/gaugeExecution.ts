@@ -1,6 +1,6 @@
 'use strict';
 
-import { window, Position, workspace, Uri, WorkspaceFolder, CancellationTokenSource } from 'vscode';
+import { window, Position, workspace, Uri, CancellationTokenSource, debug } from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient'
 import cp = require('child_process');
 import path = require('path');
@@ -8,13 +8,16 @@ import { LineBuffer } from './lineBuffer'
 import { OutputChannel } from './outputChannel'
 import { GaugeVSCodeCommands, GaugeCommands } from '../commands';
 import { ChildProcess } from 'child_process';
+import getPort = require('get-port');
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution"
+const DEBUG_PORT = 'debugPort';
+
 let outputChannel = window.createOutputChannel(outputChannelName);
 let executing: boolean;
-let process: ChildProcess;
+let childProcess: ChildProcess;
 let preExecute: Function[] = [];
 let postExecute: Function[] = [];
 
@@ -26,23 +29,47 @@ export function execute(spec: string, config: any): Thenable<any> {
 		}
 
 		executing = true;
-		preExecute.forEach(f => f.call(null, path.relative(config.projectRoot, config.status)))
-		let args = getArgs(spec, config);
-		let chan = new OutputChannel(outputChannel, ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '), config.projectRoot);
-		process = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot });
-		process.stdout.on('data', chunk => chan.appendOutBuf(chunk.toString()));
-		process.stderr.on('data', chunk => chan.appendErrBuf(chunk.toString()));
-		process.on('exit', (code, signal) => {
-			chan.onFinish(resolve, code, signal !== null);
-			executing = false;
-			postExecute.forEach(f => f.call(null));
+		preExecute.forEach(f => f.call(null, path.relative(config.projectRoot, config.status)));
+		setDebugConf(config).then((env) => {
+			let args = getArgs(spec, config);
+			let chan = new OutputChannel(outputChannel, ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '), config.projectRoot);
+			childProcess = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot, env: env });
+
+			childProcess.stdout.on('data', chunk => chan.appendOutBuf(chunk.toString()));
+			childProcess.stderr.on('data', chunk => chan.appendErrBuf(chunk.toString()));
+			childProcess.on('exit', (code, signal) => {
+				chan.onFinish(resolve, code, signal !== null);
+				executing = false;
+				postExecute.forEach(f => f.call(null));
+			});
 		});
 	});
 }
 
+function setDebugConf(config: any): Thenable<any> {
+	let env = Object.create(process.env);
+	if (config.debug) {
+		env.DEBUGGING = true;
+		return getPort({ port: DEBUG_PORT}).then((port) => {
+			let debugConfig = {
+				type: "node",
+				name: "Gauge Debugger",
+				request: "attach",
+				port: port,
+				protocol: "inspector"
+			};
+			env.DEBUG_PORT = port;
+			debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri), debugConfig);
+			return env;
+		});
+	} else {
+		return Promise.resolve(env);
+	}
+}
+
 export function cancel() {
-	if (process && !process.killed)
-		process.kill();
+	if (childProcess && !childProcess.killed)
+		childProcess.kill();
 }
 
 export function onBeforeExecute(hook: Function) {
@@ -73,22 +100,22 @@ export function runSpecification(projectRoot?: string): Thenable<any> {
 		return execute(dirs.join(" "), { inParallel: false, status: dirs.join(" "), projectRoot: projectRoot });
 	}
 	let activeTextEditor = window.activeTextEditor;
-		if (activeTextEditor){
-			let doc = activeTextEditor.document;
-			if (!extensions.includes(path.extname(doc.fileName))) {
-				window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
-				return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
-			}
-			return execute(doc.fileName, { inParallel: false, status: doc.fileName, projectRoot: workspace.getWorkspaceFolder(doc.uri).uri.fsPath });
-		} else {
-			window.showWarningMessage(`A gauge specification file should be open to run this command.`);
-			return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
+	if (activeTextEditor) {
+		let doc = activeTextEditor.document;
+		if (!extensions.includes(path.extname(doc.fileName))) {
+			window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
+			return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
 		}
-	};
+		return execute(doc.fileName, { inParallel: false, status: doc.fileName, projectRoot: workspace.getWorkspaceFolder(doc.uri).uri.fsPath });
+	} else {
+		window.showWarningMessage(`A gauge specification file should be open to run this command.`);
+		return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
+	}
+};
 
 export function runScenario(clients: Map<String, LanguageClient>, atCursor: boolean): Thenable<any> {
 	let activeTextEditor = window.activeTextEditor;
-	if (activeTextEditor){
+	if (activeTextEditor) {
 		let spec = activeTextEditor.document.fileName;
 		let lc = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath)
 		if (!extensions.includes(path.extname(spec))) {
@@ -135,7 +162,7 @@ function executeOptedScenario(scenarios: any): Thenable<any> {
 			let sce = scenarios.find(sce => selected.label == sce.heading);
 			let path = sce.executionIdentifier.substring(0, sce.executionIdentifier.lastIndexOf(":"))
 			let pr = workspace.getWorkspaceFolder(Uri.file(path)).uri.fsPath
-			return execute(sce.executionIdentifier, { inParallel: false, status: sce.executionIdentifier, projectRoot : pr });
+			return execute(sce.executionIdentifier, { inParallel: false, status: sce.executionIdentifier, projectRoot: pr });
 		}
 	}, (reason: any) => {
 		return Promise.reject(reason);
