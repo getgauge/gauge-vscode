@@ -72,7 +72,7 @@ export function activate(context: ExtensionContext) {
         let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
         return execute(spec, { inParallel: false, status: spec, projectRoot: cwd, debug : true })
     }));
-    
+
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteFailed, () => {
         if (clients.size > 1)
             return showProjectOptions(context, (context: ExtensionContext, selection: string) => { execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: selection }); });

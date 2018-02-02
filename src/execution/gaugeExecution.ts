@@ -13,6 +13,8 @@ import getPort = require('get-port');
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution"
+const DEBUG_PORT = 'debugPort';
+
 let outputChannel = window.createOutputChannel(outputChannelName);
 let executing: boolean;
 let childProcess: ChildProcess;
@@ -48,7 +50,7 @@ function setDebugConf(config: any): Thenable<any> {
 	let env = Object.create(process.env);
 	if (config.debug) {
 		env.DEBUGGING = true;
-		return getPort({ port: 9229 }).then((port) => {
+		return getPort({ port: DEBUG_PORT}).then((port) => {
 			let debugConfig = {
 				type: "node",
 				name: "Gauge Debugger",

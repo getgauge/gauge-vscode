@@ -189,6 +189,11 @@
           "default": false,
           "description": "When true, communication between vscode and gauge server will be logged."
         },
+        "gauge.execution.debugPort": {
+          "type": "int",
+          "default": 9229,
+          "description": "Default debug port."
+        },
         "gauge.execution.specDirs": {
           "type": "array",
           "default": [
