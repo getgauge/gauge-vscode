@@ -31,8 +31,11 @@ const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_SUPPRESS_UPDATE_NOTIF = 'gauge.notification.suppressUpdateNotification';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
-let launchConfig;
+const VIEW_REPORT = "View Report";
+const RE_RUN_TESTS = "Re-run tests";
+const RE_RUN_FAILED_TESTS = "Re-run failed tests";
 
+let launchConfig;
 let treeDataProvider: Disposable = new Disposable(() => undefined);
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
@@ -58,6 +61,7 @@ export function activate(context: ExtensionContext) {
     });
     notifyOnNewGaugeVsCodeVersion(context, extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
     registerStopExecution(context);
+    registerExecutionStatus(context);
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
         let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
@@ -235,6 +239,24 @@ function registerStopExecution(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.StopExecution, () => { cancel(); }));
 }
 
+function registerExecutionStatus(context: ExtensionContext) {
+    let executionStatus = window.createStatusBarItem(StatusBarAlignment.Left, 3);
+    executionStatus.command = GaugeVSCodeCommands.QuickPick;
+    executionStatus.tooltip = 'Click to See Execution Status';
+    context.subscriptions.push(executionStatus);
+    onExecuted(() => {
+        let languageClient = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath);
+
+        return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
+            (val: any) => {
+                executionStatus.text = val.Passed.toString()+"/P, "+ val.Failed.toString()+"/F, " + val.Skipped.toString()+"/S";
+                executionStatus.show();
+            }
+        );
+    });
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.QuickPick, () => { showQuickPickItems(); }));
+}
+
 function getDefaultFolder() {
     let projects: any = [];
     clients.forEach((v, k) => projects.push(k));
@@ -288,6 +310,25 @@ function showStepReferences(clients: Map<string, LanguageClient>): (uri: string,
             return showReferences(locations, uri, languageClient, position);
         });
     };
+}
+
+function showQuickPickItems() {
+    let commandsList = [];
+    commandsList.push({ label: VIEW_REPORT});
+    commandsList.push({ label: RE_RUN_TESTS});
+    commandsList.push({ label: RE_RUN_FAILED_TESTS});
+    return window.showQuickPick(commandsList).then((selected) => {
+        if (selected.label == VIEW_REPORT){
+            var url = "file:///" + getDefaultFolder() + "/reports/html-report/index.html";
+            return opn(url);
+        } else if (selected.label == RE_RUN_TESTS) {
+            return execute(null, { repeat: true, status: "previous run", projectRoot: getDefaultFolder() });
+        } else if(selected.label == RE_RUN_FAILED_TESTS){
+            return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: getDefaultFolder() });
+        }
+    }, (err) => {
+        window.showErrorMessage('Unable to select Command.', err)
+    })
 }
 
 function showStepReferencesAtCursor(clients: Map<string, LanguageClient>): () => Thenable<any> {

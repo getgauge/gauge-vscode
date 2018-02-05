@@ -26,7 +26,8 @@ export enum GaugeVSCodeCommands {
 	ReportIssue = 'gauge.help.reportIssue',
 	Open = 'gauge.open',
 	RepeatExecution = 'gauge.execute.repeat',
-	SwitchProject = 'gauge.specexplorer.switchProject'
+	SwitchProject = 'gauge.specexplorer.switchProject',
+	QuickPick = 'gauge.quickPick.open'
 }
 
 export enum GaugeCommands {
