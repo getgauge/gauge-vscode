@@ -240,16 +240,16 @@ function registerStopExecution(context: ExtensionContext) {
 }
 
 function registerExecutionStatus(context: ExtensionContext) {
-    let executionStatus = window.createStatusBarItem(StatusBarAlignment.Left, 3);
+    let executionStatus = window.createStatusBarItem(StatusBarAlignment.Left, 1);
     executionStatus.command = GaugeVSCodeCommands.QuickPick;
-    executionStatus.tooltip = 'Click to See Execution Status';
     context.subscriptions.push(executionStatus);
-    onExecuted(() => {
-        let languageClient = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath);
-
+    onExecuted((projectRoot) => {
+        let languageClient = clients.get(projectRoot);
         return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
             (val: any) => {
-                executionStatus.text = val.Passed.toString()+"/P, "+ val.Failed.toString()+"/F, " + val.Skipped.toString()+"/S";
+                executionStatus.text = `$(check) $(x) $(issue-opened)`;
+                executionStatus.tooltip ="Specs : " + val.SpecsExecuted.toString() + " Executed, " + val.SpecsPassed.toString() + " Passed, " + val.SpecsFailed.toString()+" Failed, " + val.SpecsSkipped.toString() + " Skipped" + "\n" +
+                                        "Scenarios : " + val.SceExecuted.toString() + " Executed, " + val.ScePassed.toString() + " Passed, " + val.SceFailed.toString()+" Failed, " + val.SceSkipped.toString() + " Skipped";
                 executionStatus.show();
             }
         );

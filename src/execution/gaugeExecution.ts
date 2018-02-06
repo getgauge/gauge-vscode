@@ -40,7 +40,7 @@ export function execute(spec: string, config: any): Thenable<any> {
 			childProcess.on('exit', (code, signal) => {
 				chan.onFinish(resolve, code, signal !== null);
 				executing = false;
-				postExecute.forEach(f => f.call(null));
+				postExecute.forEach(f => f.call(null, config.projectRoot));
 			});
 		});
 	});
