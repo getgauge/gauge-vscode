@@ -16,7 +16,7 @@ let statusHandler = (done) => {
 let errorHandler = (done) => {
 	return (err) => {
 		assert.ok(false, 'Error: ' + err);
-		done();
+		done(err);
 	};
 };
 

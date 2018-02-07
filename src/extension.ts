@@ -205,7 +205,7 @@ function registerDynamicFeatures(languageClient: LanguageClient) {
 }
 
 function registerTreeDataProvider(context: ExtensionContext, projectPath: string, registerRefresh?: boolean) {
-    let client = clients.get(projectPath);
+    let client = clients.get(Uri.file(projectPath).fsPath);
     client.onReady().then(() => {
         let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
         if (specExplorerConfig && specExplorerConfig.get<boolean>('enabled')) {
@@ -244,7 +244,7 @@ function registerExecutionStatus(context: ExtensionContext) {
     executionStatus.command = GaugeVSCodeCommands.QuickPick;
     context.subscriptions.push(executionStatus);
     onExecuted((projectRoot) => {
-        let languageClient = clients.get(projectRoot);
+        let languageClient = clients.get(Uri.file(projectRoot).fsPath);
         return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
             (val: any) => {
                 executionStatus.text = val.ScePassed.toString() + `$(check) ` + val.SceFailed.toString() + `$(x) ` + val.SceSkipped.toString() +`$(issue-opened)`;
