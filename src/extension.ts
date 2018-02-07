@@ -247,7 +247,7 @@ function registerExecutionStatus(context: ExtensionContext) {
         let languageClient = clients.get(projectRoot);
         return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
             (val: any) => {
-                executionStatus.text = `$(check) $(x) $(issue-opened)`;
+                executionStatus.text = val.ScePassed.toString() + `$(check) ` + val.SceFailed.toString() + `$(x) ` + val.SceSkipped.toString() +`$(issue-opened)`;
                 executionStatus.tooltip ="Specs : " + val.SpecsExecuted.toString() + " Executed, " + val.SpecsPassed.toString() + " Passed, " + val.SpecsFailed.toString()+" Failed, " + val.SpecsSkipped.toString() + " Skipped" + "\n" +
                                         "Scenarios : " + val.SceExecuted.toString() + " Executed, " + val.ScePassed.toString() + " Passed, " + val.SceFailed.toString()+" Failed, " + val.SceSkipped.toString() + " Skipped";
                 executionStatus.show();
