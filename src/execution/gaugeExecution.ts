@@ -70,7 +70,9 @@ function setDebugConf(config: any): Thenable<any> {
 export function cancel() {
 	if (childProcess && !childProcess.killed){
 		let activeDebugSession = debug.activeDebugSession;
-		activeDebugSession.customRequest("disconnect");
+		if (activeDebugSession){
+			activeDebugSession.customRequest("disconnect");
+		}
 		childProcess.kill();
 	}
 }
