@@ -103,8 +103,8 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, () => {
         return runScenario(clients, false);
     }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, (code) => {
-        return showImplementationFileOptions(context, (context: ExtensionContext, selection: string) => { appendToFile(selection, code); });
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, () => {
+        return showImplementationFileOptions(context, (context: ExtensionContext, selection: string) => { appendToFile(selection); });
     }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ShowReferencesAtCursor, showStepReferencesAtCursor(clients)));
 
@@ -349,15 +349,11 @@ function showUpdateMessage(version: string) {
     });
 }
 
-function putStubImplementationInFileContent(cwd, filePath, code) {
+function putStubImplementationInFileContent(cwd, filePath, stepTexts) {
     return new Promise((resolve,reject) => {
-        clients.get(cwd).sendRequest("gauge/putStubImpl", {filePath: filePath, code: code}, new CancellationTokenSource().token).then(
-            (val: {filePath: string, content: string, error: string}) => {
-                if (val.error != "") {
-                    resolve(val.content)
-                } else {
-                    reject(val.error)
-                }
+        clients.get(cwd).sendRequest("gauge/putStubImpl", {implementationFilePath: filePath, stepTexts: stepTexts}, new CancellationTokenSource().token).then(
+            (val: {fileName: string, fileContent: string}) => {
+                resolve(val.fileContent)
             },
             (reason) => {
                 reject(reason)
@@ -382,14 +378,14 @@ function writeToFileInTextEditor(filePath, contents) {
     )
 }
 
-function appendToFile(fileName, code) {
+function appendToFile(fileName) {
     let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
-    if (fileName == COPY_TO_CLIPBOARD_DISPLAY_MESSAGE) {
-        copyPaste.copy(code)
-        window.showInformationMessage("Step Implementation copied to clipboard")
-    } else if (fileName == NEW_FILE_DISPLAY_MESSAGE) {
+    var position = window.activeTextEditor.selection.start;
+    var text = window.activeTextEditor.document.lineAt(position.line).text.slice(1);
+    var texts = [].concat(text);
+    if (fileName == NEW_FILE_DISPLAY_MESSAGE) {
         window.showInputBox().then((val) => {
-            putStubImplementationInFileContent(cwd, val, code).then(
+            putStubImplementationInFileContent(cwd, val, texts).then(
                 (content) => {
                     writeToFileInTextEditor(val, content)
                 },
@@ -398,8 +394,18 @@ function appendToFile(fileName, code) {
                 }
             )
         })
+    } else if (fileName == COPY_TO_CLIPBOARD_DISPLAY_MESSAGE) {
+        putStubImplementationInFileContent(cwd, "", texts).then(
+            (content) => {
+                copyPaste.copy(content)
+                window.showInformationMessage("Step Implementation copied to clipboard")
+            },
+            (reason) => {
+                window.showErrorMessage("Step Implementation could not be copied to clipboard because "+ reason);
+            }
+        )
     } else {
-        putStubImplementationInFileContent(cwd, fileName, code).then(
+        putStubImplementationInFileContent(cwd, fileName, texts).then(
             (content) => {
                 writeToFileInTextEditor(fileName, content)
             },
@@ -412,7 +418,7 @@ function appendToFile(fileName, code) {
 
 function getImplementationFiles(cwd) {
     return new Promise((resolve,reject) => {
-        clients.get(cwd).sendRequest("gauge/getImplFiles", cwd, new CancellationTokenSource().token).then(
+        clients.get(cwd).sendRequest("gauge/getImplFiles", new CancellationTokenSource().token).then(
             (val: any[]) => {
                 resolve(val)
             }
