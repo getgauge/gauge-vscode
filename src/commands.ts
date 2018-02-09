@@ -27,7 +27,7 @@ export enum GaugeVSCodeCommands {
 	Open = 'gauge.open',
 	RepeatExecution = 'gauge.execute.repeat',
 	SwitchProject = 'gauge.specexplorer.switchProject',
-	QuickPick = 'gauge.quickPick.open'
+	QuickPickOnExecution = 'gauge.quickPick.onExecution.open'
 }
 
 export enum GaugeCommands {

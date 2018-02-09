@@ -241,20 +241,22 @@ function registerStopExecution(context: ExtensionContext) {
 
 function registerExecutionStatus(context: ExtensionContext) {
     let executionStatus = window.createStatusBarItem(StatusBarAlignment.Left, 1);
-    executionStatus.command = GaugeVSCodeCommands.QuickPick;
+    executionStatus.command = GaugeVSCodeCommands.QuickPickOnExecution;
     context.subscriptions.push(executionStatus);
+    let root;
     onExecuted((projectRoot) => {
+        root = projectRoot;
         let languageClient = clients.get(Uri.file(projectRoot).fsPath);
         return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
             (val: any) => {
-                executionStatus.text = val.ScePassed.toString() + `$(check) ` + val.SceFailed.toString() + `$(x) ` + val.SceSkipped.toString() +`$(issue-opened)`;
-                executionStatus.tooltip ="Specs : " + val.SpecsExecuted.toString() + " Executed, " + val.SpecsPassed.toString() + " Passed, " + val.SpecsFailed.toString()+" Failed, " + val.SpecsSkipped.toString() + " Skipped" + "\n" +
-                                        "Scenarios : " + val.SceExecuted.toString() + " Executed, " + val.ScePassed.toString() + " Passed, " + val.SceFailed.toString()+" Failed, " + val.SceSkipped.toString() + " Skipped";
+                executionStatus.text = val.scePassed + `$(check) ` + val.sceFailed + `$(x) ` + val.sceSkipped +`$(issue-opened)`;
+                executionStatus.tooltip ="Specs : " + val.specsExecuted + " Executed, " + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped + " Skipped" + "\n" +
+                                        "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
                 executionStatus.show();
             }
         );
     });
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.QuickPick, () => { showQuickPickItems(); }));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.QuickPickOnExecution, () => { showQuickPickItemsOnExecution(root); }));
 }
 
 function getDefaultFolder() {
@@ -312,19 +314,19 @@ function showStepReferences(clients: Map<string, LanguageClient>): (uri: string,
     };
 }
 
-function showQuickPickItems() {
+function showQuickPickItemsOnExecution(projectRoot : string) {
     let commandsList = [];
     commandsList.push({ label: VIEW_REPORT});
     commandsList.push({ label: RE_RUN_TESTS});
     commandsList.push({ label: RE_RUN_FAILED_TESTS});
     return window.showQuickPick(commandsList).then((selected) => {
         if (selected.label == VIEW_REPORT){
-            var url = "file:///" + getDefaultFolder() + "/reports/html-report/index.html";
+            var url = "file:///" + projectRoot + "/reports/html-report/index.html";
             return opn(url);
         } else if (selected.label == RE_RUN_TESTS) {
-            return execute(null, { repeat: true, status: "previous run", projectRoot: getDefaultFolder() });
+            return execute(null, { repeat: true, status: "previous run", projectRoot: projectRoot });
         } else if(selected.label == RE_RUN_FAILED_TESTS){
-            return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: getDefaultFolder() });
+            return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot: projectRoot });
         }
     }, (err) => {
         window.showErrorMessage('Unable to select Command.', err)
