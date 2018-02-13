@@ -1,9 +1,10 @@
 'use strict';
 
 import * as path from 'path';
+import {appendToFile, showImplementationFileOptions} from './stubImplementation'
 
 import {
-    workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range, WorkspaceFolder, OutputChannel, CancellationToken,
+    workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range, WorkspaceFolder, OutputChannel, WorkspaceEdit,
     commands, WorkspaceFoldersChangeEvent, window, StatusBarAlignment, CancellationTokenSource, version, TextDocument, TextEditor, languages
 } from 'vscode';
 
@@ -19,7 +20,6 @@ import { escape } from "querystring";
 import fs = require('fs');
 import cp = require('child_process');
 import opn = require('opn');
-import copyPaste = require('copy-paste');
 import { execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer'
 import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
@@ -31,12 +31,10 @@ const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_SUPPRESS_UPDATE_NOTIF = 'gauge.notification.suppressUpdateNotification';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
-const NEW_FILE_DISPLAY_MESSAGE = 'New File';
-const COPY_TO_CLIPBOARD_DISPLAY_MESSAGE = 'Copy Implementation To Clipboard'
 let launchConfig;
 
 let treeDataProvider: Disposable = new Disposable(() => undefined);
-let clients: Map<string, LanguageClient> = new Map();
+export let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
 
@@ -347,97 +345,4 @@ function showUpdateMessage(version: string) {
     window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes', 'Do not show this again').then(selected => {
         actions[selected]();
     });
-}
-
-function putStubImplementationInFileContent(cwd, filePath, stepTexts) {
-    return new Promise((resolve,reject) => {
-        clients.get(cwd).sendRequest("gauge/putStubImpl", {implementationFilePath: filePath, stepTexts: stepTexts}, new CancellationTokenSource().token).then(
-            (val: {fileName: string, fileContent: string}) => {
-                resolve(val.fileContent)
-            },
-            (reason) => {
-                reject(reason)
-            }
-        );
-    })
-}
-
-function writeToFileInTextEditor(filePath, contents) {
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '')
-    }
-    workspace.openTextDocument(filePath).then(
-        (doc) => {
-            window.showTextDocument(doc).then(
-                (document) => {
-                    var range = new Range(new Position(0, 0), new Position(doc.lineCount,0))
-                    document.edit(editBuilder => editBuilder.replace(range, contents))
-                }
-            )
-        }
-    )
-}
-
-function appendToFile(fileName) {
-    let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
-    var position = window.activeTextEditor.selection.start;
-    var text = window.activeTextEditor.document.lineAt(position.line).text.slice(1);
-    var texts = [].concat(text);
-    if (fileName == NEW_FILE_DISPLAY_MESSAGE) {
-        window.showInputBox().then((val) => {
-            putStubImplementationInFileContent(cwd, val, texts).then(
-                (content) => {
-                    writeToFileInTextEditor(val, content)
-                },
-                (reason) => {
-                    window.showErrorMessage("Could Not Write to file because "+ reason);
-                }
-            )
-        })
-    } else if (fileName == COPY_TO_CLIPBOARD_DISPLAY_MESSAGE) {
-        putStubImplementationInFileContent(cwd, "", texts).then(
-            (content) => {
-                copyPaste.copy(content)
-                window.showInformationMessage("Step Implementation copied to clipboard")
-            },
-            (reason) => {
-                window.showErrorMessage("Step Implementation could not be copied to clipboard because "+ reason);
-            }
-        )
-    } else {
-        putStubImplementationInFileContent(cwd, fileName, texts).then(
-            (content) => {
-                writeToFileInTextEditor(fileName, content)
-            },
-            (reason) => {
-                window.showErrorMessage("Could Not Write to file because "+ reason);
-            }
-        )
-    }
-}
-
-function getImplementationFiles(cwd) {
-    return new Promise((resolve,reject) => {
-        clients.get(cwd).sendRequest("gauge/getImplFiles", new CancellationTokenSource().token).then(
-            (val: any[]) => {
-                resolve(val)
-            }
-        );
-    })
-}
-
-function showImplementationFileOptions(context: ExtensionContext, onChange: Function) {
-    let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
-    getImplementationFiles(cwd).then(
-        (files: any[]) => {
-            var quickPickFileList = [NEW_FILE_DISPLAY_MESSAGE, COPY_TO_CLIPBOARD_DISPLAY_MESSAGE].concat(files)
-            return window.showQuickPick(quickPickFileList).then((selected) => {
-                if (selected) {
-                    return onChange(context, selected);
-                }
-            }, (err) => {
-                window.showErrorMessage('Unable to select file.', err)
-            })
-        }
-    )
 }
