@@ -1,9 +1,10 @@
 'use strict';
 
 import * as path from 'path';
+import {appendToFile, showImplementationFileOptions} from './stubImplementation'
 
 import {
-    workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range, WorkspaceFolder, OutputChannel,
+    workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range, WorkspaceFolder, OutputChannel, WorkspaceEdit,
     commands, WorkspaceFoldersChangeEvent, window, StatusBarAlignment, CancellationTokenSource, version, TextDocument, TextEditor, languages
 } from 'vscode';
 
@@ -19,7 +20,6 @@ import { escape } from "querystring";
 import fs = require('fs');
 import cp = require('child_process');
 import opn = require('opn');
-import copyPaste = require('copy-paste');
 import { execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer'
 import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
@@ -37,7 +37,7 @@ const RE_RUN_FAILED_TESTS = "Re-run failed tests";
 
 let launchConfig;
 let treeDataProvider: Disposable = new Disposable(() => undefined);
-let clients: Map<string, LanguageClient> = new Map();
+export let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
 
@@ -105,7 +105,9 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, () => {
         return runScenario(clients, false);
     }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, copyToClipboard));
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.CopyStub, () => {
+        return showImplementationFileOptions(context, (context: ExtensionContext, selection: string) => { appendToFile(selection); });
+    }));
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ShowReferencesAtCursor, showStepReferencesAtCursor(clients)));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.RepeatExecution, () => {
@@ -386,9 +388,4 @@ function showUpdateMessage(version: string) {
     window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes', 'Do not show this again').then(selected => {
         actions[selected]();
     });
-}
-
-function copyToClipboard(code: string) {
-    copyPaste.copy(code);
-    window.showInformationMessage("Step Implementation copied to clipboard");
 }
