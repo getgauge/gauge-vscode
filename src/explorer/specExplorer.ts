@@ -6,15 +6,21 @@ import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeVSCodeCommands } from '../commands';
 
-export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
+const extensions = [".spec", ".md"];
 
+export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 	private _onDidChangeTreeData: vscode.EventEmitter<GaugeNode | undefined> = new vscode.EventEmitter<GaugeNode | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
 	constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
-		vscode.workspace.onDidChangeTextDocument(() => this.refresh());
+		let listener = function(doc: vscode.TextDocument) {
+			if (extensions.includes(path.extname(doc.fileName))) {
+				this.refresh();
+			}
+		}
+		vscode.workspace.onDidSaveTextDocument(listener);
 		vscode.workspace.onDidChangeWorkspaceFolders(() => this.refresh());
-		vscode.workspace.onDidCloseTextDocument(() => this.refresh());
+		vscode.workspace.onDidCloseTextDocument(listener);
 	}
 
 	refresh(element? : GaugeNode): void {
