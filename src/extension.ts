@@ -32,8 +32,8 @@ const GAUGE_SUPPRESS_UPDATE_NOTIF = 'gauge.notification.suppressUpdateNotificati
 const GAUGE_VSCODE_VERSION = 'gauge.version';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 const VIEW_REPORT = "View Report";
-const RE_RUN_TESTS = "Re-run tests";
-const RE_RUN_FAILED_TESTS = "Re-run failed tests";
+const RE_RUN_TESTS = "Repeat Last Run";
+const RE_RUN_FAILED_TESTS = "Re-Run Failed Scenario(s)";
 
 let launchConfig;
 let treeDataProvider: Disposable = new Disposable(() => undefined);
@@ -249,7 +249,7 @@ function registerExecutionStatus(context: ExtensionContext) {
         let languageClient = clients.get(Uri.file(projectRoot).fsPath);
         return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
             (val: any) => {
-                executionStatus.text = val.scePassed + `$(check) ` + val.sceFailed + `$(x) ` + val.sceSkipped +`$(issue-opened)`;
+                executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed + `  $(issue-opened) `+  val.sceSkipped;
                 executionStatus.tooltip ="Specs : " + val.specsExecuted + " Executed, " + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped + " Skipped" + "\n" +
                                         "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
                 executionStatus.show();
