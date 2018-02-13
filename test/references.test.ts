@@ -13,7 +13,7 @@ let errorHandler = (done) => {
 	};
 };
 
-suite('Gauge Execution Tests', () => {
+suite('Gauge References Tests', () => {
 	setup((done) => {
 		vscode.commands.executeCommand('workbench.action.closeAllEditors').then(() => {
 			done();
