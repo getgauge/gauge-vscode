@@ -20,7 +20,7 @@ export enum GaugeVSCodeCommands {
 	ExecuteAllSpecExplorer = 'gauge.specexplorer.runAllActiveProjectSpecs',
 	ExecuteScenario = 'gauge.execute.scenario',
 	ExecuteScenarios = 'gauge.execute.scenarios',
-	CopyStub = 'gauge.copy.unimplemented.stub',
+	GenerateStub = 'gauge.generate.unimplemented.stub',
 	ShowReferences = 'gauge.showReferences',
 	ShowReferencesAtCursor = 'gauge.showReferences.atCursor',
 	ReportIssue = 'gauge.help.reportIssue',
