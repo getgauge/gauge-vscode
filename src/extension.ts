@@ -1,7 +1,7 @@
 'use strict';
 
 import * as path from 'path';
-import {appendToFile, generateStub} from './stubImplementation'
+import { generateStub } from './stubImplementation'
 
 import {
     workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range, WorkspaceFolder, OutputChannel,

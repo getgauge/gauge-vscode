@@ -10,14 +10,6 @@ const NEW_FILE_DISPLAY_MESSAGE = 'New File';
 const COPY_TO_CLIPBOARD_DISPLAY_MESSAGE = 'Copy To Clipboard'
 const GAUGE_IMPL_FILES_COMMAND = "gauge/getImplFiles";
 
-function putStubImplementationInFileContent(languageClient: LanguageClient, filePath: string, code: string): void {
-    languageClient.sendRequest("gauge/putStubImpl", {
-        implementationFilePath: filePath, codes: [code]
-    }, new CancellationTokenSource().token).then((edit) => {
-        writeToFileInTextEditor(filePath, languageClient.protocol2CodeConverter.asWorkspaceEdit(edit));
-    });
-}
-
 function writeToFileInTextEditor(fileName: string, fileEdits: WorkspaceEdit): void {
     if (!fs.existsSync(fileName)) {
         workspace.openTextDocument().then((document: TextDocument) => {
@@ -36,15 +28,15 @@ function writeToFileInTextEditor(fileName: string, fileEdits: WorkspaceEdit): vo
     }
 }
 
-export function appendToFile(languageClient: LanguageClient, fileName: string, code: string) {
-    if (fileName == COPY_TO_CLIPBOARD_DISPLAY_MESSAGE) {
-        copyPaste.copy(code);
-    } else {
-        if (fileName == NEW_FILE_DISPLAY_MESSAGE) {
-            fileName = "";
-        }
-        putStubImplementationInFileContent(languageClient, fileName, code)
+function addImplementationToFile(languageClient: LanguageClient, fileName: string, code: string) {
+    if (fileName == NEW_FILE_DISPLAY_MESSAGE) {
+        fileName = "";
     }
+    languageClient.sendRequest("gauge/putStubImpl", {
+        implementationFilePath: fileName, codes: [code]
+    }, new CancellationTokenSource().token).then((edit) => {
+        writeToFileInTextEditor(fileName, languageClient.protocol2CodeConverter.asWorkspaceEdit(edit));
+    });
 }
 
 class FileListItem implements QuickPickItem {
@@ -64,18 +56,27 @@ export function generateStub(clients: Map<String, LanguageClient>, code: string)
     let languageClient = clients.get(cwd);
     languageClient.sendRequest(GAUGE_IMPL_FILES_COMMAND, new CancellationTokenSource().token).then(
         (files: string[]) => {
-            let showFileList: FileListItem[] = files.map(file => {
-                return new FileListItem(path.basename(file), path.relative(cwd, path.dirname(file)), file)
-            });
-            var quickPickFileList = [new FileListItem(NEW_FILE_DISPLAY_MESSAGE, "", NEW_FILE_DISPLAY_MESSAGE),
-            new FileListItem(COPY_TO_CLIPBOARD_DISPLAY_MESSAGE, "", COPY_TO_CLIPBOARD_DISPLAY_MESSAGE)];
-            return window.showQuickPick(quickPickFileList.concat(showFileList)).then((selected) => {
+            window.showQuickPick(getQuickPickList(files, cwd)).then((selected) => {
                 if (selected) {
-                    return appendToFile(languageClient, selected.value, code);
+                    if (selected.value == COPY_TO_CLIPBOARD_DISPLAY_MESSAGE) {
+                        copyPaste.copy(code);
+                        window.showInformationMessage("Step Implementation copied to clipboard");
+                    } else {
+                        addImplementationToFile(languageClient, selected.value, code);
+                    }
                 }
             }, (err) => {
                 window.showErrorMessage('Unable to select file.', err)
-            })
+            });
         }
-    )
+    );
+}
+
+function getQuickPickList(files: string[], cwd: string): FileListItem[] {
+    let showFileList: FileListItem[] = files.map(file => {
+        return new FileListItem(path.basename(file), path.relative(cwd, path.dirname(file)), file)
+    });
+    var quickPickFileList = [new FileListItem(NEW_FILE_DISPLAY_MESSAGE, "", NEW_FILE_DISPLAY_MESSAGE),
+    new FileListItem(COPY_TO_CLIPBOARD_DISPLAY_MESSAGE, "", COPY_TO_CLIPBOARD_DISPLAY_MESSAGE)];
+    return quickPickFileList.concat(showFileList);
 }
