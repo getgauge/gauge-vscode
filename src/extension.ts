@@ -276,20 +276,27 @@ function registerExecutionStatus(context: ExtensionContext) {
     executionStatus.command = GaugeVSCodeCommands.QuickPickOnExecution;
     context.subscriptions.push(executionStatus);
     let root;
-    onExecuted((projectRoot) => {
-        root = projectRoot;
-        let languageClient = clients.get(Uri.file(projectRoot).fsPath);
-        return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
-            (val: any) => {
-                executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed
-                    + `  $(issue-opened) ` + val.sceSkipped;
-                executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
+    onBeforeExecute(() => {
+        executionStatus.hide();
+    });
+    onExecuted((projectRoot, aborted) => {
+        if (aborted) {
+            executionStatus.hide();
+        } else {
+            root = projectRoot;
+            let languageClient = clients.get(Uri.file(projectRoot).fsPath);
+            return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
+                (val: any) => {
+                    executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
+                    `  $(issue-opened) ` +  val.sceSkipped;
+                    executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
                     + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
                     + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
                     + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
-                executionStatus.show();
-            }
-        );
+                    executionStatus.show();
+                }
+            );
+        }
     });
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.QuickPickOnExecution, () => {
         showQuickPickItemsOnExecution(root);

@@ -41,7 +41,7 @@ export function execute(spec: string, config: any): Thenable<any> {
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code, signal) => {
                 executing = false;
-                postExecute.forEach((f) => f.call(null, config.projectRoot));
+                postExecute.forEach((f) => f.call(null, config.projectRoot, signal !== null));
                 chan.onFinish(resolve, code, signal !== null);
             });
         });
