@@ -1,0 +1,264 @@
+<head>
+	<style>
+		* {
+		  padding: 0;
+		  margin: 0;
+		}
+		.vscode-light{
+			--button-background: rgba(0,0,0,0.08);
+			--button-hover-background: rgba(0,0,0,0.1);
+			--inversion: 1; /* logo is white background, light themes need an inversion */
+			--header-colour: #555555;
+		}
+		.vscode-dark{
+			--button-background: rgba(255,255,255,0.08);
+			--button-hover-background: rgba(255,255,255,0.1);
+			--inversion: 0;
+			--header-colour: #e0b009;
+		}
+		html {
+			margin:    0 auto;
+			max-width: 900px;
+		}
+		body {
+			font-size: 1.2em;
+			display: grid;
+			grid-template-columns: 20% 1fr 20%;
+			grid-template-rows: auto 1fr auto;
+			grid-column-gap: 2em;
+			grid-template-areas:
+				"header		header		header"
+				"sidebar	content		content"
+				"sidebar 	footer		footer";
+		}
+		h3, .sidebar h5 {
+			color: var(--header-colour);
+			font-weight: normal;
+		}
+		.main-header {
+			grid-area: header;
+			text-align: center;
+			padding-bottom: 3em;
+			padding-top: 2em;
+			height: 20%;
+		}
+		.main-footer {
+			grid-area: footer;
+			font-size: 0.7em;
+		}
+		.main-footer label{
+			cursor: pointer;
+		}
+		.header-wrapper {
+			border-radius: 10px;
+			border: 2px solid var(--link-color);
+			background-color: var(--button-background);
+			padding: 20px 0 20px 0;
+			display: inline-flex;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+		}
+		.logo {
+			filter: invert(var(--inversion));
+			height: 5em;
+		}
+		.caption {
+			margin-left: 2em;
+		}
+		.intro{
+			font-size: 0.8em;
+		}
+		a{
+			outline: none;
+			text-decoration: none;
+			color: var(--link-color);
+			padding-top: 1px;
+			padding-bottom: 1px;
+			font-size: 0.8em;
+		}
+		a:active, a:focus {
+			outline: none;
+		}
+		.sidebar {
+			grid-area: sidebar;
+		}
+		.sidebar section {
+			border-radius: 10px;
+			border: 2px solid var(--link-color);
+			background-color: var(--button-background);
+			padding: 20px;
+		}
+		.sidebar .fab{
+			margin-right: 5px;
+		}
+		.content {
+			grid-area: content;
+		}
+		ul {
+			list-style: none;
+		}
+		.content ul{
+			display: grid;
+			grid-row-gap: 0.5em;
+			margin-top: 0.5em;
+		}
+		.action {
+			display: flex;
+			justify-content: left;
+			align-items: center;
+			padding: 5px;
+			border-radius: 10px;
+			border: 2px solid var(--link-color);
+			background-color: var(--button-background);
+			padding: 10px 20px 10px 20px;
+		}
+		.action:hover {
+			background-color: var(--button-hover-background);
+		}
+		.content i.fas, .content i.fab {
+			margin-right: 1em;
+			font-size: 1.5em;
+		}
+		li a span {
+			padding-bottom: 2px;
+		}
+		.detail {
+			font-size: 0.8em;
+		}
+		pre {
+			display: inline;
+		}
+		section {
+			margin-bottom: 1em;
+		}
+		.hidden {
+			display: none;
+		}
+	</style>
+	<link rel="stylesheet" href="{{root}}/css/fontawesome-all.min.css"/>
+</head>
+<body>
+<div class="main-header">
+	<div class="header-wrapper">
+		<div class="logo-container">
+			<img class="logo" src="{{root}}/images/gauge_logo.png" />
+		</div>
+		<div class="caption">
+			<h3>Test automation you'll actually like.</h3>
+			<h5>Simple. Collaborative. Adaptable.</h5>
+		</div>
+	</div>
+</div>
+<main class="content">
+	<section>
+		<h3>About</h3>
+		<div class="intro">Gauge is a light-weight cross-platform test automation tool with the ability to author test cases in the business language.</div>
+	</section>
+	<section>
+		<h3>Project/Workspace</h3>
+		<ul>
+			<li>
+				<a class="action" href="command:gauge.execute.specification.all">
+					<i class="fas fa-play"></i>
+					<span>
+						<div>Run All Specifications</div>
+						<span class="detail" title="Run All Specifications">
+							Run all the specifications in this project.
+						</span>
+					</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<section>
+		<h3>Customize</h3>
+		<ul>
+			<li>
+				<a class="action" href="command:workbench.action.openGlobalSettings">
+					<i class="fas fa-cogs"></i>
+					<span>
+						<div>Open User Settings</div>
+						<span class="detail" title="Find and customize all Gauge settings">
+							Search for <pre>gauge</pre> and edit settings.
+						</span>
+					</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<section>
+		<h3>Learn</h3>
+		<ul>
+			<li>
+				<a class="action" href="command:workbench.action.showCommands">
+					<i class="fas fa-terminal"></i>
+					<span>
+						<div>Find and run all Gauge commands</div>
+						<span class="detail" title="Find and access Gauge commands from the Command Palette">
+							Search for <pre>gauge</pre> in the Command Pallette.
+						</span>
+					</span>
+				</a>
+			</li>
+			<li>
+				<a class="action" href="https://docs.gauge.org/syntax.html">
+					<i class="fas fa-code"></i>
+					<span>
+						<div>Open Gauge syntax reference</div>
+						<span class="detail" title="Open gauge syntax reference.">
+							Learn how gauge interprets markdown elements.
+						</span>
+					</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+</main>
+<aside class="sidebar">
+	<section>
+		<h5>Explore</h5>
+		<ul>
+			<li>
+				<a href="https://gauge.org">Website</a>
+			</li>
+			<li>
+				<a href="https://docs.gauge.org">Documentation</a>
+			</li>
+			<li>
+				<a href="https://getgauge-examples.github.io/">Examples</a>
+			</li>
+			<li>
+				<a href="https://docs.gauge.org/howto/index.html">HowTo?</a>
+			</li>
+		</ul>
+	</section>
+	<section>
+		<h5>Support</h5>
+		<ul>
+			<li>
+				<a href="command:gauge.help.reportIssue"><i class="fab fa-github"></i><span>Report an Issue</span></a>
+			</li>
+			<li>
+				<a href="https://stackoverflow.com/questions/ask?tags=getgauge"><i class="fab fa-stack-overflow"></i><span>Ask a Question</span></a>
+			</li>
+			<li>
+				<a href="https://gitter.im/getgauge/chat"><i class="fab fa-gitter"></i><span>Chat</span></a>
+			</li>
+			<li>
+				<a href="https://groups.google.com/forum/#!forum/getgauge"><i class="fab fa-google"></i><span>Forum</span></a>
+			</li>
+		</ul>
+	</section>
+</aside>
+<footer class="main-footer">
+	<input type="checkbox" id="doNotShow" name="doNotShow" {{doNotShowWelcome}}/>
+	<label for="doNotShow">Do not show this page until the next release.</label>
+	<a href="command:gauge.welcome.toggle" class="hidden" id="toggleWelcome"/>
+</footer>
+<script>
+	document.getElementById('doNotShow').addEventListener('click', function(){
+		document.getElementById('toggleWelcome').click();
+	});
+</script>
+</body>

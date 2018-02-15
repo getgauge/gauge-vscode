@@ -3,31 +3,34 @@
 import { commands } from 'vscode';
 
 export enum VSCodeCommands {
-    Open = 'vscode.open',
-    SetContext = 'setContext',
-    ShowReferences = 'editor.action.showReferences'
+	Open = 'vscode.open',
+	SetContext = 'setContext',
+	ShowReferences = 'editor.action.showReferences',
+	Preview = 'vscode.previewHtml'
 }
 
 export enum GaugeVSCodeCommands {
-    StopExecution = 'gauge.stopExecution',
-    RefreshExplorer = 'gauge.specexplorer.refresh',
-    Execute = 'gauge.execute',
-    Debug = 'gauge.debug',
-    ExecuteInParallel = 'gauge.execute.inParallel',
-    ExecuteFailed = 'gauge.execute.failed',
-    ExecuteSpec = 'gauge.execute.specification',
-    ExecuteAllSpecs = 'gauge.execute.specification.all',
-    ExecuteAllSpecExplorer = 'gauge.specexplorer.runAllActiveProjectSpecs',
-    ExecuteScenario = 'gauge.execute.scenario',
-    ExecuteScenarios = 'gauge.execute.scenarios',
-    GenerateStub = 'gauge.generate.unimplemented.stub',
-    ShowReferences = 'gauge.showReferences',
-    ShowReferencesAtCursor = 'gauge.showReferences.atCursor',
-    ReportIssue = 'gauge.help.reportIssue',
-    Open = 'gauge.open',
-    RepeatExecution = 'gauge.execute.repeat',
-    SwitchProject = 'gauge.specexplorer.switchProject',
-    QuickPickOnExecution = 'gauge.quickPick.onExecution.open'
+	Welcome = 'gauge.welcome',
+	ToggleWelcome = 'gauge.welcome.toggle',
+	StopExecution = 'gauge.stopExecution',
+	RefreshExplorer = 'gauge.specexplorer.refresh',
+	Execute = 'gauge.execute',
+	Debug = 'gauge.debug',
+	ExecuteInParallel = 'gauge.execute.inParallel',
+	ExecuteFailed = 'gauge.execute.failed',
+	ExecuteSpec = 'gauge.execute.specification',
+	ExecuteAllSpecs = 'gauge.execute.specification.all',
+	ExecuteAllSpecExplorer = 'gauge.specexplorer.runAllActiveProjectSpecs',
+	ExecuteScenario = 'gauge.execute.scenario',
+	ExecuteScenarios = 'gauge.execute.scenarios',
+	GenerateStub = 'gauge.generate.unimplemented.stub',
+	ShowReferences = 'gauge.showReferences',
+	ShowReferencesAtCursor = 'gauge.showReferences.atCursor',
+	ReportIssue = 'gauge.help.reportIssue',
+	Open = 'gauge.open',
+	RepeatExecution = 'gauge.execute.repeat',
+	SwitchProject = 'gauge.specexplorer.switchProject',
+	QuickPickOnExecution = 'gauge.quickPick.onExecution.open'
 }
 
 export enum GaugeCommands {
