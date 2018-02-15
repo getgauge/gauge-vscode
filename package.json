@@ -219,7 +219,7 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -watch -p ./",
-    "build": "npm run lint && npm install && vsce package",
+    "build": " npm install && npm run lint && vsce package",
     "update-vscode": "node ./node_modules/vscode/bin/install",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "cross-env CODE_TESTS_WORKSPACE=test/testdata/sampleProject node ./node_modules/vscode/bin/test",
