@@ -60,7 +60,11 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
                 return this.languageClient.sendRequest("gauge/specs", {}, new vscode.CancellationTokenSource().token)
                     .then(
                         (val: any[]) => {
-                            resolve(val.map((x) => new Spec(x.heading, x.executionIdentifier)));
+                            resolve(val.map((x) => {
+                                if (x.heading) {
+                                    return new Spec(x.heading, x.executionIdentifier);
+                                }
+                            }));
                         }
                     );
             }
