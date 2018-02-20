@@ -1,7 +1,7 @@
 'use strict';
 
 import * as path from 'path';
-import { generateStub } from './stubImplementation';
+import { generateStub, extractConcept } from './stubImplementation';
 
 import {
     workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range,
@@ -133,6 +133,11 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.GenerateStub, (code: string) => {
         return generateStub(clients, code);
     }));
+
+    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExtractConcept, (rangeInfo: Object) => {
+        return extractConcept(clients, rangeInfo);
+    }));
+
     context.subscriptions.push(commands.registerCommand(
         GaugeVSCodeCommands.ShowReferencesAtCursor, showStepReferencesAtCursor(clients))
     );
@@ -296,11 +301,11 @@ function registerExecutionStatus(context: ExtensionContext) {
             return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
                 (val: any) => {
                     executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
-                    `  $(issue-opened) ` +  val.sceSkipped;
+                        `  $(issue-opened) ` + val.sceSkipped;
                     executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
-                    + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
-                    + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
-                    + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
+                        + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
+                        + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
+                        + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
                     executionStatus.show();
                 }
             );
