@@ -26,7 +26,7 @@ import {
 } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer';
 import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
-import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion'
+import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { WelcomePageProvider } from './welcome/welcome';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
@@ -66,9 +66,9 @@ export function activate(context: ExtensionContext) {
         setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
     });
 
-    var currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
-    var hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion)
-    if(hasUpgraded) {
+    let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
+    let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
+    if (hasUpgraded) {
         showUpdateMessage(currentExtensionVersion);
     }
 
@@ -429,7 +429,7 @@ function onConfigurationChange() {
     });
 }
 
-function hasExtensionUpdated(context: ExtensionContext, latestVersion: string) : boolean{
+function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): boolean {
     if (workspace.getConfiguration().get<boolean>(GAUGE_SUPPRESS_UPDATE_NOTIF))
         return false;
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
