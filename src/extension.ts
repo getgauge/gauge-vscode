@@ -259,11 +259,6 @@ function registerTreeDataProvider(context: ExtensionContext, projectPath: string
             let provider = new SpecNodeProvider(projectPath, client);
             treeDataProvider = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
             updateSpecExplorerActiveFolder(projectPath);
-            if (registerRefresh) {
-                context.subscriptions.push(commands.registerCommand(
-                    GaugeVSCodeCommands.RefreshExplorer, () => provider.refresh()
-                ));
-            }
             setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
         }
     }).catch((reason) => {

@@ -13,7 +13,6 @@ export enum GaugeVSCodeCommands {
     Welcome = 'gauge.welcome',
     ToggleWelcome = 'gauge.welcome.toggle',
     StopExecution = 'gauge.stopExecution',
-    RefreshExplorer = 'gauge.specexplorer.refresh',
     Execute = 'gauge.execute',
     Debug = 'gauge.debug',
     ExecuteInParallel = 'gauge.execute.inParallel',

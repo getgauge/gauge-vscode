@@ -93,11 +93,6 @@ export class Spec extends GaugeNode {
         super(label, vscode.TreeItemCollapsibleState.Collapsed, file);
     }
 
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'light', 'folder.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'dark', 'folder.svg')
-    };
-
     contextValue = 'specification';
 }
 
@@ -112,11 +107,6 @@ export class Scenario extends GaugeNode {
     }
 
     readonly executionIdentifier = this.file + ":" + this.lineNo;
-
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'light', 'document.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'dark', 'document.svg')
-    };
 
     contextValue = 'scenario';
 }

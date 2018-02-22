@@ -164,24 +164,9 @@
           "group": "navigation"
         },
         {
-          "command": "gauge.specexplorer.refresh",
-          "when": "view == gauge:specExplorer",
-          "group": "navigation"
-        },
-        {
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",
           "when": "view == gauge:specExplorer",
           "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "gauge.execute.specification",
-          "when": "view == gauge:specExplorer && viewItem == specification"
-        },
-        {
-          "command": "gauge.execute.scenario",
-          "when": "view == gauge:specExplorer && viewItem == scenario"
         }
       ]
     },
