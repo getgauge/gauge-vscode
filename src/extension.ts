@@ -45,6 +45,7 @@ let treeDataProvider: Disposable = new Disposable(() => undefined);
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
+export let clientLanguageMap: Map<string, string> = new Map();
 
 export function activate(context: ExtensionContext) {
     let gaugeVersionInfo = getGaugeVersionInfo();
@@ -214,6 +215,8 @@ function startServerFor(folder: WorkspaceFolder) {
     if (!fs.existsSync(path.join(folder.uri.fsPath, "manifest.json"))) {
         return;
     }
+    let language = JSON.parse(fs.readFileSync(path.join(folder.uri.fsPath, "manifest.json"), 'utf8')).Language;
+    clientLanguageMap.set(folder.uri.fsPath, language);
     let serverOptions = {
         command: 'gauge',
         args: ["daemon", "--lsp", "--dir=" + folder.uri.fsPath],

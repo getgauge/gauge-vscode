@@ -9,6 +9,7 @@ import { OutputChannel } from './outputChannel';
 import { GaugeVSCodeCommands, GaugeCommands } from '../constants';
 import { ChildProcess } from 'child_process';
 import getPort = require('get-port');
+import { clientLanguageMap } from '../extension';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -20,6 +21,7 @@ let executing: boolean;
 let childProcess: ChildProcess;
 let preExecute: Function[] = [];
 let postExecute: Function[] = [];
+let debugLanguageMap: Map<string, string> = new Map().set("js", "node").set("python", "python");
 
 export function execute(spec: string, config: any): Thenable<any> {
     return new Promise((resolve, reject) => {
@@ -30,13 +32,12 @@ export function execute(spec: string, config: any): Thenable<any> {
 
         executing = true;
         preExecute.forEach((f) => f.call(null, path.relative(config.projectRoot, config.status)));
-        setDebugConf(config).then((env) => {
+        getDebugConf(config, clientLanguageMap.get(config.projectRoot)).then(({env, debugConfig}) => {
             let args = getArgs(spec, config);
             let chan = new OutputChannel(outputChannel,
                 ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '),
                 config.projectRoot);
             childProcess = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot, env: env });
-
             childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code, signal) => {
@@ -44,28 +45,35 @@ export function execute(spec: string, config: any): Thenable<any> {
                 postExecute.forEach((f) => f.call(null, config.projectRoot, signal !== null));
                 chan.onFinish(resolve, code, signal !== null);
             });
+            if (env.DEBUGGING) {
+                setTimeout(() => {
+                    debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri),
+                    debugConfig);
+                }, 1000);
+            }
         });
     });
 }
 
-function setDebugConf(config: any): Thenable<any> {
+function getDebugConf(config: any, language: string): Thenable<any> {
     let env = Object.create(process.env);
+    console.log(language);
     if (config.debug) {
         env.DEBUGGING = true;
         return getPort({ port: DEBUG_PORT }).then((port) => {
             let debugConfig = {
-                type: "node",
+                type: debugLanguageMap.get(language),
                 name: "Gauge Debugger",
                 request: "attach",
                 port: port,
-                protocol: "inspector"
+                protocol: "inspector",
+                localRoot: config.projectRoot
             };
             env.DEBUG_PORT = port;
-            debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri), debugConfig);
-            return env;
+            return {env, debugConfig};
         });
     } else {
-        return Promise.resolve(env);
+        return Promise.resolve({env});
     }
 }
 
