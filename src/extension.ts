@@ -27,6 +27,7 @@ import {
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer';
 import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
+import { WelcomePageProvider } from './welcome/welcome';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -64,7 +65,13 @@ export function activate(context: ExtensionContext) {
         if (event.removed) onFolderDeletion(event, context);
         setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
     });
-    notifyOnNewGaugeVsCodeVersion(context, extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version);
+
+    let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
+    let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
+    if (hasUpgraded) {
+        showUpdateMessage(currentExtensionVersion);
+    }
+
     registerStopExecution(context);
     registerExecutionStatus(context);
 
@@ -151,6 +158,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
         () => showProjectOptions(context, switchTreeDataProvider))
     );
+    context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
     registerTreeDataProvider(context, getDefaultFolder(), true);
 }
 
@@ -421,12 +429,12 @@ function onConfigurationChange() {
     });
 }
 
-function notifyOnNewGaugeVsCodeVersion(context: ExtensionContext, latestVersion: string) {
-    if (workspace.getConfiguration().get<boolean>(GAUGE_SUPPRESS_UPDATE_NOTIF)) return;
-    let gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
+function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): boolean {
+    if (workspace.getConfiguration().get<boolean>(GAUGE_SUPPRESS_UPDATE_NOTIF))
+        return false;
+    const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
-    if (!gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion) return;
-    showUpdateMessage(latestVersion);
+    return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion;
 }
 
 function showUpdateMessage(version: string) {

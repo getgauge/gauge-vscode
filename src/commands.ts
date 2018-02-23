@@ -5,10 +5,13 @@ import { commands } from 'vscode';
 export enum VSCodeCommands {
     Open = 'vscode.open',
     SetContext = 'setContext',
-    ShowReferences = 'editor.action.showReferences'
+    ShowReferences = 'editor.action.showReferences',
+    Preview = 'vscode.previewHtml'
 }
 
 export enum GaugeVSCodeCommands {
+    Welcome = 'gauge.welcome',
+    ToggleWelcome = 'gauge.welcome.toggle',
     StopExecution = 'gauge.stopExecution',
     RefreshExplorer = 'gauge.specexplorer.refresh',
     Execute = 'gauge.execute',
