@@ -14,7 +14,7 @@ export class WelcomePageProvider extends Disposable implements TextDocumentConte
 
         this._context = context;
         this._disposable = Disposable.from(
-            // workspace.registerTextDocumentContentProvider('gauge', this),
+            workspace.registerTextDocumentContentProvider('gauge', this),
             commands.registerCommand(GaugeVSCodeCommands.Welcome, () => {
                 return commands.executeCommand(VSCodeCommands.Preview,
                     welcomeUri, ViewColumn.Active, 'Welcome to Gauge').then((success) => {
