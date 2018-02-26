@@ -215,8 +215,6 @@ function startServerFor(folder: WorkspaceFolder) {
     if (!fs.existsSync(path.join(folder.uri.fsPath, "manifest.json"))) {
         return;
     }
-    let language = JSON.parse(fs.readFileSync(path.join(folder.uri.fsPath, "manifest.json"), 'utf8')).Language;
-    clientLanguageMap.set(folder.uri.fsPath, language);
     let serverOptions = {
         command: 'gauge',
         args: ["daemon", "--lsp", "--dir=" + folder.uri.fsPath],
@@ -239,6 +237,18 @@ function startServerFor(folder: WorkspaceFolder) {
     registerDynamicFeatures(languageClient);
     clients.set(folder.uri.fsPath, languageClient);
     languageClient.start();
+
+    languageClient.onReady().then(() => {setLanguageId(languageClient, folder.uri.fsPath); });
+}
+
+function setLanguageId(languageClient: LanguageClient, folder: string) {
+    languageClient.sendRequest("gauge/getRunnerLanguage", new CancellationTokenSource().token).then(
+        (language: string) => {
+            console.log(language);
+            clientLanguageMap.set(folder, language);
+        }
+    );
+
 }
 
 function registerDynamicFeatures(languageClient: LanguageClient) {
