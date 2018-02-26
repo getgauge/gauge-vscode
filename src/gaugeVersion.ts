@@ -1,5 +1,5 @@
 import { spawnSync } from 'child_process';
-import { GaugeCommands } from './commands';
+import { GaugeCommands } from './constants';
 
 export class GaugeVersionInfo {
     public version: string;

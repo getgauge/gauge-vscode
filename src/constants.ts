@@ -56,3 +56,11 @@ export enum GaugeCommandContext {
 export function setCommandContext(key: GaugeCommandContext | string, value: any) {
     return commands.executeCommand(VSCodeCommands.SetContext, key, value);
 }
+
+export enum GaugeRequests {
+    Specs = 'gauge/specs',
+    Scenarios = 'gauge/scenarios',
+    Files = "gauge/getImplFiles",
+    AddStub = 'gauge/putStubImpl',
+    ExtractConcept = 'gauge/extractConcept'
+}

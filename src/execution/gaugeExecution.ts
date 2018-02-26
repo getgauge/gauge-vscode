@@ -6,7 +6,7 @@ import cp = require('child_process');
 import path = require('path');
 import { LineBuffer } from './lineBuffer';
 import { OutputChannel } from './outputChannel';
-import { GaugeVSCodeCommands, GaugeCommands } from '../commands';
+import { GaugeVSCodeCommands, GaugeCommands } from '../constants';
 import { ChildProcess } from 'child_process';
 import getPort = require('get-port');
 

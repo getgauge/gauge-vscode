@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
-import { GaugeVSCodeCommands } from '../commands';
+import { GaugeVSCodeCommands, GaugeRequests } from '../constants';
 
 const extensions = [".spec", ".md"];
 
@@ -13,7 +13,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
         new vscode.EventEmitter<GaugeNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
+    constructor(private workspaceRoot: string, private lc: LanguageClient) {
         vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
             if (extensions.includes(path.extname(doc.fileName))) {
                 this.refresh();
@@ -44,7 +44,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
         return new Promise((resolve, reject) => {
             if (element && element.contextValue === "specification") {
                 let uri = TextDocumentIdentifier.create(element.file);
-                return this.languageClient.sendRequest("gauge/scenarios", {
+                return this.lc.sendRequest(GaugeRequests.Scenarios, {
                     textDocument: uri,
                     position: new vscode.Position(1, 1)
                 }, new vscode.CancellationTokenSource().token).then(
@@ -57,7 +57,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
                     (reason) => { console.log(reason); reject(reason); }
                 );
             } else {
-                return this.languageClient.sendRequest("gauge/specs", {}, new vscode.CancellationTokenSource().token)
+                return this.lc.sendRequest(GaugeRequests.Specs, {}, new vscode.CancellationTokenSource().token)
                     .then(
                         (val: any[]) => {
                             resolve(val.map((x) => {

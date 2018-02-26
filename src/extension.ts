@@ -25,7 +25,7 @@ import {
     execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted
 } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer';
-import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
+import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { WelcomePageProvider } from './welcome/welcome';
 

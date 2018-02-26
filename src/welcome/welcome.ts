@@ -1,6 +1,6 @@
 import { Disposable, TextDocumentContentProvider, Uri, workspace,
     commands, ViewColumn, window, ExtensionContext } from "vscode";
-import { GaugeVSCodeCommands, VSCodeCommands } from "../commands";
+import { GaugeVSCodeCommands, VSCodeCommands } from "../constants";
 import * as path from 'path';
 
 const GAUGE_SUPPRESS_WELCOME = 'gauge.welcome.supress';
