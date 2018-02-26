@@ -3,8 +3,7 @@
 		"specification": {
 			"prefix": "spec",
 			"body": [
-				"${1:SPECIFICATION_HEADING}",
-				"=====================",
+				"# ${1:SPECIFICATION_HEADING}",
 				"$0"
 			],
 			"description" : "New Specification"
@@ -12,9 +11,8 @@
 		"scenario": {
 			"prefix": "sce",
 			"body": [
-				"${1:Scenario Heading}",
-				"----------------",
-				"$0"
+				"## ${1:Scenario Heading}",
+				"* $0"
 			],
 			"description" : "New Scenario"
 		},
