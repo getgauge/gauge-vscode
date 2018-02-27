@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeVSCodeCommands, GaugeRequests } from '../constants';
+const SPEC_FILE_PATTERN = `**/*.spec`;
 
 const extensions = [".spec", ".md"];
 
@@ -25,6 +26,9 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
                 this.refresh();
             }
         });
+        let specWatcher = vscode.workspace.createFileSystemWatcher(SPEC_FILE_PATTERN);
+        specWatcher.onDidCreate(() => this.refresh());
+        specWatcher.onDidDelete(() => this.refresh());
     }
 
     refresh(element?: GaugeNode): void {
