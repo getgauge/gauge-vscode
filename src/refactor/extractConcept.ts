@@ -1,9 +1,12 @@
+import * as path from 'path';
+
 import { Disposable, commands, ExtensionContext, workspace, window, CancellationTokenSource } from "vscode";
 import { LanguageClient } from 'vscode-languageclient';
+
 import { GaugeVSCodeCommands, VSCodeCommands, GaugeRequests } from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { WorkspaceEditor } from './workspaceEditor';
-import * as path from 'path';
+import { getFileLists } from "../util";
 
 export class ExtractConceptCommandProvider extends Disposable {
     private readonly _context: ExtensionContext;
@@ -29,7 +32,7 @@ export class ExtractConceptCommandProvider extends Disposable {
             info.conceptName = conceptName;
             let t = new CancellationTokenSource().token;
             languageClient.sendRequest(GaugeRequests.Files, { concept: true }, t).then((files: string[]) => {
-                window.showQuickPick(this.getQuickPickList(files, cwd)).then((selected) => {
+                window.showQuickPick(getFileLists(files, cwd, false)).then((selected) => {
                     if (!selected) return;
                     this.performExtraction(selected, info, languageClient);
                 }, this.handleError);
@@ -44,14 +47,6 @@ export class ExtractConceptCommandProvider extends Disposable {
             let editor = new WorkspaceEditor(languageClient.protocol2CodeConverter.asWorkspaceEdit(edit));
             editor.applyChanges();
         }, this.handleError);
-    }
-
-    private getQuickPickList(files: string[], cwd: string): FileListItem[] {
-        const showFileList: FileListItem[] = files.map((file) => {
-            return new FileListItem(path.basename(file), path.relative(cwd, path.dirname(file)), file);
-        });
-        const quickPickFileList = [new FileListItem('New File', "Create a new file", 'New File')];
-        return quickPickFileList.concat(showFileList);
     }
 
     private handleError(reason: string) {

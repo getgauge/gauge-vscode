@@ -1,7 +1,6 @@
 'use strict';
 
 import * as path from 'path';
-import { generateStub } from './stubImplementation';
 
 import {
     workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range,
@@ -29,6 +28,7 @@ import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandCon
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { WelcomePageProvider } from './welcome/welcome';
 import { ExtractConceptCommandProvider } from './refactor/extractConcept';
+import { GenerateStubCommandProvider} from './annotator/generateStub';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -131,9 +131,6 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenarios, () => {
         return runScenario(clients, false);
     }));
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.GenerateStub, (code: string) => {
-        return generateStub(clients, code);
-    }));
 
     context.subscriptions.push(commands.registerCommand(
         GaugeVSCodeCommands.ShowReferencesAtCursor, showStepReferencesAtCursor(clients))
@@ -161,6 +158,7 @@ export function activate(context: ExtensionContext) {
         () => showProjectOptions(context, switchTreeDataProvider))
     );
 
+    context.subscriptions.push(new GenerateStubCommandProvider(clients));
     context.subscriptions.push(new ExtractConceptCommandProvider(context, clients));
     context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
     registerTreeDataProvider(context, getDefaultFolder(), true);
