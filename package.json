@@ -131,25 +131,12 @@
           "light": "resources/light/icon-list.svg",
           "dark": "resources/dark/icon-list.svg"
         }
-      },
-      {
-        "command": "gauge.specexplorer.refresh",
-        "title": "Refresh Explorer",
-        "category": "Gauge",
-        "icon": {
-          "light": "resources/light/refresh.svg",
-          "dark": "resources/dark/refresh.svg"
-        }
       }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "gauge.specexplorer.switchProject",
-          "when": "1 == 2"
-        },
-        {
-          "command": "gauge.specexplorer.refresh",
           "when": "1 == 2"
         },
         {

@@ -157,7 +157,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(new GenerateStubCommandProvider(clients));
     context.subscriptions.push(new ExtractConceptCommandProvider(context, clients));
 
-    registerTreeDataProvider(context, getDefaultFolder(), true);
+    registerTreeDataProvider(context, getDefaultFolder());
 }
 
 export function deactivate(): Thenable<void> {
@@ -251,7 +251,7 @@ function registerDynamicFeatures(languageClient: LanguageClient) {
     languageClient.registerFeatures(result);
 }
 
-function registerTreeDataProvider(context: ExtensionContext, projectPath: string, registerRefresh?: boolean) {
+function registerTreeDataProvider(context: ExtensionContext, projectPath: string) {
     let client = clients.get(Uri.file(projectPath).fsPath);
     client.onReady().then(() => {
         let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
@@ -336,7 +336,7 @@ function showProjectOptions(context: ExtensionContext, onChange: Function) {
 function switchTreeDataProvider(context: ExtensionContext, projectPath: string) {
     treeDataProvider.dispose();
     setCommandContext(GaugeCommandContext.Activated, false);
-    registerTreeDataProvider(context, projectPath, false);
+    registerTreeDataProvider(context, projectPath);
 }
 
 function notifyToInstallGauge(message: string) {
