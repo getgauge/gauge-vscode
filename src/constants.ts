@@ -30,7 +30,8 @@ export enum GaugeVSCodeCommands {
     Open = 'gauge.open',
     RepeatExecution = 'gauge.execute.repeat',
     SwitchProject = 'gauge.specexplorer.switchProject',
-    QuickPickOnExecution = 'gauge.quickPick.onExecution.open'
+    QuickPickOnExecution = 'gauge.quickPick.onExecution.open',
+    ExtractConcept = 'gauge.extract.concept'
 }
 
 export enum GaugeCommands {
@@ -54,4 +55,12 @@ export enum GaugeCommandContext {
 
 export function setCommandContext(key: GaugeCommandContext | string, value: any) {
     return commands.executeCommand(VSCodeCommands.SetContext, key, value);
+}
+
+export enum GaugeRequests {
+    Specs = 'gauge/specs',
+    Scenarios = 'gauge/scenarios',
+    Files = "gauge/getImplFiles",
+    AddStub = 'gauge/putStubImpl',
+    ExtractConcept = 'gauge/extractConcept'
 }

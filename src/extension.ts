@@ -25,9 +25,10 @@ import {
     execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted
 } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer';
-import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './commands';
+import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { WelcomePageProvider } from './welcome/welcome';
+import { ExtractConceptCommandProvider } from './refactor/extractConcept';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -133,6 +134,7 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.GenerateStub, (code: string) => {
         return generateStub(clients, code);
     }));
+
     context.subscriptions.push(commands.registerCommand(
         GaugeVSCodeCommands.ShowReferencesAtCursor, showStepReferencesAtCursor(clients))
     );
@@ -158,6 +160,8 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
         () => showProjectOptions(context, switchTreeDataProvider))
     );
+
+    context.subscriptions.push(new ExtractConceptCommandProvider(context, clients));
     context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
     registerTreeDataProvider(context, getDefaultFolder(), true);
 }
@@ -296,11 +300,11 @@ function registerExecutionStatus(context: ExtensionContext) {
             return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
                 (val: any) => {
                     executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
-                    `  $(issue-opened) ` +  val.sceSkipped;
+                        `  $(issue-opened) ` + val.sceSkipped;
                     executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
-                    + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
-                    + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
-                    + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
+                        + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
+                        + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
+                        + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
                     executionStatus.show();
                 }
             );
