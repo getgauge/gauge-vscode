@@ -31,7 +31,7 @@ module.exports = function(env, argv) {
             }
 		}),
 		new CopyWebpackPlugin([
-			{from: "src/ui", to: path.resolve(__dirname, "out", "src")},
+			{from: "src/ui", to: path.resolve(__dirname, "out")},
 		])
     ];
 
@@ -41,7 +41,7 @@ module.exports = function(env, argv) {
         output: {
             libraryTarget: 'commonjs2',
             filename: 'extension.js',
-            path: path.resolve(__dirname, 'out','src')
+            path: path.resolve(__dirname, 'out')
         },
         resolve: {
             extensions: ['.ts']
