@@ -24,7 +24,7 @@
     "color": "#F5C20F",
     "theme": "light"
   },
-  "main": "./out/extension",
+  "main": "./out/src/extension",
   "contributes": {
     "views": {
       "explorer": [

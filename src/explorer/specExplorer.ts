@@ -13,7 +13,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
         new vscode.EventEmitter<GaugeNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(private workspaceRoot: string, private lc: LanguageClient) {
+    constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
         vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
             if (extensions.includes(path.extname(doc.fileName))) {
                 this.refresh();
@@ -44,7 +44,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
         return new Promise((resolve, reject) => {
             if (element && element.contextValue === "specification") {
                 let uri = TextDocumentIdentifier.create(element.file);
-                return this.lc.sendRequest(GaugeRequests.Scenarios, {
+                return this.languageClient.sendRequest(GaugeRequests.Scenarios, {
                     textDocument: uri,
                     position: new vscode.Position(1, 1)
                 }, new vscode.CancellationTokenSource().token).then(
@@ -57,7 +57,8 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
                     (reason) => { console.log(reason); reject(reason); }
                 );
             } else {
-                return this.lc.sendRequest(GaugeRequests.Specs, {}, new vscode.CancellationTokenSource().token)
+                let token = new vscode.CancellationTokenSource().token;
+                return this.languageClient.sendRequest(GaugeRequests.Specs, {}, token)
                     .then(
                         (val: any[]) => {
                             resolve(val.map((x) => {
