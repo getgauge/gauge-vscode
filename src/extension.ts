@@ -5,7 +5,7 @@ import * as path from 'path';
 import {
     workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range,
     WorkspaceFolder, OutputChannel, commands, WorkspaceFoldersChangeEvent, window, StatusBarAlignment,
-    CancellationTokenSource, version, TextDocument, TextEditor, languages,
+    CancellationTokenSource, version, TextDocument, TextEditor, languages, Terminal,
 } from 'vscode';
 
 import {
@@ -46,8 +46,20 @@ let treeDataProvider: Disposable = new Disposable(() => undefined);
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
+let terminalStack: Terminal[] = [];
 
 export function activate(context: ExtensionContext) {
+    let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
+    let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
+    context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
+
+    context.subscriptions.push(commands.registerCommand
+        (GaugeVSCodeCommands.CreateAndSendTextToInstallTerminal, (text: string) => {
+            terminalStack.push(window.createTerminal('gauge install'));
+            getLatestTerminal().show();
+            getLatestTerminal().sendText(text);
+    }));
+
     let gaugeVersionInfo = getGaugeVersionInfo();
     if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
         notifyToInstallGauge(
@@ -68,8 +80,6 @@ export function activate(context: ExtensionContext) {
         setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
     });
 
-    let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
-    let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
     if (hasUpgraded) {
         showUpdateMessage(currentExtensionVersion);
     }
@@ -161,7 +171,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(new GenerateStubCommandProvider(clients));
     context.subscriptions.push(new ExtractConceptCommandProvider(context, clients));
-    context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
+
     registerTreeDataProvider(context, getDefaultFolder(), true);
 }
 
@@ -460,4 +470,8 @@ function showUpdateMessage(version: string) {
         .then((selected) => {
             actions[selected]();
         });
+}
+
+function getLatestTerminal() {
+    return terminalStack[terminalStack.length - 1];
 }
