@@ -8,7 +8,7 @@ import { LineBuffer } from './lineBuffer';
 import { OutputChannel } from './outputChannel';
 import { GaugeVSCodeCommands, GaugeCommands } from '../constants';
 import { ChildProcess } from 'child_process';
-import getPort = require('get-port');
+import { setDebugConf } from "./debug";
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -30,13 +30,12 @@ export function execute(spec: string, config: any): Thenable<any> {
 
         executing = true;
         preExecute.forEach((f) => f.call(null, path.relative(config.projectRoot, config.status)));
-        setDebugConf(config).then((env) => {
+        setDebugConf(config, DEBUG_PORT).then((env) => {
             let args = getArgs(spec, config);
             let chan = new OutputChannel(outputChannel,
                 ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '),
                 config.projectRoot);
             childProcess = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot, env: env });
-
             childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code, signal) => {
@@ -46,27 +45,6 @@ export function execute(spec: string, config: any): Thenable<any> {
             });
         });
     });
-}
-
-function setDebugConf(config: any): Thenable<any> {
-    let env = Object.create(process.env);
-    if (config.debug) {
-        env.DEBUGGING = true;
-        return getPort({ port: DEBUG_PORT }).then((port) => {
-            let debugConfig = {
-                type: "node",
-                name: "Gauge Debugger",
-                request: "attach",
-                port: port,
-                protocol: "inspector"
-            };
-            env.DEBUG_PORT = port;
-            debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri), debugConfig);
-            return env;
-        });
-    } else {
-        return Promise.resolve(env);
-    }
 }
 
 export function cancel() {

@@ -29,6 +29,7 @@ import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { WelcomePageProvider } from './welcome/welcome';
 import { ExtractConceptCommandProvider } from './refactor/extractConcept';
 import { GenerateStubCommandProvider} from './annotator/generateStub';
+import { clientLanguageMap } from './execution/debug';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -236,6 +237,17 @@ function startServerFor(folder: WorkspaceFolder) {
     registerDynamicFeatures(languageClient);
     clients.set(folder.uri.fsPath, languageClient);
     languageClient.start();
+
+    languageClient.onReady().then(() => {setLanguageId(languageClient, folder.uri.fsPath); });
+}
+
+function setLanguageId(languageClient: LanguageClient, projectRoot: string) {
+    languageClient.sendRequest("gauge/getRunnerLanguage", new CancellationTokenSource().token).then(
+        (language: string) => {
+            clientLanguageMap.set(projectRoot, language);
+        }
+    );
+
 }
 
 function registerDynamicFeatures(languageClient: LanguageClient) {
