@@ -29,6 +29,7 @@ import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { WelcomePageProvider } from './welcome/welcome';
 import { ExtractConceptCommandProvider } from './refactor/extractConcept';
 import { GenerateStubCommandProvider} from './annotator/generateStub';
+import { clientLanguageMap } from './execution/debug';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -45,7 +46,6 @@ let treeDataProvider: Disposable = new Disposable(() => undefined);
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
-export let clientLanguageMap: Map<string, string> = new Map();
 
 export function activate(context: ExtensionContext) {
     let gaugeVersionInfo = getGaugeVersionInfo();
@@ -241,11 +241,10 @@ function startServerFor(folder: WorkspaceFolder) {
     languageClient.onReady().then(() => {setLanguageId(languageClient, folder.uri.fsPath); });
 }
 
-function setLanguageId(languageClient: LanguageClient, folder: string) {
+function setLanguageId(languageClient: LanguageClient, projectRoot: string) {
     languageClient.sendRequest("gauge/getRunnerLanguage", new CancellationTokenSource().token).then(
         (language: string) => {
-            console.log(language);
-            clientLanguageMap.set(folder, language);
+            clientLanguageMap.set(projectRoot, language);
         }
     );
 

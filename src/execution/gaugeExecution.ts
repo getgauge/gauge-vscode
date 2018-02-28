@@ -8,16 +8,12 @@ import { LineBuffer } from './lineBuffer';
 import { OutputChannel } from './outputChannel';
 import { GaugeVSCodeCommands, GaugeCommands } from '../constants';
 import { ChildProcess } from 'child_process';
-import getPort = require('get-port');
-import { clientLanguageMap } from '../extension';
+import { setDebugConf } from "./debug";
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution";
 const DEBUG_PORT = 'debugPort';
-const PYTHON_DEBUG_TIMEOUT = 1500;
-const PYTHON_LANGUAGE_ID = "python";
-const JAVASCRIPT_LANGUAGE_ID = "javascript";
 
 let outputChannel = window.createOutputChannel(outputChannelName);
 let executing: boolean;
@@ -34,7 +30,7 @@ export function execute(spec: string, config: any): Thenable<any> {
 
         executing = true;
         preExecute.forEach((f) => f.call(null, path.relative(config.projectRoot, config.status)));
-        setDebugConf(config, clientLanguageMap.get(config.projectRoot)).then((env) => {
+        setDebugConf(config, DEBUG_PORT).then((env) => {
             let args = getArgs(spec, config);
             let chan = new OutputChannel(outputChannel,
                 ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '),
@@ -49,60 +45,6 @@ export function execute(spec: string, config: any): Thenable<any> {
             });
         });
     });
-}
-
-function setDebugConf(config: any, language: string): Thenable<any> {
-    let env = Object.create(process.env);
-    if (config.debug) {
-        env.DEBUGGING = true;
-        return getPort({ port: DEBUG_PORT }).then((port) => {
-            env.DEBUG_PORT = port;
-            setLanguageDebugConf(language, port, config.projectRoot);
-            return env;
-        });
-    } else {
-        return Promise.resolve(env);
-    }
-}
-
-function setLanguageDebugConf(language: string, port: number, projectRoot: string): void {
-    switch (language) {
-        case JAVASCRIPT_LANGUAGE_ID: {
-            setNodeDebugConf(port, projectRoot);
-            break;
-        }
-        case PYTHON_LANGUAGE_ID: {
-            setPythonDebugConf(port, projectRoot);
-            break;
-        }
-    }
-}
-
-function setPythonDebugConf(port: number, projectRoot: string): void {
-    let debugConfig = {
-        type: "python",
-        name: "Gauge Debugger",
-        request: "attach",
-        port: port,
-        localRoot: projectRoot
-    };
-    setTimeout(() => {
-        debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri),
-        debugConfig);
-    }, PYTHON_DEBUG_TIMEOUT);
-}
-
-function setNodeDebugConf(port: number, projectRoot: string): void {
-    let debugConfig = {
-        type: "node",
-        name: "Gauge Debugger",
-        request: "attach",
-        port: port,
-        protocol: "inspector"
-    };
-
-    debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri),
-    debugConfig);
 }
 
 export function cancel() {
