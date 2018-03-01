@@ -73,7 +73,7 @@ export class WelcomePageProvider extends Disposable implements TextDocumentConte
 
     replaceText(text: string, rootPath: string): string {
         let supress = this._context.globalState.get<Boolean>(GAUGE_SUPPRESS_WELCOME);
-        let replace = [{key : /{{installCommand}}/g, value : encodeURI('command:gauge.createAndSendText.terminal?' +
+        let replace = [{key : /{{installCommand}}/g, value : encodeURI('command:gauge.executeIn.terminal?' +
                         JSON.stringify([this.getInstallCommandBasedOnOS().command]))},
                         {key : /{{name}}/g, value : this.getInstallCommandBasedOnOS().name},
                         {key : /{{command}}/g, value : this.getInstallCommandBasedOnOS().command},
