@@ -33,14 +33,14 @@
 				"sidebar	content		content"
 				"sidebar 	footer		footer";
 		}
-		h3, .sidebar h5 {
+		h3, .sidebar h5, .content h4{
 			color: var(--header-colour);
 			font-weight: normal;
 		}
 		.main-header {
 			grid-area: header;
 			text-align: center;
-			padding-bottom: 3em;
+			padding-bottom: 2em;
 			padding-top: 2em;
 			height: 20%;
 		}
@@ -136,7 +136,7 @@
 		}
 		.error {
 			color: red;
-			font-size: 20px;
+			font-size: 18px;
 			align-content: left;
 		}
 		.error i.fas {
@@ -184,6 +184,9 @@
 		pre::before {
 			content: '$ ';
 		}
+		.fa-hashtag {
+			padding-right: 10px;
+		}
 	</style>
 	<link rel="stylesheet" href="{{root}}/css/fontawesome-all.min.css"/>
 </head>
@@ -201,8 +204,8 @@
 </div>
 <main class="content">
 	<section>
-		<h3>About</h3>
-		<div class="intro">Gauge is a light-weight cross-platform test automation tool with the ability to author test cases in the business language.</div>
+		<h4>About</h4>
+		<div class="intro">Gauge is a fast light-weight cross-platform test automation tool.</div>
 	</section>
 	<section>
 		<span class="error"><i class="fas fa-exclamation-circle"></i>Gauge not installed! </span><a href="#" class="installError"><span class="error">Read more.</span></a>
@@ -210,17 +213,17 @@
 			<li>
 				<div class="instructions hidden">
 					<ul>
-						<li>Install gauge using the following instruction:</li>
-						<li><h3>{{name}}</h3></li>
+						<li><span>Install gauge using the following instruction:</span></li>
+						<li><h4>{{name}}</h4></li>
 						<li class="command"><pre>{{command}}</pre><a id="execute" href="{{installCommand}}"><i class="fas fa-play link"></i></a></li>
-						<li>For other installation options <a href="https://gauge.org/get-started.html"><span class="link">click here.</span></a></li>
+						<li><span>For other installation options <a href="https://gauge.org/get-started.html"><span class="link">click here.</span></a></span></li>
 					</ul>
 				</div>
 			</li>
 		</ul>
 	</section>
 	<section>
-		<h3>Project/Workspace</h3>
+		<h4>Project/Workspace</h4>
 		<ul>
 			<li>
 				<a class="action" href="command:gauge.execute.specification.all">
@@ -236,7 +239,7 @@
 		</ul>
 	</section>
 	<section>
-		<h3>Customize</h3>
+		<h4>Customize</h4>
 		<ul>
 			<li>
 				<a class="action" href="command:workbench.action.openGlobalSettings">
@@ -252,7 +255,7 @@
 		</ul>
 	</section>
 	<section>
-		<h3>Learn</h3>
+		<h4>Learn</h4>
 		<ul>
 			<li>
 				<a class="action" href="command:workbench.action.showCommands">
@@ -261,6 +264,17 @@
 						<div>Find and run all Gauge commands</div>
 						<span class="detail" title="Find and access Gauge commands from the Command Palette">
 							Search for <pre>gauge</pre> in the Command Pallette.
+						</span>
+					</span>
+				</a>
+			</li>
+			<li>
+				<a class="action" href="https://docs.gauge.org/longstart.html#gauge-terminologies">
+					<i class="fas fa-hashtag"></i>
+					<span>
+						<div>Open Gauge terminologies reference</div>
+						<span class="detail" title="Open gauge terminologies reference.">
+							Learn the gauge terminologies.
 						</span>
 					</span>
 				</a>
@@ -291,6 +305,9 @@
 			</li>
 			<li>
 				<a href="https://getgauge-examples.github.io/">Examples</a>
+			</li>
+			<li>
+				<a href="https://blog.getgauge.io/">Blogs</a>
 			</li>
 			<li>
 				<a href="https://docs.gauge.org/howto/index.html">HowTo?</a>

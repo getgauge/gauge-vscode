@@ -62,9 +62,6 @@ export function activate(context: ExtensionContext) {
 
     let gaugeVersionInfo = getGaugeVersionInfo();
     if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
-        notifyToInstallGauge(
-            `Cannot find 'gauge' executable or a compatible version (>=${MINIMUM_SUPPORTED_GAUGE_VERSION}) in PATH.`
-        );
         return;
     }
     languages.setLanguageConfiguration('gauge', {
