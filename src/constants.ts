@@ -31,7 +31,8 @@ export enum GaugeVSCodeCommands {
     RepeatExecution = 'gauge.execute.repeat',
     SwitchProject = 'gauge.specexplorer.switchProject',
     QuickPickOnExecution = 'gauge.quickPick.onExecution.open',
-    ExtractConcept = 'gauge.extract.concept'
+    ExtractConcept = 'gauge.extract.concept',
+    ExecuteInTerminal = "gauge.executeIn.terminal"
 }
 
 export enum GaugeCommands {

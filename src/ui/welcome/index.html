@@ -9,12 +9,16 @@
 			--button-hover-background: rgba(0,0,0,0.1);
 			--inversion: 1; /* logo is white background, light themes need an inversion */
 			--header-colour: #555555;
+			--command-background : rgba(0,0,0,0.08);
+			--command-text-color : black;
 		}
 		.vscode-dark{
 			--button-background: rgba(255,255,255,0.08);
 			--button-hover-background: rgba(255,255,255,0.1);
 			--inversion: 0;
 			--header-colour: #e0b009;
+			--command-background : black;
+			--command-text-color : white;
 		}
 		html {
 			margin:    0 auto;
@@ -31,14 +35,14 @@
 				"sidebar	content		content"
 				"sidebar 	footer		footer";
 		}
-		h3, .sidebar h5 {
+		h3, .sidebar h5, .content h4{
 			color: var(--header-colour);
 			font-weight: normal;
 		}
 		.main-header {
 			grid-area: header;
 			text-align: center;
-			padding-bottom: 3em;
+			padding-bottom: 2em;
 			padding-top: 2em;
 			height: 20%;
 		}
@@ -68,7 +72,7 @@
 		.intro{
 			font-size: 0.8em;
 		}
-		a{
+		a {
 			outline: none;
 			text-decoration: none;
 			color: var(--color) !important;
@@ -132,6 +136,63 @@
 		.hidden {
 			display: none;
 		}
+		.error {
+			color: red;
+			font-size: 18px;
+			align-content: left;
+		}
+		.error i.fas {
+			margin-right: 0.25em;
+			font-size: 1em;
+		}
+		#execute i.fas {
+			margin-left: 1em;
+			font-size: 1em;
+		}
+		.command {
+			display: flex;
+			justify-content: left;
+			align-items: center;
+			padding: 5px;
+			background-color:	var(--command-background);
+			color:white;
+			padding: 10px 20px 10px 20px;
+		}
+		.instructions {
+			justify-content: left;
+			align-items: center;
+			border-radius: 10px;
+			padding: 10px 20px 10px 20px;
+			border:1px solid red;
+		}
+		.link {
+			color: #66b6eb;
+		}
+		.command pre {
+			width: 90%;
+			color: var(--command-text-color);
+		}
+		.command a {
+			width: 10%;
+			float: right;
+		}
+		pre::before {
+			content: '$ ';
+		}
+		.fa-hashtag {
+			padding-right: 10px;
+		}
+		.run {
+			border: 1px solid green;
+			background-color: green;
+			border-radius: 0.25em;
+			padding-right: 0.25em;
+			padding-left: 0.25em;
+			color:white;
+		}
+		.text {
+			font-size: 0.75em;
+		}
 	</style>
 	<link rel="stylesheet" href="{{root}}/css/fontawesome-all.min.css"/>
 </head>
@@ -149,11 +210,26 @@
 </div>
 <main class="content">
 	<section>
-		<h3>About</h3>
-		<div class="intro">Gauge is a light-weight cross-platform test automation tool with the ability to author test cases in the business language.</div>
+		<h4>About</h4>
+		<div class="intro">Gauge is a fast light-weight cross-platform test automation tool.</div>
 	</section>
 	<section>
-		<h3>Project/Workspace</h3>
+		<span class="error"><i class="fas fa-exclamation-circle"></i>Gauge executable not found! </span><a href="#" class="installError"><span class="link">Read more.</span></a>
+		<ul>
+			<li>
+				<div class="instructions hidden">
+					<ul>
+						<li><div class="text">Install gauge using the following instruction:</div></li>
+						<li><h4>{{name}}</h4></li>
+						<li class="command"><pre>{{command}}</pre><a id="execute" href="{{installCommand}}"><span class="run">Run</span></a></li>
+						<li><div class="text">For other installation options <a href="https://gauge.org/get-started.html"><span class="link">click here.</span></a></div></li>
+					</ul>
+				</div>
+			</li>
+		</ul>
+	</section>
+	<section>
+		<h4>Project/Workspace</h4>
 		<ul>
 			<li>
 				<a class="action" href="command:gauge.execute.specification.all">
@@ -169,7 +245,7 @@
 		</ul>
 	</section>
 	<section>
-		<h3>Customize</h3>
+		<h4>Customize</h4>
 		<ul>
 			<li>
 				<a class="action" href="command:workbench.action.openGlobalSettings">
@@ -185,7 +261,7 @@
 		</ul>
 	</section>
 	<section>
-		<h3>Learn</h3>
+		<h4>Learn</h4>
 		<ul>
 			<li>
 				<a class="action" href="command:workbench.action.showCommands">
@@ -194,6 +270,17 @@
 						<div>Find and run all Gauge commands</div>
 						<span class="detail" title="Find and access Gauge commands from the Command Palette">
 							Search for <pre>gauge</pre> in the Command Pallette.
+						</span>
+					</span>
+				</a>
+			</li>
+			<li>
+				<a class="action" href="https://docs.gauge.org/longstart.html#gauge-terminologies">
+					<i class="fas fa-hashtag"></i>
+					<span>
+						<div>Open Gauge terminologies reference</div>
+						<span class="detail" title="Open gauge terminologies reference.">
+							Learn the gauge terminologies.
 						</span>
 					</span>
 				</a>
@@ -226,6 +313,9 @@
 				<a href="https://getgauge-examples.github.io/">Examples</a>
 			</li>
 			<li>
+				<a href="https://blog.getgauge.io/">Blogs</a>
+			</li>
+			<li>
 				<a href="https://docs.gauge.org/howto/index.html">HowTo?</a>
 			</li>
 		</ul>
@@ -256,6 +346,19 @@
 <script>
 	document.getElementById('doNotShow').addEventListener('click', function(){
 		document.getElementById('toggleWelcome').click();
+	});
+
+	var els = document.getElementsByClassName('installError');
+	Array.prototype.forEach.call(els, function(el) {
+		el.addEventListener('click', function(){
+			this.parentNode
+				.getElementsByClassName('instructions')[0]
+				.classList.toggle('hidden');
+		})
+	});
+
+	document.getElementById("execute").addEventListener('click', function(){
+		document.getElementById
 	});
 </script>
 </body>

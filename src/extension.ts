@@ -5,7 +5,7 @@ import * as path from 'path';
 import {
     workspace, Disposable, ExtensionContext, Uri, extensions, TextDocumentShowOptions, Position, Range,
     WorkspaceFolder, OutputChannel, commands, WorkspaceFoldersChangeEvent, window, StatusBarAlignment,
-    CancellationTokenSource, version, TextDocument, TextEditor, languages,
+    CancellationTokenSource, version, TextDocument, TextEditor, languages, Terminal,
 } from 'vscode';
 
 import {
@@ -48,11 +48,12 @@ let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
 
 export function activate(context: ExtensionContext) {
+    let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
+    let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
+    context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
+
     let gaugeVersionInfo = getGaugeVersionInfo();
     if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
-        notifyToInstallGauge(
-            `Cannot find 'gauge' executable or a compatible version (>=${MINIMUM_SUPPORTED_GAUGE_VERSION}) in PATH.`
-        );
         return;
     }
     languages.setLanguageConfiguration('gauge', {
@@ -67,12 +68,6 @@ export function activate(context: ExtensionContext) {
         if (event.removed) onFolderDeletion(event, context);
         setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
     });
-
-    let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
-    let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
-    if (hasUpgraded) {
-        showUpdateMessage(currentExtensionVersion);
-    }
 
     registerStopExecution(context);
     registerExecutionStatus(context);
@@ -161,7 +156,7 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(new GenerateStubCommandProvider(clients));
     context.subscriptions.push(new ExtractConceptCommandProvider(context, clients));
-    context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
+
     registerTreeDataProvider(context, getDefaultFolder(), true);
 }
 
@@ -449,15 +444,4 @@ function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): 
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
     return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion;
-}
-
-function showUpdateMessage(version: string) {
-    let actions = {
-        'Show Release Notes': () => opn('https://github.com/getgauge/gauge-vscode/releases/tag/v' + version),
-        'Do not show this again': () => workspace.getConfiguration().update(GAUGE_SUPPRESS_UPDATE_NOTIF, true),
-    };
-    window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes', 'Do not show this again')
-        .then((selected) => {
-            actions[selected]();
-        });
 }
