@@ -230,7 +230,7 @@ function startServerFor(folder: WorkspaceFolder) {
         diagnosticCollectionName: 'gauge',
         workspaceFolder: folder,
         outputChannel,
-        revealOutputChannelOn: RevealOutputChannelOn.Error,
+        revealOutputChannelOn: RevealOutputChannelOn.Never,
     };
     let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
 
