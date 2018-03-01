@@ -46,19 +46,11 @@ let treeDataProvider: Disposable = new Disposable(() => undefined);
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
-let terminalStack: Terminal[] = [];
 
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
     let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
     context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
-
-    context.subscriptions.push(commands.registerCommand
-        (GaugeVSCodeCommands.CreateAndSendTextToInstallTerminal, (text: string) => {
-            terminalStack.push(window.createTerminal('gauge install'));
-            getLatestTerminal().show();
-            getLatestTerminal().sendText(text);
-    }));
 
     let gaugeVersionInfo = getGaugeVersionInfo();
     if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
@@ -76,10 +68,6 @@ export function activate(context: ExtensionContext) {
         if (event.removed) onFolderDeletion(event, context);
         setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
     });
-
-    if (hasUpgraded) {
-        showUpdateMessage(currentExtensionVersion);
-    }
 
     registerStopExecution(context);
     registerExecutionStatus(context);
@@ -456,19 +444,4 @@ function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): 
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
     return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion;
-}
-
-function showUpdateMessage(version: string) {
-    let actions = {
-        'Show Release Notes': () => opn('https://github.com/getgauge/gauge-vscode/releases/tag/v' + version),
-        'Do not show this again': () => workspace.getConfiguration().update(GAUGE_SUPPRESS_UPDATE_NOTIF, true),
-    };
-    window.showInformationMessage("Gauge updated to version " + version, 'Show Release Notes', 'Do not show this again')
-        .then((selected) => {
-            actions[selected]();
-        });
-}
-
-function getLatestTerminal() {
-    return terminalStack[terminalStack.length - 1];
 }

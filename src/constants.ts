@@ -32,7 +32,7 @@ export enum GaugeVSCodeCommands {
     SwitchProject = 'gauge.specexplorer.switchProject',
     QuickPickOnExecution = 'gauge.quickPick.onExecution.open',
     ExtractConcept = 'gauge.extract.concept',
-    CreateAndSendTextToInstallTerminal = "gauge.createAndSendText.terminal"
+    ExecuteInTerminal = "gauge.executeIn.terminal"
 }
 
 export enum GaugeCommands {

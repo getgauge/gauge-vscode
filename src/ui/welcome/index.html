@@ -9,7 +9,8 @@
 			--button-hover-background: rgba(0,0,0,0.1);
 			--inversion: 1; /* logo is white background, light themes need an inversion */
 			--header-colour: #555555;
-			--command-background : rgba(255,255,255,0.08);
+			--command-background : rgba(0,0,0,0.08);
+			--command-text-color : black;
 		}
 		.vscode-dark{
 			--button-background: rgba(255,255,255,0.08);
@@ -17,6 +18,7 @@
 			--inversion: 0;
 			--header-colour: #e0b009;
 			--command-background : black;
+			--command-text-color : white;
 		}
 		html {
 			margin:    0 auto;
@@ -70,7 +72,7 @@
 		.intro{
 			font-size: 0.8em;
 		}
-		a{
+		a {
 			outline: none;
 			text-decoration: none;
 			color: var(--color) !important;
@@ -161,21 +163,14 @@
 			align-items: center;
 			border-radius: 10px;
 			padding: 10px 20px 10px 20px;
-			/* background-color: #9a363e; */
-			/* background : repeating-linear-gradient(
-						45deg,
-						#852c34,
-						#852c34 10px,
-						#822929 10px,
-						#822929 20px
-					); */
 			border:1px solid red;
 		}
 		.link {
-			color: #66b6eb
+			color: #66b6eb;
 		}
 		.command pre {
 			width: 90%;
+			color: var(--command-text-color);
 		}
 		.command a {
 			width: 10%;
@@ -186,6 +181,17 @@
 		}
 		.fa-hashtag {
 			padding-right: 10px;
+		}
+		.run {
+			border: 1px solid green;
+			background-color: green;
+			border-radius: 0.25em;
+			padding-right: 0.25em;
+			padding-left: 0.25em;
+			color:white;
+		}
+		.text {
+			font-size: 0.75em;
 		}
 	</style>
 	<link rel="stylesheet" href="{{root}}/css/fontawesome-all.min.css"/>
@@ -208,15 +214,15 @@
 		<div class="intro">Gauge is a fast light-weight cross-platform test automation tool.</div>
 	</section>
 	<section>
-		<span class="error"><i class="fas fa-exclamation-circle"></i>Gauge not installed! </span><a href="#" class="installError"><span class="error">Read more.</span></a>
+		<span class="error"><i class="fas fa-exclamation-circle"></i>Gauge executable not found! </span><a href="#" class="installError"><span class="link">Read more.</span></a>
 		<ul>
 			<li>
 				<div class="instructions hidden">
 					<ul>
-						<li><span>Install gauge using the following instruction:</span></li>
+						<li><div class="text">Install gauge using the following instruction:</div></li>
 						<li><h4>{{name}}</h4></li>
-						<li class="command"><pre>{{command}}</pre><a id="execute" href="{{installCommand}}"><i class="fas fa-play link"></i></a></li>
-						<li><span>For other installation options <a href="https://gauge.org/get-started.html"><span class="link">click here.</span></a></span></li>
+						<li class="command"><pre>{{command}}</pre><a id="execute" href="{{installCommand}}"><span class="run">Run</span></a></li>
+						<li><div class="text">For other installation options <a href="https://gauge.org/get-started.html"><span class="link">click here.</span></a></div></li>
 					</ul>
 				</div>
 			</li>
