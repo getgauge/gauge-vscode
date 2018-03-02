@@ -1,4 +1,5 @@
 import { spawnSync } from "child_process";
+import { getGaugeVersionInfo } from '../gaugeVersion';
 
 export class TextTransformer {
     getLinuxDistribution(): string {
@@ -34,8 +35,9 @@ export class TextTransformer {
     }
 
     replaceText(text: string, supress: Boolean, root: string): string {
-        let replace = [{key : /{{installCommand}}/g, value : encodeURI('command:gauge.executeIn.terminal?' +
-                        JSON.stringify([this.getInstallCommandBasedOnOS().command]))},
+        let replace = [{key : /{{showGaugeInstall}}/g, value : !getGaugeVersionInfo() ?  "" : "hidden"},
+                        {key : /{{installCommand}}/g, value : encodeURI('command:gauge.executeIn.terminal?' +
+                                JSON.stringify([this.getInstallCommandBasedOnOS().command]))},
                         {key : /{{name}}/g, value : this.getInstallCommandBasedOnOS().name},
                         {key : /{{command}}/g, value : this.getInstallCommandBasedOnOS().command},
                         {key : /{{doNotShowWelcome}}/g, value: supress ? "checked" : "" },
