@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeVSCodeCommands, GaugeRequests } from '../constants';
+const SPEC_FILE_PATTERN = `**/*.spec`;
 
 const extensions = [".spec", ".md"];
 
@@ -25,6 +26,9 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
                 this.refresh();
             }
         });
+        let specWatcher = vscode.workspace.createFileSystemWatcher(SPEC_FILE_PATTERN);
+        specWatcher.onDidCreate(() => this.refresh());
+        specWatcher.onDidDelete(() => this.refresh());
     }
 
     refresh(element?: GaugeNode): void {
@@ -93,11 +97,6 @@ export class Spec extends GaugeNode {
         super(label, vscode.TreeItemCollapsibleState.Collapsed, file);
     }
 
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'light', 'folder.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'dark', 'folder.svg')
-    };
-
     contextValue = 'specification';
 }
 
@@ -112,11 +111,6 @@ export class Scenario extends GaugeNode {
     }
 
     readonly executionIdentifier = this.file + ":" + this.lineNo;
-
-    iconPath = {
-        light: path.join(__filename, '..', '..', '..', '..', 'resources', 'light', 'document.svg'),
-        dark: path.join(__filename, '..', '..', '..', '..', 'resources', 'dark', 'document.svg')
-    };
 
     contextValue = 'scenario';
 }
