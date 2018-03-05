@@ -194,6 +194,11 @@
           "default": true,
           "description": "When true, gauge specs explorer will be alive and loaded."
         },
+        "gauge.welcomePage.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, gauge welcome page will be loaded."
+        },
         "gauge.launch.enableDebugLogs": {
           "type": "boolean",
           "default": false,
