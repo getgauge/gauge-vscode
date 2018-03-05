@@ -1,7 +1,6 @@
 import { Disposable, TextDocumentContentProvider, Uri, workspace,
     commands, ViewColumn, window, ExtensionContext } from "vscode";
 import { GaugeVSCodeCommands, VSCodeCommands } from "../constants";
-import { getGaugeVersionInfo } from '../gaugeVersion';
 import * as path from 'path';
 import { TerminalProvider } from "../terminal/terminal";
 import { TextTransformer } from "./textTransformer";
