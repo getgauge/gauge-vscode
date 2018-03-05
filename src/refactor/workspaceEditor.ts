@@ -1,4 +1,5 @@
-import { WorkspaceEdit, window, workspace, TextDocument, TextEdit, Uri } from "vscode";
+import { WorkspaceEdit, window, workspace, TextDocument, TextEdit, Uri, TextEditor,
+    TextDocumentShowOptions, Position, Range } from "vscode";
 import { existsSync } from 'fs';
 export class WorkspaceEditor {
     private readonly _edit: WorkspaceEdit;
@@ -13,8 +14,12 @@ export class WorkspaceEditor {
         });
     }
 
-    private writeInDocument(document, edit) {
-        window.showTextDocument(document).then(() => {
+    private writeInDocument(document: TextDocument, edit: TextEdit[]) {
+        let lineNumberToFocus = edit[0].range.start.line;
+        let options: TextDocumentShowOptions = {
+            selection: new Range(new Position(lineNumberToFocus, 0), new Position(lineNumberToFocus, 0))
+        };
+        window.showTextDocument(document, options).then((editor: TextEditor) => {
             let newFileEdits = new WorkspaceEdit();
             newFileEdits.set(document.uri, edit);
             workspace.applyEdit(newFileEdits);
