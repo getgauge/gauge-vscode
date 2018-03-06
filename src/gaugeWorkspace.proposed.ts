@@ -1,12 +1,8 @@
-import {
-    workspace, Disposable, WorkspaceFolder as VWorkspaceFolder,
-    WorkspaceFoldersChangeEvent as VWorkspaceFoldersChangeEvent
-} from 'vscode';
-
+import { workspace, Disposable } from 'vscode';
 import { DynamicFeature, RegistrationData, BaseLanguageClient, NextSignature } from 'vscode-languageclient';
 
 import {
-    ClientCapabilities, InitializedParams, Proposed, RPCMessageType, CancellationToken, ServerCapabilities
+    ClientCapabilities, InitializedParams, RPCMessageType, CancellationToken
 } from 'vscode-languageserver-protocol';
 
 import { SaveFilesRequest, GaugeClientCapabilities } from './protocol/gauge.proposed';
