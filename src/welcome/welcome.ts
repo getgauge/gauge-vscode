@@ -30,7 +30,10 @@ export class WelcomePageProvider extends Disposable implements TextDocumentConte
             new TerminalProvider(context))
         );
         if (upgraded || !this.supressed()) {
-            commands.executeCommand(GaugeVSCodeCommands.Welcome);
+            let welcomePageConfig = workspace.getConfiguration('gauge.welcomePage');
+            if (welcomePageConfig && welcomePageConfig.get<boolean>('enabled')) {
+                commands.executeCommand(GaugeVSCodeCommands.Welcome);
+            }
         }
     }
 

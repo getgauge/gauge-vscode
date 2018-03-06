@@ -50,11 +50,7 @@ let specExplorerActiveFolder: string = "";
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
     let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
-
-    let welcomePageConfig = workspace.getConfiguration('gauge.welcomePage');
-    if (welcomePageConfig && welcomePageConfig.get<boolean>('enabled')) {
-        context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
-    }
+    context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
 
     let gaugeVersionInfo = getGaugeVersionInfo();
     if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
