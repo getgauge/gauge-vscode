@@ -1,0 +1,486 @@
+.vscode-dark, .vscode-light{
+    --failure-color: #E73E48;
+    --pass-color: #608b4e;
+    --skip-color: #999999;
+}
+
+.vscode-high-contrast {
+    --failure-color: var(--color);
+    --pass-color: var(--color);
+    --skip-color: var(--color);
+}
+
+.vscode-light{
+    --hover-background: rgba(0,0,0,0.1);
+}
+
+.vscode-dark{
+    --hover-background: rgba(255,255,255,0.1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    font-family: Source Code Pro, monospace;
+}
+
+p {
+    margin: 10px 0;
+}
+
+blockquote {
+	font-style: italic;
+	border-left: 0.25rem solid #333;
+	margin-left: 0;
+	padding-left: 1rem;
+}
+
+.container {
+    margin: 0 auto;
+}
+
+.container:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.actions a {
+    outline: 0;
+}
+
+.report-overview {
+    display: grid;
+    grid-template-columns: auto 13rem;
+    align-items: center;
+    height: 2rem;
+}
+
+.report-overview .actions a{
+    color: var(--color);
+    text-decoration: none;
+    border: 0.5px solid;
+    padding: 1px 2px;
+    border-radius: 3px;
+}
+
+.report-overview ul{
+    list-style: none;
+    display: flex;
+    margin: 0;
+    font-family: monospace;
+    /* font-size: 1.25rem; */
+    align-items: center;
+    padding-left: 10px;
+}
+
+.report-overview ul span.txt {
+    margin-left: 5px;
+}
+
+.report-overview ul span.sep:after {
+    content: "|";
+    font-weight: bold;
+    margin: 10px 10px;
+}
+
+.report-overview {
+    opacity: 0.75;
+}
+
+body:not(.vscode-high-contrast) .report-overview.failed {
+    background-color: var(--failure-color);
+}
+
+body:not(.vscode-high-contrast) .report-overview.passed {
+    background-color: var(--pass-color);
+    color: var(--background-color);
+}
+
+body:not(.vscode-high-contrast) .report-overview.skipped {
+    background-color: var(--skip-color);
+    color: var(--background-color);
+}
+
+.specifications:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.specifications .title {
+    font-weight: 300;
+    font-size: 1.125rem;
+    margin: 20px 20px 10px;
+    display: none;
+}
+
+.specItemsContainer, .concept-steps {
+    transition: visibility 0.3s;
+    transition: max-height 0.3s;
+}
+
+.specItemsContainer.collapsed, .concept-steps.collapsed {
+    visibility: hidden;
+    max-height: 0;
+}
+
+.hidden {
+    display: none;
+}
+
+.details:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.details .content {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.details .content:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.details table {
+    border-collapse: collapse;
+    border: 0.5px dashed #777;
+    border-bottom: 0;
+    border-right: 0;
+}
+
+.details table td, .details table th {
+    border-bottom: 0.5px dashed #777;
+    border-right: 0.5px dashed #777;
+    padding: 5px 5px;
+}
+
+.details .data-table {
+    border-collapse: collapse;
+    border: 0.5px dashed #777;
+    border-bottom: 0;
+    border-right: 0;
+    margin-left: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.data-table .no-border {
+    border-style: hidden;
+    border-right-style: dashed;
+}
+
+.details .data-table td {
+    color: #000000;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+.data-table tr.passed td {
+    color: var(--pass-color);
+}
+
+.data-table tr.failed td {
+    color: var(--failure-color);
+}
+
+.data-table tr.skipped td {
+    color: var(--skip-color);
+}
+
+.data-table tr.selected td {
+    opacity: 1;
+}
+
+.data-table tr.selected td:nth-child(2) {
+    border-right: 4px solid #0085C9;
+}
+
+.data-table tr:hover td {
+    opacity: 0.9;
+}
+
+.row-selector.selected:after {
+    content: "*";
+    height: 100%;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.row-selector:not(.selected):hover:after {
+    content: "click to view results for this row";
+    height: 100%;
+    font-size: 0.8rem;
+    vertical-align: middle;
+    font-weight: normal;
+    color: var(--color);
+    opacity: 0.5;
+    font-style: italic;
+    margin-left: 1rem;
+}
+
+.spec-head {
+    margin: 10px 20px 10px 0;
+    display: inline-block;
+    font-size: 1.2rem;
+}
+
+.spec-head-wrapper{
+    cursor: pointer;
+    padding-left: 10px;
+}
+
+h3.spec-head:before {
+    content: "#";
+    margin-right: 5px;
+}
+
+.spec-head-wrapper.fail, .scenario-head.fail {
+    color: var(--failure-color);
+}
+
+.spec-head-wrapper:before, .scenario-head:before, .row-selector td.status {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-right: 2px;
+    border-radius: 50%;
+    border: 1px dashed;
+    text-align: center;
+    display: inline-block;
+    width: 1.5rem;
+}
+
+.spec-head-wrapper.fail:before, .scenario-head.fail:before, .row-selector.failed td.status:before {
+    content: "F";
+}
+
+.spec-head-wrapper.skip:before, .scenario-head.skip:before, .row-selector.skipped td.status:before {
+    content: "S";
+}
+
+.spec-head-wrapper.pass:before, .scenario-head.pass:before, .row-selector.passed td.status:before {
+    content: "P";
+}
+
+.spec-head-wrapper.pass, .scenario-head.pass {
+    color: var(--pass-color);
+}
+
+.data-table tr:before {
+    font-size: 0.8rem;
+}
+
+.spec-head-wrapper.skip, .scenario-head.skip {
+    color: #a1a1a1;
+}
+
+
+.collapsible:hover {
+    background-color: var(--hover-background);
+    cursor: pointer;
+}
+
+.collapsible.collapsed:hover h3:after, .collapsible.collapsed:hover span:after {
+    content: "click to expand";
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: var(--color);
+    opacity: 0.5;
+    font-style: italic;
+    margin-left: 1rem;
+}
+
+.collapsible:not(.collapsed):hover h3:after, .collapsible:not(.collapsed):hover span:after {
+    content: "click to collapse";
+    font-size: 0.8rem;
+    font-weight: normal;
+    color: var(--color);
+    opacity: 0.5;
+    font-style: italic;
+    margin-left: 1rem;
+}
+
+.scenario-container .passed ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.scenario-container .not-executed .step {
+    color: #a1a1a1;
+}
+
+.scenario-head .head {
+    margin: 0;
+    display: inline-block;
+}
+
+.scenario-head h3:before {
+    content: "##";
+    margin-right: 5px;
+}
+
+.step-txt:before{
+    content: "*";
+    margin-right: 5px;
+}
+
+div.step {
+    margin-left: 2.5rem;
+}
+
+.step ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.step .passed {
+    color: var(--pass-color);
+}
+
+.step .failed {
+    color: var(--failure-color);
+}
+
+.step .skipped {
+    color: #cccccc;
+}
+
+.errored {
+    background-color: #ffda8b;
+}
+
+.concept .step-txt {
+    font-weight: bold;
+}
+
+.concept .step-txt span:before {
+    content: "[-]";
+}
+
+.concept.collapsed .step-txt span:before {
+    content: "[+]";
+}
+
+.context-step li {
+    font-style: italic;
+}
+
+.concept .step-txt:hover {
+    background-color: var(--hover-background);
+}
+
+.concept-steps {
+    padding-left: 20px;
+}
+
+.inline-table {
+    margin: 0.5rem 1rem;
+}
+
+.exception-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.exception-container .exception {
+    flex-grow: 1;
+}
+
+.stacktrace {
+    max-width: 100%;
+}
+
+.error {
+    width: 100%;
+}
+
+.exception-container .screenshot-container {
+    position: relative;
+}
+
+.exception-container img {
+    max-width: 50%;
+}
+
+.execution-time {
+    margin: 10px 0 5px 0;
+    color: var(--skip-color);
+    font-style: italic;
+}
+
+.failure_container {
+    margin: 20px 0;
+}
+
+.error-container {
+    font-size: 0.9rem;
+    position: relative;
+    margin-left: 1rem;
+}
+
+.toggle-show {
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 0;
+    background-color: #fff;
+    color: #000;
+}
+.collapse-messages-header {
+    cursor: pointer;
+    background: #ececec;
+    display: inline-block;
+    border-radius: 2px;
+    border: 1px solid #ccc;
+    margin: 0 0 0 1rem;
+    text-align: center;
+    font-size: 0.75rem;
+}
+.collapse-messages-header:active{
+    outline:0;
+}
+
+.collapse-messages{
+    padding: 10px 0 0 20px;
+}
+
+.message-container {
+    display: flex;
+}
+
+.message-container i {
+    cursor: pointer;
+}
+
+.message-container .messages{
+    display: block;
+    margin-left: 5px;
+    font-family:  Courier New;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.message-container .messages .step-message{
+    padding: 0px 0px 0px 10px;
+}
+
+.message-container .messages .step-message p:before{
+    content: "$";
+    padding-right: 5px;
+    font-weight: bold;
+}
+
+.step .message-container {
+    margin-top: 5px;
+}

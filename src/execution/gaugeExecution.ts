@@ -14,12 +14,15 @@ const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution";
 const DEBUG_PORT = 'debugPort';
+const REPORT_PATH_PREFIX = "Successfully generated html-report to => ";
 
 let outputChannel = window.createOutputChannel(outputChannelName);
 let executing: boolean;
 let childProcess: ChildProcess;
 let preExecute: Function[] = [];
 let postExecute: Function[] = [];
+let reportPath: string;
+let reportThemePath: string;
 
 export function execute(spec: string, config: any): Thenable<any> {
     return new Promise((resolve, reject) => {
@@ -31,16 +34,23 @@ export function execute(spec: string, config: any): Thenable<any> {
         executing = true;
         preExecute.forEach((f) => f.call(null, path.relative(config.projectRoot, config.status)));
         setDebugConf(config, DEBUG_PORT).then((env) => {
+            env.GAUGE_HTML_REPORT_THEME_PATH = reportThemePath;
             let args = getArgs(spec, config);
             let chan = new OutputChannel(outputChannel,
                 ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '),
                 config.projectRoot);
             childProcess = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot, env: env });
-            childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
+            childProcess.stdout.on('data', (chunk) => {
+                let lineText = chunk.toString();
+                chan.appendOutBuf(lineText);
+                if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
+                    reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
+                }
+            });
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code, signal) => {
                 executing = false;
-                postExecute.forEach((f) => f.call(null, config.projectRoot, signal !== null));
+                postExecute.forEach((f) => f.call(null, config.projectRoot, signal !== null, reportPath));
                 chan.onFinish(resolve, code, signal !== null);
             });
         });
@@ -63,19 +73,6 @@ export function onBeforeExecute(hook: Function) {
 
 export function onExecuted(hook: Function) {
     postExecute.push(hook);
-}
-
-function getArgs(spec, config): Array<string> {
-    if (config.rerunFailed) {
-        return [GaugeCommands.Run, GaugeCommands.RerunFailed];
-    }
-    if (config.repeat) {
-        return [GaugeCommands.Run, GaugeCommands.Repeat];
-    }
-    if (config.inParallel) {
-        return [GaugeCommands.Run, GaugeCommands.Parallel, spec, GaugeCommands.HideSuggestion];
-    }
-    return [GaugeCommands.Run, spec, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
 }
 
 export function runSpecification(projectRoot?: string): Thenable<any> {
@@ -123,6 +120,23 @@ export function runScenario(clients: Map<String, LanguageClient>, atCursor: bool
         window.showWarningMessage(`A gauge specification file should be open to run this command.`);
         return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
     }
+}
+
+export function setReportThemePath(themePath: string) {
+    reportThemePath = themePath;
+}
+
+function getArgs(spec, config): Array<string> {
+    if (config.rerunFailed) {
+        return [GaugeCommands.Run, GaugeCommands.RerunFailed];
+    }
+    if (config.repeat) {
+        return [GaugeCommands.Run, GaugeCommands.Repeat];
+    }
+    if (config.inParallel) {
+        return [GaugeCommands.Run, GaugeCommands.Parallel, spec, GaugeCommands.HideSuggestion];
+    }
+    return [GaugeCommands.Run, spec, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
 }
 
 function getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Thenable<any> {
