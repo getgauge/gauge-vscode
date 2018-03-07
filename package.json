@@ -204,11 +204,10 @@
   },
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "vscode:prepublish": "npm run compile && npm run pack",
     "compile:watch": "tsc -watch -p ./",
     "compile": "tsc -p ./",
     "pack": "webpack-cli --env.production",
-    "build": "npm install && npm run lint && vsce package",
+    "build": "npm install && npm run lint && npm run compile && npm run pack && vsce package",
     "update-vscode": "node ./node_modules/vscode/bin/install",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "cross-env CODE_TESTS_WORKSPACE=test/testdata/sampleProject node ./node_modules/vscode/bin/test",

@@ -3,7 +3,7 @@ import { Disposable, TextDocumentContentProvider, Uri, workspace,
 import { GaugeVSCodeCommands, VSCodeCommands } from "../constants";
 import * as path from 'path';
 import { TerminalProvider } from "../terminal/terminal";
-import { WelcomePageTokenReplace } from "./WelcomePageTokenReplace";
+import { WelcomePageTokenReplace } from "./welcomePageTokenReplace";
 
 const GAUGE_SUPPRESS_WELCOME = 'gauge.welcome.supress';
 let welcomeUri = "gauge://authority/welcome";
