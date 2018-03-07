@@ -1,7 +1,7 @@
 import { spawnSync } from "child_process";
 import { getGaugeVersionInfo } from '../gaugeVersion';
 
-export class TextTransformer {
+export class WelcomePageTokenReplace {
     getLinuxDistribution(): string {
         let dist = spawnSync('cat', ['/etc/issue']);
         if (dist.error) {
@@ -10,8 +10,8 @@ export class TextTransformer {
         return dist.stdout.toString();
     }
 
-    getInstallCommandBasedOnOS(): any {
-        let installCommand: any = {};
+    getInstallCommandBasedOnOS(): InstallCommand {
+        let installCommand = new InstallCommand();
         switch (process.platform) {
             case "win32":
                 installCommand.name = "choco";
@@ -47,4 +47,9 @@ export class TextTransformer {
         });
         return text;
     }
+}
+
+class InstallCommand {
+    name: string;
+    command: string;
 }

@@ -3,7 +3,7 @@ import { Disposable, TextDocumentContentProvider, Uri, workspace,
 import { GaugeVSCodeCommands, VSCodeCommands } from "../constants";
 import * as path from 'path';
 import { TerminalProvider } from "../terminal/terminal";
-import { TextTransformer } from "./textTransformer";
+import { WelcomePageTokenReplace } from "./WelcomePageTokenReplace";
 
 const GAUGE_SUPPRESS_WELCOME = 'gauge.welcome.supress';
 let welcomeUri = "gauge://authority/welcome";
@@ -42,13 +42,12 @@ export class WelcomePageProvider extends Disposable implements TextDocumentConte
     }
 
     async provideTextDocumentContent(uri: Uri): Promise<string> {
-        let supress = this._context.globalState.get<Boolean>(GAUGE_SUPPRESS_WELCOME);
         let rootPath = path.join('out', uri.path);
         let root = Uri.file(this._context.asAbsolutePath(rootPath)).toString();
         let docPath = Uri.file(this._context.asAbsolutePath(path.join(rootPath, 'index.html')));
         const doc = await workspace.openTextDocument(docPath);
         let text =  doc.getText();
-        return new TextTransformer().replaceText(text, supress, root);
+        return new WelcomePageTokenReplace().replaceText(text, this.supressed(), root);
     }
 
     dispose() {
