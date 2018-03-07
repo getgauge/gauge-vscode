@@ -1,11 +1,10 @@
-import { RequestType0, RequestHandler0, HandlerResult, CancellationToken } from 'vscode-jsonrpc';
-import { NotificationType0, NotificationHandler0 } from 'vscode-languageclient/lib/main';
-import { RequestType } from 'vscode-jsonrpc/lib/messages';
+import { RequestHandler0, CancellationToken, RequestType0 } from 'vscode-languageserver-protocol';
+import { HandlerResult } from 'vscode-jsonrpc';
 
 export interface GaugeClientCapabilities {
-/**
- * The client supports saveFiles request sent from server to client
- */
+    /**
+     * The client supports saveFiles request sent from server to client
+     */
     saveFiles?: boolean;
 }
 

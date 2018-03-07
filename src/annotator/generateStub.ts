@@ -47,7 +47,7 @@ export class GenerateStubCommandProvider implements Disposable {
     }
 
     private handleError(reason: string) {
-        window.showErrorMessage('Unable to generate implementation.', reason);
+        window.showErrorMessage('Unable to generate implementation. ' + reason);
     }
 
     dispose() {

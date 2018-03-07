@@ -1,6 +1,8 @@
-import { WorkspaceEdit, window, workspace, TextDocument, TextEdit, Uri, TextEditor,
-    TextDocumentShowOptions, Position, Range } from "vscode";
-import { existsSync } from 'fs';
+import {
+    WorkspaceEdit, window, workspace, TextDocument, TextEdit, Uri, TextEditor,
+    TextDocumentShowOptions, Position, Range
+} from "vscode";
+import { existsSync, writeFileSync } from 'fs';
 export class WorkspaceEditor {
     private readonly _edit: WorkspaceEdit;
 
@@ -10,7 +12,7 @@ export class WorkspaceEditor {
 
     applyChanges() {
         this._edit.entries().forEach((tuple: [Uri, TextEdit[]]) => {
-            this.writeToFileInTextEditor(tuple[0].fsPath, tuple[1]);
+            this.applyTextEdit(tuple[0].fsPath, tuple[1]);
         });
     }
 
@@ -26,15 +28,12 @@ export class WorkspaceEditor {
         });
     }
 
-    private writeToFileInTextEditor(fileName: string, fileEdit: TextEdit[]): void {
+    private applyTextEdit(fileName: string, fileEdit: TextEdit[]): void {
         if (!existsSync(fileName)) {
-            workspace.openTextDocument().then((document: TextDocument) => {
-                this.writeInDocument(document, fileEdit);
-            });
-        } else {
-            workspace.openTextDocument(fileName).then((document: TextDocument) => {
-                this.writeInDocument(document, fileEdit);
-            });
+            writeFileSync(fileName, "", "UTF-8");
         }
+        workspace.openTextDocument(fileName).then((document: TextDocument) => {
+            this.writeInDocument(document, fileEdit);
+        });
     }
 }
