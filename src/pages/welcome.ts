@@ -1,5 +1,5 @@
 import { Disposable, Uri, workspace, commands, ViewColumn, window, ExtensionContext, TextDocument } from "vscode";
-import { GaugeVSCodeCommands, VSCodeCommands } from "../constants";
+import { GaugeVSCodeCommands, VSCodeCommands, WELCOME_PAGE_URI } from "../constants";
 import * as path from 'path';
 import { TerminalProvider } from "../terminal/terminal";
 import { WelcomePageTokenReplace } from "./welcomePageTokenReplace";
@@ -9,8 +9,6 @@ const GAUGE_SUPPRESS_WELCOME = 'gauge.welcome.supress';
 const WELCOME_FILE_NAME = "/welcome";
 const IS_WELCOME_PAGE_OPNE = "isWelcomePageOpen";
 const HAS_OPENED_BEFORE = "hasOpenedBefore";
-
-let welcomeUri = "gauge://authority/welcome";
 
 export class WelcomePage extends Disposable implements Page {
     private readonly _context: ExtensionContext;
@@ -23,7 +21,7 @@ export class WelcomePage extends Disposable implements Page {
         this._disposable = Disposable.from(
             commands.registerCommand(GaugeVSCodeCommands.Welcome, () => {
                 return commands.executeCommand(VSCodeCommands.Preview,
-                    welcomeUri, ViewColumn.Active, 'Welcome to Gauge').then((success) => {
+                    WELCOME_PAGE_URI, ViewColumn.Active, 'Welcome to Gauge').then((success) => {
                 }, (reason) => {
                     window.showErrorMessage(reason);
                 });

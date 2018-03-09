@@ -1,7 +1,7 @@
 import {Disposable, workspace, Uri, ExtensionContext, commands, ViewColumn, window} from 'vscode';
-import {Page, reportUri} from "./page";
+import {Page} from "./page";
 import * as path from 'path';
-import {LAST_REPORT_PATH, GaugeVSCodeCommands, VSCodeCommands} from "../constants";
+import {LAST_REPORT_PATH, GaugeVSCodeCommands, VSCodeCommands, REPORT_URI} from "../constants";
 
 export class ReportPage extends Disposable implements Page {
     private readonly _context: ExtensionContext;
@@ -12,8 +12,8 @@ export class ReportPage extends Disposable implements Page {
 
         this._context = context;
         this._disposable = commands.registerCommand(GaugeVSCodeCommands.ShowReport, () => {
-            commands.executeCommand(VSCodeCommands.Preview,
-                reportUri, ViewColumn.Active, 'Last Execution Report').then((success) => {
+            return commands.executeCommand(VSCodeCommands.Preview,
+                REPORT_URI, ViewColumn.Active, 'Last Execution Report').then((success) => {
             }, (reason) => {
                 window.showErrorMessage(reason);
             });

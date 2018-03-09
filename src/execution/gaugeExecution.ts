@@ -126,6 +126,10 @@ export function setReportThemePath(themePath: string) {
     reportThemePath = themePath;
 }
 
+export function __resetState() {
+    executing = false;
+}
+
 function getArgs(spec, config): Array<string> {
     if (config.rerunFailed) {
         return [GaugeCommands.Run, GaugeCommands.RerunFailed];

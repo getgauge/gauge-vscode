@@ -296,11 +296,16 @@ function registerExecutionStatus(context: ExtensionContext) {
         if (aborted) {
             executionStatus.hide();
         } else {
-            context.workspaceState.update(LAST_REPORT_PATH, reportPath.trim());
             root = projectRoot;
             let languageClient = clients.get(Uri.file(projectRoot).fsPath);
             return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
                 (val: any) => {
+                    let status = '#999999';
+                    if (val.sceFailed > 0)
+                        status = '#E73E48';
+                    else if (val.scePassed > 0)
+                        status = '#66ff66';
+                    executionStatus.color = status;
                     executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
                         `  $(issue-opened) ` + val.sceSkipped;
                     executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
@@ -308,6 +313,7 @@ function registerExecutionStatus(context: ExtensionContext) {
                         + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
                         + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
                     executionStatus.show();
+                    context.workspaceState.update(LAST_REPORT_PATH, reportPath.trim());
                 }
             );
         }
@@ -381,13 +387,15 @@ function showQuickPickItemsOnExecution(projectRoot: string) {
     commandsList.push({ label: RE_RUN_TESTS });
     commandsList.push({ label: RE_RUN_FAILED_TESTS });
     return window.showQuickPick(commandsList).then((selected) => {
-        if (selected.label === VIEW_REPORT) {
-            let url = "file:///" + projectRoot + "/reports/html-report/index.html";
-            return opn(url);
-        } else if (selected.label === RE_RUN_TESTS) {
-            return execute(null, { repeat: true, status: "previous run", projectRoot });
-        } else if (selected.label === RE_RUN_FAILED_TESTS) {
-            return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot });
+        switch (selected.label) {
+            case VIEW_REPORT:
+                return commands.executeCommand(GaugeVSCodeCommands.ShowReport);
+            case RE_RUN_TESTS:
+                return execute(null, { repeat: true, status: "previous run", projectRoot });
+            case RE_RUN_FAILED_TESTS:
+                return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot });
+            default:
+                break;
         }
     }, (err) => {
         window.showErrorMessage('Unable to select Command.', err);
