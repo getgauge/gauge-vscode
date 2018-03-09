@@ -34,7 +34,6 @@ import { clientLanguageMap } from './execution/debug';
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
-const GAUGE_SUPPRESS_UPDATE_NOTIF = 'gauge.notification.suppressUpdateNotification';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 const VIEW_REPORT = "View Report";
@@ -434,8 +433,6 @@ function onConfigurationChange() {
 }
 
 function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): boolean {
-    if (workspace.getConfiguration().get<boolean>(GAUGE_SUPPRESS_UPDATE_NOTIF))
-        return false;
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
     return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion;

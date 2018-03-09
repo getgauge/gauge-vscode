@@ -12,19 +12,19 @@ suite('WelcomePage', () => {
     });
 
     test('should replace the given text with given values', (done) => {
-        let text = "name : {{name}}, command : {{command}}, doNotShowWelcome : {{doNotShowWelcome}}";
+        let text = "name : {{name}}, command : {{command}}";
         let root = "abc";
         let str = new WelcomePageTokenReplace().replaceText(text, false, root);
-        let expected = `name : choco, command : choco install gauge, doNotShowWelcome : `;
+        let expected = `name : choco, command : choco install gauge`;
         assert.equal(str, expected);
         done();
     });
 
     test('should not replace {{hello}}', (done) => {
-        let text = "name : {{hello}}, command : {{command}}, doNotShowWelcome : {{doNotShowWelcome}}";
+        let text = "name : {{hello}}, command : {{command}}";
         let root = "abc";
         let str = new WelcomePageTokenReplace().replaceText(text, false, root);
-        let expected = `name : {{hello}}, command : choco install gauge, doNotShowWelcome : `;
+        let expected = `name : {{hello}}, command : choco install gauge`;
         assert.equal(str, expected);
         done();
     });
