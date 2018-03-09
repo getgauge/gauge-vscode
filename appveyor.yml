@@ -22,6 +22,6 @@ build_script:
     gauge.exe version
 
 test_script:
-- ps: npm --loglevel=error install
-- ps: npm run vscode:prepublish
+- ps: npm install
+- ps: npm run build
 - ps: npm test
