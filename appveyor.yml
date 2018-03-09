@@ -16,12 +16,11 @@ build_script:
     Write-Host "PATH : $($env:PATH)"
     gauge.exe version
     gauge.exe install screenshot
-    echo "`ngauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" | add-content $env:APPDATA/gauge/config/gauge.properties -Encoding Ascii
+    echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" | add-content $env:APPDATA/gauge/config/gauge.properties -Encoding Ascii
     gauge.exe install js
     gauge.exe install html-report
     gauge.exe version
 
 test_script:
-- ps: npm install
-- ps: npm run build
+- ps: npm install; npm run lint; npm run compile; npm run pack
 - ps: npm test
