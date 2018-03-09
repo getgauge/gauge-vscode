@@ -1,15 +1,11 @@
 import { Disposable, TextDocumentContentProvider, Uri, workspace,
-    commands, ViewColumn, window, ExtensionContext, TextDocument} from "vscode";
+    commands, ViewColumn, window, ExtensionContext } from "vscode";
 import { GaugeVSCodeCommands, VSCodeCommands } from "../constants";
 import * as path from 'path';
 import { TerminalProvider } from "../terminal/terminal";
 import { WelcomePageTokenReplace } from "./welcomePageTokenReplace";
 
 const GAUGE_SUPPRESS_WELCOME = 'gauge.welcome.supress';
-const WELCOME_FILE_NAME = "/welcome";
-const IS_WELCOME_PAGE_OPNE = "isWelcomePageOpen";
-const HAS_OPENED_BEFORE = "hasOpenedBefore";
-
 let welcomeUri = "gauge://authority/welcome";
 
 export class WelcomePageProvider extends Disposable implements TextDocumentContentProvider {
@@ -17,6 +13,7 @@ export class WelcomePageProvider extends Disposable implements TextDocumentConte
     private readonly _disposable: Disposable;
     constructor(context: ExtensionContext, upgraded: boolean) {
         super(() => this.dispose());
+
         this._context = context;
         this._disposable = Disposable.from(
             workspace.registerTextDocumentContentProvider('gauge', this),
@@ -26,30 +23,17 @@ export class WelcomePageProvider extends Disposable implements TextDocumentConte
                 }, (reason) => {
                     window.showErrorMessage(reason);
                 });
+            }),
+            commands.registerCommand(GaugeVSCodeCommands.ToggleWelcome, () => {
+                this._context.globalState.update(GAUGE_SUPPRESS_WELCOME, !this.supressed());
             },
             new TerminalProvider(context))
         );
-
-        workspace.onDidOpenTextDocument((doc: TextDocument) => {
-            if (doc.fileName === WELCOME_FILE_NAME) {
-                context.workspaceState.update(IS_WELCOME_PAGE_OPNE, true);
-            }
-        });
-        workspace.onDidCloseTextDocument((doc: TextDocument) => {
-            if (doc.fileName === WELCOME_FILE_NAME) {
-                context.workspaceState.update(IS_WELCOME_PAGE_OPNE, false);
-            }
-        });
-
-        let welcomePageConfig = workspace.getConfiguration('gauge.welcomePage');
-        let showWelcomePageOn = workspace.getConfiguration('gauge.welcome').get<string>('showOn');
-        if (welcomePageConfig && welcomePageConfig.get<boolean>('enabled')) {
-            if ((showWelcomePageOn === "upgradeVersion" && upgraded) ||
-            (showWelcomePageOn === "newProjectLoad" && !context.workspaceState.get(HAS_OPENED_BEFORE)) ||
-            context.workspaceState.get(IS_WELCOME_PAGE_OPNE)) {
+        if (upgraded || !this.supressed()) {
+            let welcomePageConfig = workspace.getConfiguration('gauge.welcomePage');
+            if (welcomePageConfig && welcomePageConfig.get<boolean>('enabled')) {
                 commands.executeCommand(GaugeVSCodeCommands.Welcome);
             }
-            context.workspaceState.update(HAS_OPENED_BEFORE, true);
         }
     }
 

@@ -59,6 +59,11 @@
     ],
     "commands": [
       {
+        "command": "gauge.welcome.toggle",
+        "title": "Toggle display of Gauge Welcome page",
+        "category": "Gauge"
+      },
+      {
         "command": "gauge.stopExecution",
         "title": "Stop current gauge execution",
         "category": "Gauge",
@@ -71,7 +76,7 @@
       },
       {
         "command": "gauge.welcome",
-        "title": "Welcome",
+        "title": "Show Welcome Page",
         "category": "Gauge"
       },
       {
@@ -156,16 +161,6 @@
       "type": "object",
       "title": "Gauge configuration",
       "properties": {
-        "gauge.welcome.showOn": {
-          "type": "string",
-          "default": "upgrade",
-          "enum": [
-            "newProjectLoad",
-            "upgradeVersion",
-            "never"
-          ],
-          "description": "Shows gauge welcome page based on given value, defaulted to on upgrade."
-        },
         "gauge.specExplorer.enabled": {
           "type": "boolean",
           "default": true,
@@ -192,6 +187,11 @@
             "specs"
           ],
           "description": "List of specification directories."
+        },
+        "gauge.notification.suppressUpdateNotification": {
+          "type": "boolean",
+          "default": false,
+          "description": "Suppress information bar on gauge auto update."
         }
       }
     },

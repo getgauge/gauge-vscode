@@ -40,6 +40,7 @@ export class WelcomePageTokenReplace {
                                 JSON.stringify([this.getInstallCommandBasedOnOS().command]))},
                         {key : /{{name}}/g, value : this.getInstallCommandBasedOnOS().name},
                         {key : /{{command}}/g, value : this.getInstallCommandBasedOnOS().command},
+                        {key : /{{doNotShowWelcome}}/g, value: supress ? "checked" : "" },
                         {key : /{{root}}/g, value : root}];
         replace.forEach((element) =>  {
             text = text.replace(new RegExp(element.key), element.value);
