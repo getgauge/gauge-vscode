@@ -338,11 +338,6 @@
 		</ul>
 	</section>
 </aside>
-<footer class="main-footer">
-	<input type="checkbox" id="doNotShow" name="doNotShow" {{doNotShowWelcome}}/>
-	<label for="doNotShow">Do not show this page until the next release.</label>
-	<a href="command:gauge.welcome.toggle" class="hidden" id="toggleWelcome"/>
-</footer>
 <script>
 	document.getElementById('doNotShow').addEventListener('click', function(){
 		document.getElementById('toggleWelcome').click();
