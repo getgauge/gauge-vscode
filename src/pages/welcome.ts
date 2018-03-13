@@ -1,33 +1,32 @@
-import { Disposable, TextDocumentContentProvider, Uri, workspace,
-    commands, ViewColumn, window, ExtensionContext, TextDocument} from "vscode";
-import { GaugeVSCodeCommands, VSCodeCommands } from "../constants";
+import { Disposable, Uri, workspace, commands, ViewColumn, window, ExtensionContext, TextDocument } from "vscode";
+import { GaugeVSCodeCommands, VSCodeCommands, WELCOME_PAGE_URI } from "../constants";
 import * as path from 'path';
 import { TerminalProvider } from "../terminal/terminal";
 import { WelcomePageTokenReplace } from "./welcomePageTokenReplace";
+import { Page } from "./page";
 
 const GAUGE_SUPPRESS_WELCOME = 'gauge.welcome.supress';
 const WELCOME_FILE_NAME = "/welcome";
 const IS_WELCOME_PAGE_OPNE = "isWelcomePageOpen";
 const HAS_OPENED_BEFORE = "hasOpenedBefore";
 
-let welcomeUri = "gauge://authority/welcome";
-
-export class WelcomePageProvider extends Disposable implements TextDocumentContentProvider {
+export class WelcomePage extends Disposable implements Page {
     private readonly _context: ExtensionContext;
     private readonly _disposable: Disposable;
+    private readonly _pages: Map<string, Page>;
+
     constructor(context: ExtensionContext, upgraded: boolean) {
         super(() => this.dispose());
         this._context = context;
         this._disposable = Disposable.from(
-            workspace.registerTextDocumentContentProvider('gauge', this),
             commands.registerCommand(GaugeVSCodeCommands.Welcome, () => {
                 return commands.executeCommand(VSCodeCommands.Preview,
-                    welcomeUri, ViewColumn.Active, 'Welcome to Gauge').then((success) => {
+                    WELCOME_PAGE_URI, ViewColumn.Active, 'Welcome to Gauge').then((success) => {
                 }, (reason) => {
                     window.showErrorMessage(reason);
                 });
             },
-            new TerminalProvider(context))
+            new TerminalProvider(context)),
         );
 
         workspace.onDidOpenTextDocument((doc: TextDocument) => {
@@ -57,8 +56,8 @@ export class WelcomePageProvider extends Disposable implements TextDocumentConte
         return this._context.globalState.get<boolean>(GAUGE_SUPPRESS_WELCOME);
     }
 
-    async provideTextDocumentContent(uri: Uri): Promise<string> {
-        let rootPath = path.join('out', uri.path);
+    async content(): Promise<string> {
+        let rootPath = path.join('out', 'welcome');
         let root = Uri.file(this._context.asAbsolutePath(rootPath)).toString();
         let docPath = Uri.file(this._context.asAbsolutePath(path.join(rootPath, 'index.html')));
         const doc = await workspace.openTextDocument(docPath);

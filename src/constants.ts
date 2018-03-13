@@ -10,6 +10,7 @@ export enum VSCodeCommands {
 }
 
 export enum GaugeVSCodeCommands {
+    ShowReport = 'gauge.report.html',
     Welcome = 'gauge.welcome',
     ToggleWelcome = 'gauge.welcome.toggle',
     StopExecution = 'gauge.stopExecution',
@@ -64,3 +65,8 @@ export enum GaugeRequests {
     AddStub = 'gauge/putStubImpl',
     ExtractConcept = 'gauge/extractConcept'
 }
+
+export const LAST_REPORT_PATH = 'gauge.execution.report';
+
+export const WELCOME_PAGE_URI = "gauge://global/welcome";
+export const REPORT_URI = "gauge://workspace/htmlreport";

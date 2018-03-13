@@ -21,12 +21,14 @@ import fs = require('fs');
 import cp = require('child_process');
 import opn = require('opn');
 import {
-    execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted
+    execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted, setReportThemePath
 } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer';
-import { VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext } from './constants';
+import {
+    VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext, LAST_REPORT_PATH
+} from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
-import { WelcomePageProvider } from './welcome/welcome';
+import { PageProvider } from './pages/provider';
 import { ExtractConceptCommandProvider } from './refactor/extractConcept';
 import { GenerateStubCommandProvider} from './annotator/generateStub';
 import { clientLanguageMap } from './execution/debug';
@@ -49,7 +51,7 @@ let specExplorerActiveFolder: string = "";
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
     let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
-    context.subscriptions.push(new WelcomePageProvider(context, hasUpgraded));
+    context.subscriptions.push(new PageProvider(context, hasUpgraded));
 
     let gaugeVersionInfo = getGaugeVersionInfo();
     if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
@@ -59,6 +61,7 @@ export function activate(context: ExtensionContext) {
         wordPattern: /^(?:[*])([^*].*)$/g
     });
 
+    setReportThemePath(context.asAbsolutePath(path.join('out', 'report-theme')));
     workspace.workspaceFolders.forEach((folder) => startServerFor(folder));
     setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
 
@@ -70,7 +73,6 @@ export function activate(context: ExtensionContext) {
 
     registerStopExecution(context);
     registerExecutionStatus(context);
-
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
         let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
         return execute(spec, { inParallel: false, status: spec, projectRoot: cwd });
@@ -290,7 +292,7 @@ function registerExecutionStatus(context: ExtensionContext) {
     onBeforeExecute(() => {
         executionStatus.hide();
     });
-    onExecuted((projectRoot, aborted) => {
+    onExecuted((projectRoot, aborted, reportPath) => {
         if (aborted) {
             executionStatus.hide();
         } else {
@@ -298,6 +300,12 @@ function registerExecutionStatus(context: ExtensionContext) {
             let languageClient = clients.get(Uri.file(projectRoot).fsPath);
             return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
                 (val: any) => {
+                    let status = '#999999';
+                    if (val.sceFailed > 0)
+                        status = '#E73E48';
+                    else if (val.scePassed > 0)
+                        status = '#66ff66';
+                    executionStatus.color = status;
                     executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
                         `  $(issue-opened) ` + val.sceSkipped;
                     executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
@@ -305,6 +313,7 @@ function registerExecutionStatus(context: ExtensionContext) {
                         + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
                         + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
                     executionStatus.show();
+                    context.workspaceState.update(LAST_REPORT_PATH, reportPath.trim());
                 }
             );
         }
@@ -378,13 +387,15 @@ function showQuickPickItemsOnExecution(projectRoot: string) {
     commandsList.push({ label: RE_RUN_TESTS });
     commandsList.push({ label: RE_RUN_FAILED_TESTS });
     return window.showQuickPick(commandsList).then((selected) => {
-        if (selected.label === VIEW_REPORT) {
-            let url = "file:///" + projectRoot + "/reports/html-report/index.html";
-            return opn(url);
-        } else if (selected.label === RE_RUN_TESTS) {
-            return execute(null, { repeat: true, status: "previous run", projectRoot });
-        } else if (selected.label === RE_RUN_FAILED_TESTS) {
-            return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot });
+        switch (selected.label) {
+            case VIEW_REPORT:
+                return commands.executeCommand(GaugeVSCodeCommands.ShowReport);
+            case RE_RUN_TESTS:
+                return execute(null, { repeat: true, status: "previous run", projectRoot });
+            case RE_RUN_FAILED_TESTS:
+                return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot });
+            default:
+                break;
         }
     }, (err) => {
         window.showErrorMessage('Unable to select Command.', err);

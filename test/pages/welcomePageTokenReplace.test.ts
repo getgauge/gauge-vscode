@@ -1,9 +1,9 @@
 import * as assert from 'assert';
-import { WelcomePageTokenReplace } from '../../src/welcome/welcomePageTokenReplace';
+import { WelcomePageTokenReplace } from '../../src/pages/welcomePageTokenReplace';
 import * as vscode from 'vscode';
 import { platform } from 'os';
 
-suite('WelcomePage', () => {
+suite('Welcome Page', () => {
     setup(() => {
         this.originalPlatform = process.platform;
         Object.defineProperty(process, 'platform', {
