@@ -29,7 +29,6 @@ import {
 } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
-import { ExtractConceptCommandProvider } from './refactor/extractConcept';
 import { GenerateStubCommandProvider} from './annotator/generateStub';
 import { clientLanguageMap } from './execution/debug';
 
@@ -156,7 +155,6 @@ export function activate(context: ExtensionContext) {
     );
 
     context.subscriptions.push(new GenerateStubCommandProvider(clients));
-    context.subscriptions.push(new ExtractConceptCommandProvider(context, clients));
 
     registerTreeDataProvider(context, getDefaultFolder());
 }

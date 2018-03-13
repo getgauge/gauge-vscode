@@ -23,7 +23,8 @@ export enum GaugeVSCodeCommands {
     ExecuteAllSpecExplorer = 'gauge.specexplorer.runAllActiveProjectSpecs',
     ExecuteScenario = 'gauge.execute.scenario',
     ExecuteScenarios = 'gauge.execute.scenarios',
-    GenerateStub = 'gauge.generate.unimplemented.stub',
+    GenerateStepStub = 'gauge.generate.step',
+    GenerateConceptStub = 'gauge.generate.concept',
     ShowReferences = 'gauge.showReferences',
     ShowReferencesAtCursor = 'gauge.showReferences.atCursor',
     ReportIssue = 'gauge.help.reportIssue',
@@ -62,7 +63,7 @@ export enum GaugeRequests {
     Scenarios = 'gauge/scenarios',
     Files = "gauge/getImplFiles",
     AddStub = 'gauge/putStubImpl',
-    ExtractConcept = 'gauge/extractConcept'
+    GenerateConcept = 'gauge/generateConcept'
 }
 
 export const LAST_REPORT_PATH = 'gauge.execution.report';
