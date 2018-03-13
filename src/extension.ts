@@ -286,7 +286,7 @@ function registerStopExecution(context: ExtensionContext) {
 
 function registerExecutionStatus(context: ExtensionContext) {
     let executionStatus = window.createStatusBarItem(StatusBarAlignment.Left, 1);
-    executionStatus.command = GaugeVSCodeCommands.QuickPickOnExecution;
+    executionStatus.command = GaugeVSCodeCommands.ShowReport;
     context.subscriptions.push(executionStatus);
     let root;
     onBeforeExecute(() => {
@@ -318,9 +318,6 @@ function registerExecutionStatus(context: ExtensionContext) {
             );
         }
     });
-    context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.QuickPickOnExecution, () => {
-        showQuickPickItemsOnExecution(root);
-    }));
 }
 
 function getDefaultFolder() {
@@ -379,27 +376,6 @@ function showStepReferences(clients: Map<string, LanguageClient>):
                 return showReferences(locations, uri, languageClient, position);
             });
     };
-}
-
-function showQuickPickItemsOnExecution(projectRoot: string) {
-    let commandsList = [];
-    commandsList.push({ label: VIEW_REPORT });
-    commandsList.push({ label: RE_RUN_TESTS });
-    commandsList.push({ label: RE_RUN_FAILED_TESTS });
-    return window.showQuickPick(commandsList).then((selected) => {
-        switch (selected.label) {
-            case VIEW_REPORT:
-                return commands.executeCommand(GaugeVSCodeCommands.ShowReport);
-            case RE_RUN_TESTS:
-                return execute(null, { repeat: true, status: "previous run", projectRoot });
-            case RE_RUN_FAILED_TESTS:
-                return execute(null, { rerunFailed: true, status: "failed scenarios", projectRoot });
-            default:
-                break;
-        }
-    }, (err) => {
-        window.showErrorMessage('Unable to select Command.', err);
-    });
 }
 
 function showStepReferencesAtCursor(clients: Map<string, LanguageClient>): () => Thenable<any> {
