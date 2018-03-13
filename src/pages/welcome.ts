@@ -57,7 +57,6 @@ export class WelcomePage extends Disposable implements Page {
     }
 
     async content(): Promise<string> {
-        let supress = this._context.globalState.get<Boolean>(GAUGE_SUPPRESS_WELCOME);
         let rootPath = path.join('out', 'welcome');
         let root = Uri.file(this._context.asAbsolutePath(rootPath)).toString();
         let docPath = Uri.file(this._context.asAbsolutePath(path.join(rootPath, 'index.html')));
