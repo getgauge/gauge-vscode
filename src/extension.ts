@@ -234,6 +234,7 @@ function startServerFor(folder: WorkspaceFolder) {
     languageClient.start();
 
     languageClient.onReady().then(() => {setLanguageId(languageClient, folder.uri.fsPath); });
+    registerFileWatcher(folder.uri.fsPath);
 }
 
 function setLanguageId(languageClient: LanguageClient, projectRoot: string) {
@@ -423,4 +424,20 @@ function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): 
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
     return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion;
+}
+
+function registerFileWatcher(projectRoot: string) {
+    const watcher = workspace.createFileSystemWatcher(projectRoot + '/**/*', false, true, false);
+    watcher.onDidCreate((uri: Uri) => {
+        const client = clients.get(workspace.getWorkspaceFolder(uri).uri.fsPath);
+        client.sendNotification('textDocument/didCreate', TextDocumentIdentifier.create(
+            client.code2ProtocolConverter.asUri(uri)
+        ));
+    });
+    watcher.onDidDelete((uri: Uri) => {
+        const client = clients.get(workspace.getWorkspaceFolder(uri).uri.fsPath);
+        client.sendNotification('textDocument/didDelete', TextDocumentIdentifier.create(
+            client.code2ProtocolConverter.asUri(uri)
+        ));
+    });
 }
