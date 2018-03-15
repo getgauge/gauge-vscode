@@ -5,17 +5,16 @@ import { ReportPage } from "./report";
 
 export class PageProvider extends Disposable implements TextDocumentContentProvider {
     private _onDidChange = new EventEmitter<Uri>();
-
+    private readonly _disposable: Disposable;
     private readonly _pages: Map<string, Page>;
 
     constructor(context: ExtensionContext, upgraded: boolean) {
         super(() => this.dispose());
-
+        this._disposable = workspace.registerTextDocumentContentProvider('gauge', this);
         this._pages = new Map<string, Page>([
             ['welcome', new WelcomePage(context, upgraded)],
             ['htmlreport', new ReportPage(context)]
         ]);
-        workspace.registerTextDocumentContentProvider('gauge', this);
     }
 
     provideTextDocumentContent(uri: Uri): string | Thenable<string> {
@@ -32,5 +31,6 @@ export class PageProvider extends Disposable implements TextDocumentContentProvi
 
     dispose() {
         [].forEach(this._pages.values, (p) => p.dispose());
+        this._disposable.dispose();
     }
 }
