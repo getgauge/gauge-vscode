@@ -1,5 +1,6 @@
 environment:
   nodejs_version: "8"
+  GAUGE_PREFIX: C:\Program Files\Gauge\bin
 
 init:
 - ps: Install-Product node $env:nodejs_version
@@ -11,7 +12,8 @@ init:
 
 build_script:
 - ps: |
-    .\installGaugeNightly.ps1
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/getgauge/infrastructure/master/nightly_scripts/install_latest_gauge_nightly.ps1" -OutFile install_latest_gauge_nightly.ps1
+    .\install_latest_gauge_nightly.ps1
     $env:Path = "c:\Program Files\Gauge\bin;" + [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     Write-Host "PATH : $($env:PATH)"
     gauge.exe version
