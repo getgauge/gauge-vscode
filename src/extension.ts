@@ -23,13 +23,16 @@ import opn = require('opn');
 import {
     execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted, setReportThemePath
 } from "./execution/gaugeExecution";
-import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer';
+import {
+    createTreeDataProvider, switchTreeDataProvider, specExplorerActiveFolder,
+    Spec, Scenario, GaugeNode
+} from './explorer/specExplorer';
 import {
     VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext, LAST_REPORT_PATH, REPORT_URI
 } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
-import { GenerateStubCommandProvider} from './annotator/generateStub';
+import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { clientLanguageMap } from './execution/debug';
 import { FileWatcher, registerFileSystemWatcher } from './fileWatcher';
 
@@ -43,11 +46,9 @@ const RE_RUN_TESTS = "Repeat Last Run";
 const RE_RUN_FAILED_TESTS = "Re-Run Failed Scenario(s)";
 
 let launchConfig;
-let treeDataProvider: Disposable = new Disposable(() => undefined);
 let filesystemWatcher: FileWatcher = new FileWatcher();
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
-let specExplorerActiveFolder: string = "";
 
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
@@ -156,16 +157,17 @@ export function activate(context: ExtensionContext) {
     );
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
-        () => showProjectOptions(context, switchTreeDataProvider))
+        () => showProjectOptions(context, (ctx: ExtensionContext, selection: string) => {
+            switchTreeDataProvider(clients, selection);
+        }))
     );
 
     context.subscriptions.push(new GenerateStubCommandProvider(clients));
 
-    registerTreeDataProvider(context, getDefaultFolder());
+    context.subscriptions.push(createTreeDataProvider(clients, getDefaultFolder(), filesystemWatcher));
 }
 
 export function deactivate(): Thenable<void> {
-    treeDataProvider.dispose();
     let promises: Thenable<void>[] = [];
     for (let client of clients.values()) {
         promises.push(client.stop());
@@ -187,7 +189,7 @@ function onFolderDeletion(event: WorkspaceFoldersChangeEvent, context: Extension
         let client = clients.get(folder.uri.fsPath);
         clients.delete(folder.uri.fsPath);
         client.stop();
-        switchTreeDataProvider(context, getDefaultFolder());
+        switchTreeDataProvider(clients, getDefaultFolder());
     }
 }
 
@@ -237,7 +239,7 @@ function startServerFor(folder: WorkspaceFolder) {
     clients.set(folder.uri.fsPath, languageClient);
     languageClient.start();
 
-    languageClient.onReady().then(() => {setLanguageId(languageClient, folder.uri.fsPath); });
+    languageClient.onReady().then(() => { setLanguageId(languageClient, folder.uri.fsPath); });
 }
 
 function setLanguageId(languageClient: LanguageClient, projectRoot: string) {
@@ -246,32 +248,12 @@ function setLanguageId(languageClient: LanguageClient, projectRoot: string) {
             clientLanguageMap.set(projectRoot, language);
         }
     );
-
 }
 
 function registerDynamicFeatures(languageClient: LanguageClient) {
     let result: Array<(DynamicFeature<any>)> = [];
     result.push(new GaugeWorkspaceFeature(languageClient));
     languageClient.registerFeatures(result);
-}
-
-function registerTreeDataProvider(context: ExtensionContext, projectPath: string) {
-    let client = clients.get(Uri.file(projectPath).fsPath);
-    client.onReady().then(() => {
-        let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
-        if (specExplorerConfig && specExplorerConfig.get<boolean>('enabled')) {
-            let provider = new SpecNodeProvider(projectPath, client, filesystemWatcher);
-            treeDataProvider = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
-            updateSpecExplorerActiveFolder(projectPath);
-            setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
-        }
-    }).catch((reason) => {
-        window.showErrorMessage("Failed to create test explorer.", reason);
-    });
-}
-
-function updateSpecExplorerActiveFolder(folder) {
-    specExplorerActiveFolder = folder;
 }
 
 function registerStopExecution(context: ExtensionContext) {
@@ -340,12 +322,6 @@ function showProjectOptions(context: ExtensionContext, onChange: Function) {
     }, (err) => {
         window.showErrorMessage('Unable to select project.', err);
     });
-}
-
-function switchTreeDataProvider(context: ExtensionContext, projectPath: string) {
-    treeDataProvider.dispose();
-    setCommandContext(GaugeCommandContext.Activated, false);
-    registerTreeDataProvider(context, projectPath);
 }
 
 function notifyToInstallGauge(message: string) {

@@ -4,35 +4,52 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
-import { GaugeVSCodeCommands, GaugeRequests } from '../constants';
+import { GaugeVSCodeCommands, GaugeRequests, setCommandContext, GaugeCommandContext } from '../constants';
 import { FileWatcher } from '../fileWatcher';
+import { Disposable, Uri, workspace, window } from 'vscode';
 
 const extensions = [".spec", ".md"];
+
+let treeDataProvider: SpecNodeProvider;
+export let specExplorerActiveFolder: string = "";
 
 export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
     private _onDidChangeTreeData: vscode.EventEmitter<GaugeNode | undefined> =
         new vscode.EventEmitter<GaugeNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(private workspaceRoot: string, private languageClient: LanguageClient, fileWatcher: FileWatcher) {
+    constructor(
+        private workspaceRoot: string,
+        private fileWatcher: FileWatcher,
+        private languageClient?: LanguageClient
+    ) {
         vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
-            if (extensions.includes(path.extname(doc.fileName))) {
+            if (this.shouldRefresh(doc.uri)) {
                 this.refresh();
             }
         });
         vscode.workspace.onDidChangeWorkspaceFolders(() => this.refresh());
         vscode.workspace.onDidCloseTextDocument((doc: vscode.TextDocument) => {
-            if (extensions.includes(path.extname(doc.fileName))) {
+            if (this.shouldRefresh(doc.uri)) {
                 this.refresh();
             }
         });
-        let refreshMethod = (fileUri: vscode.Uri) => {
-            if (extensions.includes(path.extname(fileUri.fsPath))) {
+        const refreshMethod = (fileUri: vscode.Uri) => {
+            if (this.shouldRefresh(fileUri)) {
                 this.refresh();
             }
         };
-        fileWatcher.addOnCreateHandler(refreshMethod);
-        fileWatcher.addOnDeleteHandler(refreshMethod);
+        this.fileWatcher.addOnCreateHandler(refreshMethod);
+        this.fileWatcher.addOnDeleteHandler(refreshMethod);
+    }
+
+    private shouldRefresh(fileUri: vscode.Uri): boolean {
+        return extensions.includes(path.extname(fileUri.fsPath)) &&
+            vscode.workspace.getWorkspaceFolder(fileUri).uri.fsPath === this.workspaceRoot;
+    }
+
+    setLanguageClient(client: LanguageClient) {
+        this.languageClient = client;
     }
 
     refresh(element?: GaugeNode): void {
@@ -48,6 +65,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
             vscode.window.showInformationMessage('No dependency in empty workspace');
             return Promise.resolve([]);
         }
+        if (!this.languageClient) return Promise.resolve([]);
 
         return new Promise((resolve, reject) => {
             if (element && element.contextValue === "specification") {
@@ -117,4 +135,42 @@ export class Scenario extends GaugeNode {
     readonly executionIdentifier = this.file + ":" + this.lineNo;
 
     contextValue = 'scenario';
+}
+
+export function createTreeDataProvider(
+    clients: Map<string, LanguageClient>,
+    projectPath: string,
+    fileWatcher: FileWatcher
+): Disposable {
+    let disposable = new Disposable(() => {});
+    if (isSpecExplorerEnabled()) {
+        treeDataProvider = new SpecNodeProvider(projectPath, fileWatcher);
+        disposable = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, treeDataProvider);
+        activateTreeDataProvider(clients, projectPath);
+    }
+    return disposable;
+}
+
+export function switchTreeDataProvider(clients: Map<string, LanguageClient>, projectPath: string) {
+    if (isSpecExplorerEnabled()) {
+        activateTreeDataProvider(clients, projectPath);
+    }
+}
+
+function activateTreeDataProvider(clients: Map<string, LanguageClient>, projectPath: string) {
+    setCommandContext(GaugeCommandContext.Activated, false);
+    let client = clients.get(Uri.file(projectPath).fsPath);
+    client.onReady().then(() => {
+        treeDataProvider.setLanguageClient(client);
+        treeDataProvider.refresh();
+        specExplorerActiveFolder = projectPath;
+        setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
+    }).catch((reason) => {
+        window.showErrorMessage("Failed to create test explorer.", reason);
+    });
+}
+
+function isSpecExplorerEnabled(): boolean {
+    let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
+    return specExplorerConfig && specExplorerConfig.get<boolean>('enabled');
 }
