@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeVSCodeCommands, GaugeRequests } from '../constants';
-const SPEC_FILE_PATTERN = `**/*.spec`;
+import { FileWatcher } from '../fileWatcher';
 
 const extensions = [".spec", ".md"];
 
@@ -14,7 +14,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
         new vscode.EventEmitter<GaugeNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
 
-    constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
+    constructor(private workspaceRoot: string, private languageClient: LanguageClient, fileWatcher: FileWatcher) {
         vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
             if (extensions.includes(path.extname(doc.fileName))) {
                 this.refresh();
@@ -26,9 +26,13 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
                 this.refresh();
             }
         });
-        let specWatcher = vscode.workspace.createFileSystemWatcher(SPEC_FILE_PATTERN);
-        specWatcher.onDidCreate(() => this.refresh());
-        specWatcher.onDidDelete(() => this.refresh());
+        let refreshMethod = (fileUri: vscode.Uri) => {
+            if (extensions.includes(path.extname(fileUri.fsPath))) {
+                this.refresh();
+            }
+        };
+        fileWatcher.addOnCreateHandler(refreshMethod);
+        fileWatcher.addOnDeleteHandler(refreshMethod);
     }
 
     refresh(element?: GaugeNode): void {

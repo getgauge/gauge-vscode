@@ -31,6 +31,7 @@ import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
 import { GenerateStubCommandProvider} from './annotator/generateStub';
 import { clientLanguageMap } from './execution/debug';
+import { FileWatcher, registerFileSystemWatcher } from './fileWatcher';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -43,6 +44,7 @@ const RE_RUN_FAILED_TESTS = "Re-Run Failed Scenario(s)";
 
 let launchConfig;
 let treeDataProvider: Disposable = new Disposable(() => undefined);
+let filesystemWatcher: FileWatcher = new FileWatcher();
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 let specExplorerActiveFolder: string = "";
@@ -63,6 +65,8 @@ export function activate(context: ExtensionContext) {
 
     setReportThemePath(context.asAbsolutePath(path.join('out', 'report-theme')));
     workspace.workspaceFolders.forEach((folder) => startServerFor(folder));
+    context.subscriptions.push(filesystemWatcher);
+    registerFileSystemWatcher(filesystemWatcher, clients);
     setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
 
     workspace.onDidChangeWorkspaceFolders((event) => {
@@ -234,7 +238,6 @@ function startServerFor(folder: WorkspaceFolder) {
     languageClient.start();
 
     languageClient.onReady().then(() => {setLanguageId(languageClient, folder.uri.fsPath); });
-    registerFileWatcher(folder.uri.fsPath);
 }
 
 function setLanguageId(languageClient: LanguageClient, projectRoot: string) {
@@ -257,7 +260,7 @@ function registerTreeDataProvider(context: ExtensionContext, projectPath: string
     client.onReady().then(() => {
         let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
         if (specExplorerConfig && specExplorerConfig.get<boolean>('enabled')) {
-            let provider = new SpecNodeProvider(projectPath, client);
+            let provider = new SpecNodeProvider(projectPath, client, filesystemWatcher);
             treeDataProvider = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
             updateSpecExplorerActiveFolder(projectPath);
             setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
@@ -424,20 +427,4 @@ function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): 
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
     return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion;
-}
-
-function registerFileWatcher(projectRoot: string) {
-    const watcher = workspace.createFileSystemWatcher(projectRoot + '/**/*', false, true, false);
-    watcher.onDidCreate((uri: Uri) => {
-        const client = clients.get(workspace.getWorkspaceFolder(uri).uri.fsPath);
-        client.sendNotification('textDocument/didCreate', TextDocumentIdentifier.create(
-            client.code2ProtocolConverter.asUri(uri)
-        ));
-    });
-    watcher.onDidDelete((uri: Uri) => {
-        const client = clients.get(workspace.getWorkspaceFolder(uri).uri.fsPath);
-        client.sendNotification('textDocument/didDelete', TextDocumentIdentifier.create(
-            client.code2ProtocolConverter.asUri(uri)
-        ));
-    });
 }
