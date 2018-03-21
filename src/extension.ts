@@ -25,7 +25,7 @@ import {
 } from "./execution/gaugeExecution";
 import { SpecNodeProvider, GaugeNode, Scenario, Spec } from './explorer/specExplorer';
 import {
-    VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext, LAST_REPORT_PATH
+    VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext, LAST_REPORT_PATH, REPORT_URI
 } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
@@ -50,7 +50,8 @@ let specExplorerActiveFolder: string = "";
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
     let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
-    context.subscriptions.push(new PageProvider(context, hasUpgraded));
+    const pageProvider = new PageProvider(context, hasUpgraded);
+    context.subscriptions.push(pageProvider);
 
     let gaugeVersionInfo = getGaugeVersionInfo();
     if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
@@ -71,7 +72,7 @@ export function activate(context: ExtensionContext) {
     });
 
     registerStopExecution(context);
-    registerExecutionStatus(context);
+    registerExecutionStatus(context, pageProvider);
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
         let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
         return execute(spec, { inParallel: false, status: spec, projectRoot: cwd });
@@ -282,7 +283,7 @@ function registerStopExecution(context: ExtensionContext) {
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.StopExecution, () => { cancel(); }));
 }
 
-function registerExecutionStatus(context: ExtensionContext) {
+function registerExecutionStatus(context: ExtensionContext, provider: PageProvider) {
     let executionStatus = window.createStatusBarItem(StatusBarAlignment.Left, 1);
     executionStatus.command = GaugeVSCodeCommands.ShowReport;
     context.subscriptions.push(executionStatus);
@@ -294,6 +295,7 @@ function registerExecutionStatus(context: ExtensionContext) {
         if (aborted) {
             executionStatus.hide();
         } else {
+            provider.update(Uri.parse(REPORT_URI));
             root = projectRoot;
             let languageClient = clients.get(Uri.file(projectRoot).fsPath);
             return languageClient.sendRequest("gauge/executionStatus", {}, new CancellationTokenSource().token).then(
