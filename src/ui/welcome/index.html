@@ -214,10 +214,10 @@
 		<div class="intro">Gauge is a fast light-weight cross-platform test automation tool.</div>
 	</section>
 	<section class={{showGaugeInstall}}>
-		<span class="error"><i class="fas fa-exclamation-circle"></i>Gauge executable not found! </span><a href="#" class="installError"><span class="link">Read more.</span></a>
+		<span class="error"><i class="fas fa-exclamation-circle"></i>Gauge executable not found! </span>
 		<ul>
 			<li>
-				<div class="instructions hidden">
+				<div class="instructions">
 					<ul>
 						<li><div class="text">Install gauge using the following instruction:</div></li>
 						<li><h4>{{name}}</h4></li>
@@ -338,22 +338,4 @@
 		</ul>
 	</section>
 </aside>
-<script>
-	document.getElementById('doNotShow').addEventListener('click', function(){
-		document.getElementById('toggleWelcome').click();
-	});
-
-	var els = document.getElementsByClassName('installError');
-	Array.prototype.forEach.call(els, function(el) {
-		el.addEventListener('click', function(){
-			this.parentNode
-				.getElementsByClassName('instructions')[0]
-				.classList.toggle('hidden');
-		})
-	});
-
-	document.getElementById("execute").addEventListener('click', function(){
-		document.getElementById
-	});
-</script>
 </body>
