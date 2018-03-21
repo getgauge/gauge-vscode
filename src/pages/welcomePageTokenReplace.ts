@@ -11,25 +11,30 @@ export class WelcomePageTokenReplace {
     }
 
     getInstallCommandBasedOnOS(): InstallCommand {
-        let installCommand = new InstallCommand();
         switch (process.platform) {
             case "win32":
-                installCommand.name = "choco";
-                installCommand.command = "choco install gauge";
-                return installCommand;
+                return new InstallCommand({
+                    name: "choco",
+                    displayText: "choco install gauge",
+                    command: "Start-Process -Verb RunAs \"choco\" -ArgumentList \"install -y gauge\"" +
+                    " -WindowStyle hidden -Wait"
+                });
             case "darwin":
-                installCommand.name = "brew";
-                installCommand.command = "brew install gauge";
-                return installCommand;
+            return new InstallCommand({
+                name: "brew",
+                command: "brew install gauge"
+            });
             default:
                 if (this.getLinuxDistribution().indexOf("Ubuntu") !== -1) {
-                    installCommand.name = "apt";
-                    installCommand.command = "sudo apt-get install gauge";
-                    return installCommand;
+                    return new InstallCommand({
+                        name: "apt",
+                        command: "sudo apt-get install gauge"
+                    });
                 } else {
-                    installCommand.name = "dnf";
-                    installCommand.command = "sudo dnf install gauge";
-                    return installCommand;
+                    return new InstallCommand({
+                        name: "dnf",
+                        command: "sudo dnf install gauge"
+                    });
                 }
         }
     }
@@ -39,7 +44,7 @@ export class WelcomePageTokenReplace {
                         {key : /{{installCommand}}/g, value : encodeURI('command:gauge.executeIn.terminal?' +
                                 JSON.stringify([this.getInstallCommandBasedOnOS().command]))},
                         {key : /{{name}}/g, value : this.getInstallCommandBasedOnOS().name},
-                        {key : /{{command}}/g, value : this.getInstallCommandBasedOnOS().command},
+                        {key : /{{command}}/g, value : this.getInstallCommandBasedOnOS().displayText},
                         {key : /{{root}}/g, value : root}];
         replace.forEach((element) =>  {
             text = text.replace(new RegExp(element.key), element.value);
@@ -51,4 +56,11 @@ export class WelcomePageTokenReplace {
 class InstallCommand {
     name: string;
     command: string;
+    displayText: string;
+
+    public constructor(init?: Partial<InstallCommand>) {
+        Object.assign(this, init);
+        if (this.displayText === "")
+            this.displayText = this.command;
+    }
 }
