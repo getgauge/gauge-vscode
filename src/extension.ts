@@ -31,7 +31,7 @@ import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { clientLanguageMap } from './execution/debug';
-import { FileWatcher, registerFileSystemWatcher } from './fileWatcher';
+import { FileWatcher } from './fileWatcher';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -44,7 +44,7 @@ const RE_RUN_FAILED_TESTS = "Re-Run Failed Scenario(s)";
 
 let treeDataProvider: SpecNodeProvider;
 let launchConfig;
-let filesystemWatcher: FileWatcher = new FileWatcher();
+let filesystemWatcher: FileWatcher;
 let clients: Map<string, LanguageClient> = new Map();
 let outputChannel: OutputChannel = window.createOutputChannel('gauge');
 
@@ -64,8 +64,7 @@ export function activate(context: ExtensionContext) {
 
     setReportThemePath(context.asAbsolutePath(path.join('out', 'report-theme')));
     workspace.workspaceFolders.forEach((folder) => startServerFor(folder));
-    context.subscriptions.push(filesystemWatcher);
-    registerFileSystemWatcher(filesystemWatcher, clients);
+    filesystemWatcher = new FileWatcher(context, clients);
     setCommandContext(GaugeCommandContext.MultiProject, clients.size > 1);
 
     workspace.onDidChangeWorkspaceFolders((event) => {
