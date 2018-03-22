@@ -163,7 +163,7 @@
       "properties": {
         "gauge.welcome.showOn": {
           "type": "string",
-          "default": "upgrade",
+          "default": "versionUpgrade",
           "enum": [
             "newProjectLoad",
             "versionUpgrade",
