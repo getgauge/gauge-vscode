@@ -23,10 +23,7 @@ import opn = require('opn');
 import {
     execute, runScenario, runSpecification, cancel, onBeforeExecute, onExecuted, setReportThemePath
 } from "./execution/gaugeExecution";
-import {
-    createTreeDataProvider, switchTreeDataProvider, specExplorerActiveFolder,
-    Spec, Scenario, GaugeNode
-} from './explorer/specExplorer';
+import { Spec, Scenario, GaugeNode, SpecNodeProvider } from './explorer/specExplorer';
 import {
     VSCodeCommands, GaugeVSCodeCommands, GaugeCommandContext, setCommandContext, LAST_REPORT_PATH, REPORT_URI
 } from './constants';
@@ -45,6 +42,7 @@ const VIEW_REPORT = "View Report";
 const RE_RUN_TESTS = "Repeat Last Run";
 const RE_RUN_FAILED_TESTS = "Re-Run Failed Scenario(s)";
 
+let treeDataProvider: SpecNodeProvider;
 let launchConfig;
 let filesystemWatcher: FileWatcher = new FileWatcher();
 let clients: Map<string, LanguageClient> = new Map();
@@ -119,7 +117,7 @@ export function activate(context: ExtensionContext) {
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecExplorer, () => {
-        return runSpecification(specExplorerActiveFolder);
+        return runSpecification(treeDataProvider.workspaceRoot);
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
@@ -158,13 +156,19 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
         () => showProjectOptions(context, (ctx: ExtensionContext, selection: string) => {
-            switchTreeDataProvider(clients, selection);
+            treeDataProvider.changeClient(clients.get(Uri.file(selection).fsPath), selection);
         }))
     );
 
     context.subscriptions.push(new GenerateStubCommandProvider(clients));
 
-    context.subscriptions.push(createTreeDataProvider(clients, getDefaultFolder(), filesystemWatcher));
+    registerSpecNodeProvider(context);
+}
+
+function registerSpecNodeProvider(context: ExtensionContext) {
+    const defaultWorkspace = Uri.file(getDefaultFolder());
+    const client = clients.get(workspace.getWorkspaceFolder(defaultWorkspace).uri.fsPath);
+    treeDataProvider = new SpecNodeProvider(context, defaultWorkspace.fsPath, filesystemWatcher, client);
 }
 
 export function deactivate(): Thenable<void> {
@@ -189,7 +193,8 @@ function onFolderDeletion(event: WorkspaceFoldersChangeEvent, context: Extension
         let client = clients.get(folder.uri.fsPath);
         clients.delete(folder.uri.fsPath);
         client.stop();
-        switchTreeDataProvider(clients, getDefaultFolder());
+        const defaultWorkspace = getDefaultFolder();
+        treeDataProvider.changeClient(clients.get(Uri.file(defaultWorkspace).fsPath), defaultWorkspace);
     }
 }
 
