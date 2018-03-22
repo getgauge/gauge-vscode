@@ -1,3 +1,7 @@
+.vscode-dark .banner, .vscode-light .banner, .vscode-high-contrast .banner{
+    display: none;
+}
+
 .vscode-dark, .vscode-light{
     --failure-color: #E73E48;
     --pass-color: #608b4e;
@@ -38,6 +42,12 @@ blockquote {
 	border-left: 0.25rem solid #333;
 	margin-left: 0;
 	padding-left: 1rem;
+}
+
+.banner {
+    text-align: center;
+    font-weight: bold;
+    background-image: repeating-linear-gradient(45deg, #f5c10e, #f5c10e 30px, #e0b009 30px, #e0b009 60px);
 }
 
 .container {
