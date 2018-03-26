@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as path from 'path';
-import { execute, __resetState } from '../../src/execution/gaugeExecution';
+import { GaugeExecutor } from '../../src/execution/gaugeExecutor';
 import { TextDocument } from 'vscode-languageclient/lib/main';
 import { Uri, commands, window, workspace } from 'vscode';
 import { GaugeVSCodeCommands, REPORT_URI } from '../../src/constants';
@@ -26,73 +26,71 @@ suite('Gauge Execution Tests', () => {
         commands.executeCommand('workbench.action.closeAllEditors').then(() => {
             done();
         });
-        __resetState();
     });
 
-    test('should execute given specification', (done) => {
+    test('should open reports inline after execution', async () => {
+        await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
+        await commands.executeCommand(GaugeVSCodeCommands.ShowReport);
+        assert.ok(workspace.textDocuments.some((d) =>
+            !d.isClosed && d.uri.toString() === REPORT_URI),
+            "Expected one document to have last run report");
+    });
+
+    test('should execute given specification', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        execute(spec, { inParallel: false, status: spec, projectRoot: testDataPath })
-            .then(statusHandler(done), errorHandler(done));
+        await window.showTextDocument(Uri.file(spec));
+        let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
+        assert.ok(status);
     }).timeout(10000);
 
-    test('should execute given scenario', (done) => {
-        let spec = path.join(testDataPath, 'specs', 'example.spec:6');
-        execute(spec, { inParallel: false, status: spec, projectRoot: testDataPath })
-            .then(statusHandler(done), errorHandler(done));
+    test('should execute given scenario', async () => {
+        let spec = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
+        await window.showTextDocument(spec);
+        let scenario = spec.path + ":6";
+        let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, scenario);
+        assert.ok(status);
     }).timeout(10000);
 
-    test('should execute all specification in spec dir', (done) => {
-        commands.executeCommand('gauge.execute.specification.all').then(statusHandler(done), errorHandler(done));
+    test('should execute all specification in spec dir', async () => {
+        let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
+        assert.ok(status);
     }).timeout(10000);
 
-    test('should execute currently open specification', (done) => {
+    test('should execute currently open specification', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
-        window.showTextDocument(specFile).then((document) => {
-            commands.executeCommand('gauge.execute.specification').then(statusHandler(done), errorHandler(done));
-        }, errorHandler(done));
+        await window.showTextDocument(specFile);
+        let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteSpec);
+        assert.ok(status);
     }).timeout(10000);
 
-    test('should execute scenario at cursor', (done) => {
+    test('should execute scenario at cursor', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
-        window.showTextDocument(specFile).then((editor) => {
-            commands.executeCommand("workbench.action.focusFirstEditorGroup").then(() => {
-                let cm = { to: 'down', by: 'line', value: 8 };
-                commands.executeCommand("cursorMove", cm).then(() => {
-                    commands.executeCommand('gauge.execute.scenario').then(statusHandler(done), errorHandler(done));
-                }, errorHandler(done));
-            }, errorHandler(done));
-        }, errorHandler(done));
+        let editor = await window.showTextDocument(specFile);
+        await commands.executeCommand("workbench.action.focusFirstEditorGroup");
+        let cm = { to: 'down', by: 'line', value: 8 };
+        await commands.executeCommand("cursorMove", cm);
+        let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteScenario);
+        assert.ok(status);
     }).timeout(10000);
 
     test('should abort execution', (done) => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        execute(spec, { inParallel: false, status: spec, projectRoot: testDataPath }).then((status) => {
+        commands.executeCommand(GaugeVSCodeCommands.Execute, spec).then((status) => {
             assert.equal(status, false);
             done();
         }, (err) => done(err));
         commands.executeCommand('gauge.stopExecution').then(() => { done(); }, () => { done(); });
     });
 
-    test('should reject execution when another is already in progress', (done) => {
+    test('should reject execution when another is already in progress', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        execute(spec, { inParallel: false, status: spec, projectRoot: testDataPath });
-        execute(spec, { inParallel: false, status: spec, projectRoot: testDataPath }).then(() => {
-            done("expected an error indicating another spec/scenario running.");
-        }, (err) => {
-            try {
-                assert.equal(err, "A Specification or Scenario is still running!");
-                done();
-            } catch (e) {
-                done(e);
-            }
-        });
-    });
-
-    test('should open reports inline after execution', async () => {
-        await commands.executeCommand('gauge.execute.specification.all');
-        await commands.executeCommand(GaugeVSCodeCommands.ShowReport);
-        assert.ok(workspace.textDocuments.some((d) =>
-            !d.isClosed && d.uri.toString() === REPORT_URI),
-            "Expected one document to have last run report");
-    });
+        await window.showTextDocument(Uri.file(spec));
+        commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
+        try {
+            await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
+            throw new Error("Expected simultaneous runs to reject");
+        } catch (err) {
+            assert.equal(err.message, "A Specification or Scenario is still running!");
+        }
+    }).timeout(10000);
 });
