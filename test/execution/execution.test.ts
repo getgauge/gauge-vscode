@@ -1,32 +1,13 @@
 import * as assert from 'assert';
 import * as path from 'path';
-import { GaugeExecutor } from '../../src/execution/gaugeExecutor';
 import { TextDocument } from 'vscode-languageclient/lib/main';
 import { Uri, commands, window, workspace } from 'vscode';
 import { GaugeVSCodeCommands, REPORT_URI } from '../../src/constants';
 
 let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 'sampleProject');
 
-let statusHandler = (done) => {
-    return (status) => {
-        assert.ok(status);
-        done();
-    };
-};
-
-let errorHandler = (done) => {
-    return (err) => {
-        assert.ok(false, 'Error: ' + err);
-        done(err);
-    };
-};
-
 suite('Gauge Execution Tests', () => {
-    setup((done) => {
-        commands.executeCommand('workbench.action.closeAllEditors').then(() => {
-            done();
-        });
-    });
+    setup(async () => { await commands.executeCommand('workbench.action.closeAllEditors'); });
 
     test('should execute given specification', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
@@ -65,23 +46,15 @@ suite('Gauge Execution Tests', () => {
         assert.ok(status);
     }).timeout(10000);
 
-    test('should abort execution', (done) => {
+    test('should abort execution', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        window.showTextDocument(Uri.file(spec)).then(() => {
-            commands.executeCommand(GaugeVSCodeCommands.Execute, spec).then((status) => {
-                console.log(status);
-                try {
-                    assert.equal(status, false);
-                    done();
-                } catch (e) {
-                    done(e);
-                }
-            }, (err) => { console.log(err); done(err); });
-            // simulate a delay, we could handle this in executor, i.e. before spawining an execution
-            // check if an abort signal has been sent.
-            // It seems like over-complicating things for a non-human scenario :)
-            setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
-        });
+        await window.showTextDocument(Uri.file(spec));
+        // simulate a delay, we could handle this in executor, i.e. before spawining an execution
+        // check if an abort signal has been sent.
+        // It seems like over-complicating things for a non-human scenario :)
+        setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
+        let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
+        assert.equal(status, false);
     });
 
     test('should open reports inline after execution', async () => {
