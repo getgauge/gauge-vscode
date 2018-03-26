@@ -60,7 +60,7 @@ class InstallCommand {
 
     public constructor(init?: Partial<InstallCommand>) {
         Object.assign(this, init);
-        if (this.displayText === "")
+        if (this.displayText === "" || this.displayText === undefined)
             this.displayText = this.command;
     }
 }
