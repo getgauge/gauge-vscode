@@ -28,14 +28,6 @@ suite('Gauge Execution Tests', () => {
         });
     });
 
-    test('should open reports inline after execution', async () => {
-        await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
-        await commands.executeCommand(GaugeVSCodeCommands.ShowReport);
-        assert.ok(workspace.textDocuments.some((d) =>
-            !d.isClosed && d.uri.toString() === REPORT_URI),
-            "Expected one document to have last run report");
-    });
-
     test('should execute given specification', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
         await window.showTextDocument(Uri.file(spec));
@@ -75,11 +67,29 @@ suite('Gauge Execution Tests', () => {
 
     test('should abort execution', (done) => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        commands.executeCommand(GaugeVSCodeCommands.Execute, spec).then((status) => {
-            assert.equal(status, false);
-            done();
-        }, (err) => done(err));
-        commands.executeCommand('gauge.stopExecution').then(() => { done(); }, () => { done(); });
+        window.showTextDocument(Uri.file(spec)).then(() => {
+            commands.executeCommand(GaugeVSCodeCommands.Execute, spec).then((status) => {
+                console.log(status);
+                try {
+                    assert.equal(status, false);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            }, (err) => { console.log(err); done(err); });
+            // simulate a delay, we could handle this in executor, i.e. before spawining an execution
+            // check if an abort signal has been sent.
+            // It seems like over-complicating things for a non-human scenario :)
+            setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
+        });
+    });
+
+    test('should open reports inline after execution', async () => {
+        assert.ok(await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs));
+        await commands.executeCommand(GaugeVSCodeCommands.ShowReport);
+        assert.ok(workspace.textDocuments.some((d) =>
+            !d.isClosed && d.uri.toString() === REPORT_URI),
+            "Expected one document to have last run report");
     });
 
     test('should reject execution when another is already in progress', async () => {
