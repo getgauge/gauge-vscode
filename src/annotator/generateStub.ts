@@ -4,10 +4,9 @@ import * as path from 'path';
 
 import copyPaste = require("copy-paste");
 
-import { GaugeVSCodeCommands, GaugeRequests } from "../constants";
+import { GaugeVSCodeCommands, GaugeRequests, NEW_FILE, COPY_TO_CLIPBOARD } from "../constants";
 import { FileListItem } from "../types/fileListItem";
 import { WorkspaceEditor } from "../refactor/workspaceEditor";
-import { getFileLists } from "../util";
 
 export class GenerateStubCommandProvider implements Disposable {
     private readonly _clients: Map<string, LanguageClient>;
@@ -28,7 +27,7 @@ export class GenerateStubCommandProvider implements Disposable {
         let languageClient = this._clients.get(cwd);
         let t = new CancellationTokenSource().token;
         languageClient.sendRequest(GaugeRequests.Files, { concept: true }, t).then((files: string[]) => {
-            window.showQuickPick(getFileLists(files, cwd, false)).then((selected) => {
+            window.showQuickPick(this.getFileLists(files, cwd, false)).then((selected) => {
                 if (!selected) return;
                 conceptInfo.conceptFile = selected.value;
                 conceptInfo.dir = path.dirname(window.activeTextEditor.document.uri.fsPath);
@@ -43,7 +42,7 @@ export class GenerateStubCommandProvider implements Disposable {
         let languageClient = this._clients.get(cwd);
         let token = new CancellationTokenSource().token;
         languageClient.sendRequest(GaugeRequests.Files, token).then((files: string[]) => {
-            window.showQuickPick(getFileLists(files, cwd)).then((selected: FileListItem) => {
+            window.showQuickPick(this.getFileLists(files, cwd)).then((selected: FileListItem) => {
                 if (!selected) return;
                 if (selected.isCopyToClipBoard()) {
                     copyPaste.copy(code);
@@ -66,6 +65,17 @@ export class GenerateStubCommandProvider implements Disposable {
 
     private handleError(reason: string) {
         window.showErrorMessage('Unable to generate implementation. ' + reason);
+    }
+
+    private getFileLists(files: string[], cwd: string, copy = true): FileListItem[] {
+        const showFileList: FileListItem[] = files.map((file) => {
+            return new FileListItem(path.basename(file), path.relative(cwd, path.dirname(file)), file);
+        });
+        const quickPickFileList = [new FileListItem(NEW_FILE, "Create a new file", NEW_FILE)];
+        if (copy) {
+            quickPickFileList.push(new FileListItem(COPY_TO_CLIPBOARD, "", COPY_TO_CLIPBOARD));
+        }
+        return quickPickFileList.concat(showFileList);
     }
 
     dispose() {

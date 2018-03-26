@@ -70,3 +70,5 @@ export const LAST_REPORT_PATH = 'gauge.execution.report';
 
 export const WELCOME_PAGE_URI = "gauge://global/welcome";
 export const REPORT_URI = "gauge://workspace/htmlreport";
+export const COPY_TO_CLIPBOARD = 'Copy To Clipboard';
+export const NEW_FILE = 'New File';
