@@ -14,6 +14,9 @@ export class TerminalProvider extends Disposable {
                 terminalStack.push(window.createTerminal('gauge install'));
                 getLatestTerminal().show();
                 getLatestTerminal().sendText(text);
+                setTimeout(
+                    () => window.showInformationMessage(`Please reload the project after Gauge is installed!`)
+                    , 1000);
             }
         ));
     }
