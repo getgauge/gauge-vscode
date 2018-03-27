@@ -63,7 +63,9 @@ export enum GaugeRequests {
     Scenarios = 'gauge/scenarios',
     Files = "gauge/getImplFiles",
     AddStub = 'gauge/putStubImpl',
-    GenerateConcept = 'gauge/generateConcept'
+    GenerateConcept = 'gauge/generateConcept',
+    DidCreate = 'textDocument/didCreate',
+    DidDelete = 'textDocument/didDelete',
 }
 
 export const LAST_REPORT_PATH = 'gauge.execution.report';

@@ -99,9 +99,7 @@ export class GaugeWorkspace extends Disposable {
             this._clients.delete(folder.uri.fsPath);
             client.stop();
         }
-        let defaultFolder = this.getDefaultFolder();
-        let client = this._clients.get(Uri.file(defaultFolder).fsPath);
-        this._specNodeProvider.changeClient(client, defaultFolder);
+        this._specNodeProvider.changeClient(this.getDefaultFolder());
     }
 
     private startServerFor(folder: WorkspaceFolder) {
