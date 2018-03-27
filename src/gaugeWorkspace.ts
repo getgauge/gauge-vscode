@@ -1,14 +1,15 @@
 import * as path from 'path';
 import {
-    CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration,
-    WorkspaceFolder, WorkspaceFoldersChangeEvent, commands, window, workspace
+    CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration, WorkspaceFolder,
+    WorkspaceFoldersChangeEvent, commands, window, workspace
 } from "vscode";
 import { DynamicFeature, LanguageClient, RevealOutputChannelOn } from "vscode-languageclient";
-import { GaugeCommandContext, setCommandContext } from "./constants";
+import { GAUGE_MANIFEST_FILE, GaugeCommandContext, setCommandContext } from "./constants";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
+
 import fs = require('fs');
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
@@ -100,7 +101,7 @@ export class GaugeWorkspace extends Disposable {
 
     private startServerFor(folder: WorkspaceFolder) {
         let folderPath = folder.uri.fsPath;
-        if (!fs.existsSync(path.join(folderPath, "manifest.json"))) {
+        if (!fs.existsSync(path.join(folderPath, GAUGE_MANIFEST_FILE))) {
             return;
         }
         let serverOptions = {
