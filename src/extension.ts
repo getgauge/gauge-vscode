@@ -42,7 +42,8 @@ const VIEW_REPORT = "View Report";
 const RE_RUN_TESTS = "Repeat Last Run";
 const RE_RUN_FAILED_TESTS = "Re-Run Failed Scenario(s)";
 
-let treeDataProvider: SpecNodeProvider;
+let specNodeProvider: SpecNodeProvider;
+let activeSpecExplorerFolder: string;
 let launchConfig;
 let filesystemWatcher: FileWatcher;
 let clients: Map<string, LanguageClient> = new Map();
@@ -116,7 +117,7 @@ export function activate(context: ExtensionContext) {
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecExplorer, () => {
-        return runSpecification(treeDataProvider.workspaceRoot);
+        return runSpecification(activeSpecExplorerFolder);
     }));
 
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
@@ -155,7 +156,8 @@ export function activate(context: ExtensionContext) {
     context.subscriptions.push(onConfigurationChange());
     context.subscriptions.push(commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
         () => showProjectOptions(context, (ctx: ExtensionContext, selection: string) => {
-            treeDataProvider.changeClient(clients.get(Uri.file(selection).fsPath), selection);
+            activeSpecExplorerFolder = selection;
+            specNodeProvider.changeClient(clients.get(Uri.file(selection).fsPath), selection);
         }))
     );
 
@@ -167,7 +169,8 @@ export function activate(context: ExtensionContext) {
 function registerSpecNodeProvider(context: ExtensionContext) {
     const defaultWorkspace = Uri.file(getDefaultFolder());
     const client = clients.get(workspace.getWorkspaceFolder(defaultWorkspace).uri.fsPath);
-    treeDataProvider = new SpecNodeProvider(context, defaultWorkspace.fsPath, filesystemWatcher, client);
+    activeSpecExplorerFolder = defaultWorkspace.fsPath;
+    specNodeProvider = new SpecNodeProvider(context, defaultWorkspace.fsPath, filesystemWatcher, client);
 }
 
 export function deactivate(): Thenable<void> {
@@ -193,7 +196,8 @@ function onFolderDeletion(event: WorkspaceFoldersChangeEvent, context: Extension
         clients.delete(folder.uri.fsPath);
         client.stop();
         const defaultWorkspace = getDefaultFolder();
-        treeDataProvider.changeClient(clients.get(Uri.file(defaultWorkspace).fsPath), defaultWorkspace);
+        activeSpecExplorerFolder = defaultWorkspace;
+        specNodeProvider.changeClient(clients.get(Uri.file(defaultWorkspace).fsPath), defaultWorkspace);
     }
 }
 

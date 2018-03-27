@@ -17,7 +17,7 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
 
     constructor(
         private context: vscode.ExtensionContext,
-        public workspaceRoot: string,
+        private workspaceRoot: string,
         private fileWatcher: FileWatcher,
         private languageClient?: LanguageClient
     ) {
