@@ -240,6 +240,7 @@
     "opn": "^5.1.0",
     "vscode-jsonrpc": "^3.6.0",
     "vscode-languageclient": "^4.0.0",
-    "vscode-languageserver-protocol": "^3.6.0"
+    "vscode-languageserver-protocol": "^3.6.0",
+    "fs-extra": "5.0.0"
   }
 }

@@ -2,6 +2,8 @@ import {
     WorkspaceEdit, window, workspace, TextDocument, TextEdit, Uri, TextEditor,
     TextDocumentShowOptions, Position, Range
 } from "vscode";
+import { dirname } from 'path';
+import { mkdirpSync } from 'fs-extra';
 import { existsSync, writeFileSync } from 'fs';
 export class WorkspaceEditor {
     private readonly _edit: WorkspaceEdit;
@@ -28,8 +30,16 @@ export class WorkspaceEditor {
         });
     }
 
+    private ensureDirectoryExistence(filePath: string) {
+        let dir = dirname(filePath);
+        if (!existsSync(dir)) {
+            mkdirpSync(dir);
+        }
+    }
+
     private applyTextEdit(fileName: string, fileEdit: TextEdit[]): void {
         if (!existsSync(fileName)) {
+            this.ensureDirectoryExistence(fileName);
             writeFileSync(fileName, "", "UTF-8");
         }
         workspace.openTextDocument(fileName).then((document: TextDocument) => {
