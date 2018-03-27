@@ -2,33 +2,34 @@
 
 import { Disposable, ExtensionContext, FileSystemWatcher, workspace, Uri } from "vscode";
 import { LanguageClient, TextDocumentIdentifier } from "vscode-languageclient";
+import { GaugeWorkspace } from "./gaugeWorkspace";
 
-export class FileWatcher {
-    private watcher: FileSystemWatcher;
-    private onDeleteHandlers: Array<Function>;
-    private onCreateHandlers: Array<Function>;
+export class FileWatcher extends Disposable {
+    private _watcher: FileSystemWatcher;
+    private _onDeleteHandlers: Array<Function>;
+    private _onCreateHandlers: Array<Function>;
 
-    public constructor(private context: ExtensionContext, private clients: Map<string, LanguageClient>) {
-        this.watcher = workspace.createFileSystemWatcher("**/*");
-        context.subscriptions.push(this.watcher);
-        this.onCreateHandlers = new Array<Function>();
-        this.onDeleteHandlers = new Array<Function>();
-        this.watcher.onDidCreate((uri: Uri) => {
-            this.onCreateHandlers.forEach((handler: Function) => {
+    public constructor(private gaugeWorkspace: GaugeWorkspace) {
+        super(() => this.dispose());
+        this._watcher = workspace.createFileSystemWatcher("**/*");
+        this._onCreateHandlers = new Array<Function>();
+        this._onDeleteHandlers = new Array<Function>();
+        this._watcher.onDidCreate((uri: Uri) => {
+            this._onCreateHandlers.forEach((handler: Function) => {
                 handler(uri);
             });
         });
-        this.watcher.onDidDelete((uri: Uri) => {
-            this.onDeleteHandlers.forEach((handler: Function) => {
+        this._watcher.onDidDelete((uri: Uri) => {
+            this._onDeleteHandlers.forEach((handler: Function) => {
                 handler(uri);
             });
         });
-        this.registerDefaultHandlers(clients);
+        this.registerDefaultHandlers();
     }
 
-    private registerDefaultHandlers(clients: Map<string, LanguageClient>) {
+    private registerDefaultHandlers() {
         this.addOnCreateHandler((uri: Uri) => {
-            const client = clients.get(workspace.getWorkspaceFolder(uri).uri.fsPath);
+            const client = this.gaugeWorkspace.getClients().get(workspace.getWorkspaceFolder(uri).uri.fsPath);
             if (client) {
                 client.sendNotification('textDocument/didCreate', TextDocumentIdentifier.create(
                     client.code2ProtocolConverter.asUri(uri)
@@ -36,7 +37,7 @@ export class FileWatcher {
             }
         });
         this.addOnDeleteHandler((uri: Uri) => {
-            const client = clients.get(workspace.getWorkspaceFolder(uri).uri.fsPath);
+            const client = this.gaugeWorkspace.getClients().get(workspace.getWorkspaceFolder(uri).uri.fsPath);
             if (client) {
                 client.sendNotification('textDocument/didDelete', TextDocumentIdentifier.create(
                     client.code2ProtocolConverter.asUri(uri)
@@ -46,14 +47,14 @@ export class FileWatcher {
     }
 
     public addOnCreateHandler(handler: Function) {
-        this.onCreateHandlers.push(handler);
+        this._onCreateHandlers.push(handler);
     }
 
     public addOnDeleteHandler(handler: Function) {
-        this.onDeleteHandlers.push(handler);
+        this._onDeleteHandlers.push(handler);
     }
 
     dispose() {
-        this.watcher.dispose();
+        this._watcher.dispose();
     }
 }

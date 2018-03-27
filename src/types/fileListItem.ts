@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { QuickPickItem } from 'vscode';
+import { COPY_TO_CLIPBOARD } from '../constants';
 
-const COPY_TO_CLIPBOARD = 'Copy To Clipboard';
 export class FileListItem implements QuickPickItem {
     label: string;
     description: string;
