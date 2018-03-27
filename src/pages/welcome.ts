@@ -4,10 +4,11 @@ import * as path from 'path';
 import { TerminalProvider } from "../terminal/terminal";
 import { WelcomePageTokenReplace } from "./welcomePageTokenReplace";
 import { Page } from "./page";
+import { getGaugeVersionInfo } from '../gaugeVersion';
 
 const GAUGE_SUPPRESS_WELCOME = 'gauge.welcome.supress';
 const WELCOME_FILE_NAME = "/welcome";
-const IS_WELCOME_PAGE_OPNE = "isWelcomePageOpen";
+const IS_WELCOME_PAGE_OPEN = "isWelcomePageOpen";
 const HAS_OPENED_BEFORE = "hasOpenedBefore";
 
 export class WelcomePage extends Disposable implements Page {
@@ -31,12 +32,12 @@ export class WelcomePage extends Disposable implements Page {
 
         workspace.onDidOpenTextDocument((doc: TextDocument) => {
             if (doc.fileName === WELCOME_FILE_NAME) {
-                context.workspaceState.update(IS_WELCOME_PAGE_OPNE, true);
+                context.workspaceState.update(IS_WELCOME_PAGE_OPEN, true);
             }
         });
         workspace.onDidCloseTextDocument((doc: TextDocument) => {
             if (doc.fileName === WELCOME_FILE_NAME) {
-                context.workspaceState.update(IS_WELCOME_PAGE_OPNE, false);
+                context.workspaceState.update(IS_WELCOME_PAGE_OPEN, false);
             }
         });
 
@@ -45,7 +46,7 @@ export class WelcomePage extends Disposable implements Page {
         if (welcomePageConfig && welcomePageConfig.get<boolean>('enabled')) {
             if ((showWelcomePageOn === "versionUpgrade" && upgraded) ||
             (showWelcomePageOn === "newProjectLoad" && !context.workspaceState.get(HAS_OPENED_BEFORE)) ||
-            context.workspaceState.get(IS_WELCOME_PAGE_OPNE)) {
+            context.workspaceState.get(IS_WELCOME_PAGE_OPEN) || !getGaugeVersionInfo()) {
                 commands.executeCommand(GaugeVSCodeCommands.Welcome);
             }
             context.workspaceState.update(HAS_OPENED_BEFORE, true);
