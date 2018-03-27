@@ -3,7 +3,8 @@ import {
     TextDocumentShowOptions, Position, Range
 } from "vscode";
 import { dirname } from 'path';
-import { existsSync, writeFileSync, mkdirSync } from 'fs';
+import { mkdirpSync } from 'fs-extra';
+import { existsSync, writeFileSync } from 'fs';
 export class WorkspaceEditor {
     private readonly _edit: WorkspaceEdit;
 
@@ -31,12 +32,10 @@ export class WorkspaceEditor {
 
     private ensureDirectoryExistence(filePath: string) {
         let dir = dirname(filePath);
-        if (existsSync(dir)) {
-          return true;
+        if (!existsSync(dir)) {
+            mkdirpSync(dir);
         }
-        this.ensureDirectoryExistence(dir);
-        mkdirSync(dir);
-      }
+    }
 
     private applyTextEdit(fileName: string, fileEdit: TextEdit[]): void {
         if (!existsSync(fileName)) {
