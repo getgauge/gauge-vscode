@@ -5,30 +5,70 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeVSCodeCommands, GaugeRequests } from '../constants';
+import {
+    commands, workspace, TextDocument, Uri, Position, Range, window,
+    TextDocumentShowOptions, TextEditor, Disposable
+} from 'vscode';
+import { GaugeExecutor } from '../execution/gaugeExecutor';
 const SPEC_FILE_PATTERN = `**/*.spec`;
 
 const extensions = [".spec", ".md"];
 
-export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
+export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvider<GaugeNode> {
     private _onDidChangeTreeData: vscode.EventEmitter<GaugeNode | undefined> =
         new vscode.EventEmitter<GaugeNode | undefined>();
     readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
+    private activeFolder: string;
+    private _disposable: Disposable;
 
-    constructor(private workspaceRoot: string, private languageClient: LanguageClient) {
+    constructor(private workspaceRoot: string, private languageClient: LanguageClient,
+                private executor: GaugeExecutor) {
+        super(() => this.dispose());
+        this.activeFolder = workspaceRoot;
         vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
             if (extensions.includes(path.extname(doc.fileName))) {
                 this.refresh();
             }
         });
-        vscode.workspace.onDidChangeWorkspaceFolders(() => this.refresh());
-        vscode.workspace.onDidCloseTextDocument((doc: vscode.TextDocument) => {
+        workspace.onDidChangeWorkspaceFolders(() => this.refresh());
+        workspace.onDidCloseTextDocument((doc: TextDocument) => {
             if (extensions.includes(path.extname(doc.fileName))) {
                 this.refresh();
             }
         });
-        let specWatcher = vscode.workspace.createFileSystemWatcher(SPEC_FILE_PATTERN);
+        let specWatcher = workspace.createFileSystemWatcher(SPEC_FILE_PATTERN);
         specWatcher.onDidCreate(() => this.refresh());
         specWatcher.onDidDelete(() => this.refresh());
+
+        this._disposable = Disposable.from(
+        commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecExplorer, () => {
+            return this.executor.runSpecification(this.activeFolder);
+        }),
+        commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
+            if (scn) return this.executor.execute(scn.executionIdentifier, {
+                inParallel: false,
+                status: scn.executionIdentifier,
+                projectRoot: workspace.getWorkspaceFolder(Uri.file(scn.file)).uri.fsPath
+            });
+            return this.executor.runScenario(true);
+        }),
+        commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, (spec: Spec) => {
+            if (spec) {
+                return this.executor.execute(spec.file, {
+                    inParallel: false,
+                    status: spec.file,
+                    projectRoot: workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath
+                });
+            }
+            return this.executor.runSpecification();
+        }),
+        commands.registerCommand(GaugeVSCodeCommands.Open,
+            (node: GaugeNode) => workspace.openTextDocument(node.file).then(this.showDocumentWithSelection(node)))
+        );
+    }
+
+    updateSpecExplorerActiveFolder(folder) {
+        this.activeFolder = folder;
     }
 
     refresh(element?: GaugeNode): void {
@@ -74,6 +114,26 @@ export class SpecNodeProvider implements vscode.TreeDataProvider<GaugeNode> {
                     );
             }
         });
+    }
+
+    private showDocumentWithSelection(node: GaugeNode): (value: TextDocument) => TextEditor | Thenable<TextEditor> {
+        return (document) => {
+            if (node instanceof Scenario) {
+                let scenarioNode: Scenario = node;
+                let options: TextDocumentShowOptions = {
+                    selection: new Range(new Position(scenarioNode.lineNo - 1, 0),
+                    new Position(scenarioNode.lineNo - 1, 0))
+                };
+                return window.showTextDocument(document, options);
+            }
+            if (node instanceof Spec) {
+                let options: TextDocumentShowOptions = {
+                    selection: new Range(new Position(0, 0), new Position(0, 0))
+                };
+                return window.showTextDocument(document, options);
+            }
+            return window.showTextDocument(document);
+        };
     }
 }
 
