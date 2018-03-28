@@ -11,7 +11,6 @@ import * as path from 'path';
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { GaugeState } from "./gaugeState";
-import { FileWatcher } from "./fileWatcher";
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -23,7 +22,6 @@ export class GaugeWorkspace extends Disposable {
     private _launchConfig: WorkspaceConfiguration;
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
-    private _fileWatcher: FileWatcher;
 
     constructor(private state: GaugeState) {
         super(() => this.dispose());
@@ -37,10 +35,8 @@ export class GaugeWorkspace extends Disposable {
             if (event.removed) this.onFolderDeletion(event);
             setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
         });
-        this._fileWatcher = new FileWatcher(this);
         this._specNodeProvider = new SpecNodeProvider(this);
         this._disposable = Disposable.from(
-            this._fileWatcher,
             this._specNodeProvider,
             this.onConfigurationChange()
         );
@@ -52,10 +48,6 @@ export class GaugeWorkspace extends Disposable {
 
     getGaugeExecutor(): GaugeExecutor {
         return this._executor;
-    }
-
-    getFileWatcher(): FileWatcher {
-        return this._fileWatcher;
     }
 
     getReportThemePath(): string {

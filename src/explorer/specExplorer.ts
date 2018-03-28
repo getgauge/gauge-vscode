@@ -10,7 +10,6 @@ import {
     TextDocumentShowOptions, TextEditor, Disposable
 } from 'vscode';
 import { GaugeExecutor } from '../execution/gaugeExecutor';
-import { FileWatcher } from '../fileWatcher';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 
 const extensions = [".spec", ".md"];
@@ -30,25 +29,23 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
             const disposable = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, this);
             this.activeFolder = gaugeWorkspace.getDefaultFolder();
             this.activateTreeDataProvider(this.activeFolder);
-            vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
-                if (this.shouldRefresh(doc.uri)) {
-                    this.refresh();
-                }
-            });
-            workspace.onDidCloseTextDocument((doc: TextDocument) => {
-                if (this.shouldRefresh(doc.uri)) {
-                    this.refresh();
-                }
-            });
             const refreshMethod = (fileUri: vscode.Uri) => {
                 if (this.shouldRefresh(fileUri)) {
                     this.refresh();
                 }
             };
-            this.gaugeWorkspace.getFileWatcher().addOnCreateHandler(refreshMethod);
-            this.gaugeWorkspace.getFileWatcher().addOnDeleteHandler(refreshMethod);
+            vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
+                refreshMethod(doc.uri);
+            });
+            workspace.onDidCloseTextDocument((doc: TextDocument) => {
+                refreshMethod(doc.uri);
+            });
 
-            this._disposable = Disposable.from(disposable,
+            const watcher = workspace.createFileSystemWatcher("**/*.{spec,md}", true, false, true);
+            watcher.onDidCreate(refreshMethod);
+            watcher.onDidDelete(refreshMethod);
+
+            this._disposable = Disposable.from(disposable, watcher,
                 commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
                     () => gaugeWorkspace.showProjectOptions((path: string) => {
                         this.changeClient(path);
