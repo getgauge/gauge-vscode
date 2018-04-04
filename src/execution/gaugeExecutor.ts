@@ -11,14 +11,14 @@ import { LineBuffer } from './lineBuffer';
 import { OutputChannel } from './outputChannel';
 import { GaugeVSCodeCommands, GaugeCommands, LAST_REPORT_PATH } from '../constants';
 import { ChildProcess } from 'child_process';
-import { setDebugConf } from "./debug";
+import { GaugeDebugger } from "./debug";
 import { GaugeWorkspace } from '../gaugeWorkspace';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution";
-const DEBUG_PORT = 'debugPort';
 const REPORT_PATH_PREFIX = "Successfully generated html-report to => ";
+const ATTACH_DEBUGGER_EVENT = "Runner Ready for Debugging";
 
 export class GaugeExecutor extends Disposable {
     private executing: boolean;
@@ -28,6 +28,7 @@ export class GaugeExecutor extends Disposable {
     private postExecute: Function[] = [];
     private readonly _reportThemePath: string;
     private _disposables: Disposable[] = [];
+    private gaugeDebugger: GaugeDebugger;
 
     constructor(private gaugeWorkspace: GaugeWorkspace) {
         super(() => this.dispose());
@@ -46,7 +47,8 @@ export class GaugeExecutor extends Disposable {
             }
             this.executing = true;
             this.preExecute.forEach((f) => f.call(null, path.relative(config.projectRoot, config.status)));
-            setDebugConf(config, DEBUG_PORT).then((env) => {
+            this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
+            this.gaugeDebugger.addDebugEnv().then((env) => {
                 env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
                 let args = this.getArgs(spec, config);
                 let chan = new OutputChannel(this.outputChannel,
@@ -59,6 +61,9 @@ export class GaugeExecutor extends Disposable {
                     if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
                         let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
                         this.gaugeWorkspace.setReportPath(reportPath);
+                    }
+                    if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
+                        this.gaugeDebugger.startDebugger();
                     }
                 });
                 this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
@@ -73,10 +78,7 @@ export class GaugeExecutor extends Disposable {
 
     public cancel() {
         if (this.childProcess && !this.childProcess.killed) {
-            let activeDebugSession = debug.activeDebugSession;
-            if (activeDebugSession) {
-                activeDebugSession.customRequest("disconnect");
-            }
+            this.gaugeDebugger.stopDebugger();
             this.childProcess.kill();
         }
     }

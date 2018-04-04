@@ -3,7 +3,6 @@ import { Disposable, workspace, WorkspaceFolder, WorkspaceFoldersChangeEvent,
     CancellationTokenSource, OutputChannel, window, WorkspaceConfiguration, commands, ExtensionContext } from "vscode";
 import { GaugeCommandContext, setCommandContext, GaugeVSCodeCommands } from "./constants";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-import { clientLanguageMap } from "./execution/debug";
 import fs = require('fs');
 import * as path from 'path';
 import { SpecNodeProvider } from "./explorer/specExplorer";
@@ -16,6 +15,7 @@ const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
 export class GaugeWorkspace extends Disposable {
     private _executor: GaugeExecutor;
     private _clients: Map<string, LanguageClient> = new Map();
+    private _clientLanguageMap: Map<string, string> = new Map();
     private _outputChannel: OutputChannel = window.createOutputChannel('gauge');
     private _launchConfig: WorkspaceConfiguration;
     private _disposable: Disposable;
@@ -51,6 +51,10 @@ export class GaugeWorkspace extends Disposable {
 
     getClients(): Map<string, LanguageClient> {
         return this._clients;
+    }
+
+    getClientLanguageMap(): Map<string, string> {
+        return this._clientLanguageMap;
     }
 
     getDefaultFolder() {
@@ -150,7 +154,7 @@ export class GaugeWorkspace extends Disposable {
     private setLanguageId(languageClient: LanguageClient, projectRoot: string) {
         languageClient.sendRequest("gauge/getRunnerLanguage", new CancellationTokenSource().token).then(
             (language: string) => {
-                clientLanguageMap.set(projectRoot, language);
+                this._clientLanguageMap.set(projectRoot, language);
             }
         );
 
