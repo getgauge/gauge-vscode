@@ -1,6 +1,8 @@
 import { LanguageClient, DynamicFeature, RevealOutputChannelOn } from "vscode-languageclient";
-import { Disposable, workspace, WorkspaceFolder, WorkspaceFoldersChangeEvent,
-    CancellationTokenSource, OutputChannel, window, WorkspaceConfiguration, commands, ExtensionContext } from "vscode";
+import {
+    Disposable, workspace, WorkspaceFolder, WorkspaceFoldersChangeEvent, Uri,
+    CancellationTokenSource, OutputChannel, window, WorkspaceConfiguration, commands, ExtensionContext
+} from "vscode";
 import { GaugeCommandContext, setCommandContext, GaugeVSCodeCommands } from "./constants";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import fs = require('fs');
@@ -19,7 +21,7 @@ export class GaugeWorkspace extends Disposable {
     private _outputChannel: OutputChannel = window.createOutputChannel('gauge');
     private _launchConfig: WorkspaceConfiguration;
     private _disposable: Disposable;
-    private treeDataProvider: Disposable = new Disposable(() => undefined);
+    private _specNodeProvider: SpecNodeProvider;
 
     constructor(private state: GaugeState) {
         super(() => this.dispose());
@@ -33,16 +35,19 @@ export class GaugeWorkspace extends Disposable {
             if (event.removed) this.onFolderDeletion(event);
             setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
         });
+        this._specNodeProvider = new SpecNodeProvider(this);
         this._disposable = Disposable.from(
-            this.onConfigurationChange(),
-            commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
-                () => this.showProjectOptions((path: string) => this.switchTreeDataProvider(path))),
-            this.state
+            this._specNodeProvider,
+            this.onConfigurationChange()
         );
     }
 
     setReportPath(reportPath: string) {
         this.state.setReportPath(reportPath.trim());
+    }
+
+    getGaugeExecutor(): GaugeExecutor {
+        return this._executor;
     }
 
     getReportThemePath(): string {
@@ -90,7 +95,7 @@ export class GaugeWorkspace extends Disposable {
             this._clients.delete(folder.uri.fsPath);
             client.stop();
         }
-        this.switchTreeDataProvider();
+        this._specNodeProvider.changeClient(this.getDefaultFolder());
     }
 
     private startServerFor(folder: WorkspaceFolder) {
@@ -122,27 +127,6 @@ export class GaugeWorkspace extends Disposable {
         languageClient.start();
 
         languageClient.onReady().then(() => { this.setLanguageId(languageClient, folderPath); });
-        this.registerTreeDataProvider(languageClient, folderPath);
-    }
-
-    private registerTreeDataProvider(client: LanguageClient, path: string) {
-        client.onReady().then(() => {
-            let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
-            if (specExplorerConfig && specExplorerConfig.get<boolean>('enabled')) {
-                let provider = new SpecNodeProvider(path, client, this._executor);
-                this.treeDataProvider =
-                    window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, provider);
-                setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
-            }
-            }).catch((reason) => {
-                window.showErrorMessage("Failed to create test explorer. " + reason);
-        });
-    }
-
-    private switchTreeDataProvider(projectPath?: string) {
-        this.treeDataProvider.dispose();
-        setCommandContext(GaugeCommandContext.Activated, false);
-        this.registerTreeDataProvider(this._clients.get(projectPath), projectPath);
     }
 
     private registerDynamicFeatures(languageClient: LanguageClient) {
@@ -177,7 +161,6 @@ export class GaugeWorkspace extends Disposable {
     }
 
     dispose(): Thenable<void> {
-        this.treeDataProvider.dispose();
         this._disposable.dispose();
         let promises: Thenable<void>[] = [];
         for (let client of this._clients.values()) {

@@ -4,13 +4,13 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
-import { GaugeVSCodeCommands, GaugeRequests } from '../constants';
+import { GaugeVSCodeCommands, GaugeRequests, setCommandContext, GaugeCommandContext } from '../constants';
 import {
     commands, workspace, TextDocument, Uri, Position, Range, window,
     TextDocumentShowOptions, TextEditor, Disposable
 } from 'vscode';
 import { GaugeExecutor } from '../execution/gaugeExecutor';
-const SPEC_FILE_PATTERN = `**/*.spec`;
+import { GaugeWorkspace } from '../gaugeWorkspace';
 
 const extensions = [".spec", ".md"];
 
@@ -20,55 +20,63 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
     readonly onDidChangeTreeData: vscode.Event<GaugeNode | undefined> = this._onDidChangeTreeData.event;
     private activeFolder: string;
     private _disposable: Disposable;
+    private _languageClient?: LanguageClient;
 
-    constructor(private workspaceRoot: string, private languageClient: LanguageClient,
-                private executor: GaugeExecutor) {
+    constructor(private gaugeWorkspace: GaugeWorkspace) {
         super(() => this.dispose());
-        this.activeFolder = workspaceRoot;
-        vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
-            if (extensions.includes(path.extname(doc.fileName))) {
-                this.refresh();
-            }
-        });
-        workspace.onDidChangeWorkspaceFolders(() => this.refresh());
-        workspace.onDidCloseTextDocument((doc: TextDocument) => {
-            if (extensions.includes(path.extname(doc.fileName))) {
-                this.refresh();
-            }
-        });
-        let specWatcher = workspace.createFileSystemWatcher(SPEC_FILE_PATTERN);
-        specWatcher.onDidCreate(() => this.refresh());
-        specWatcher.onDidDelete(() => this.refresh());
-
-        this._disposable = Disposable.from(
-        commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecExplorer, () => {
-            return this.executor.runSpecification(this.activeFolder);
-        }),
-        commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
-            if (scn) return this.executor.execute(scn.executionIdentifier, {
-                inParallel: false,
-                status: scn.executionIdentifier,
-                projectRoot: workspace.getWorkspaceFolder(Uri.file(scn.file)).uri.fsPath
+        setCommandContext(GaugeCommandContext.Activated, false);
+        if (isSpecExplorerEnabled()) {
+            const disposable = window.registerTreeDataProvider(GaugeCommandContext.GaugeSpecExplorer, this);
+            this.activeFolder = gaugeWorkspace.getDefaultFolder();
+            this.activateTreeDataProvider(this.activeFolder);
+            const refreshMethod = (fileUri: vscode.Uri) => {
+                if (this.shouldRefresh(fileUri)) {
+                    this.refresh();
+                }
+            };
+            vscode.workspace.onDidSaveTextDocument((doc: vscode.TextDocument) => {
+                refreshMethod(doc.uri);
             });
-            return this.executor.runScenario(true);
-        }),
-        commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, (spec: Spec) => {
-            if (spec) {
-                return this.executor.execute(spec.file, {
-                    inParallel: false,
-                    status: spec.file,
-                    projectRoot: workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath
-                });
-            }
-            return this.executor.runSpecification();
-        }),
-        commands.registerCommand(GaugeVSCodeCommands.Open,
-            (node: GaugeNode) => workspace.openTextDocument(node.file).then(this.showDocumentWithSelection(node)))
-        );
-    }
+            workspace.onDidCloseTextDocument((doc: TextDocument) => {
+                refreshMethod(doc.uri);
+            });
 
-    updateSpecExplorerActiveFolder(folder) {
-        this.activeFolder = folder;
+            const watcher = workspace.createFileSystemWatcher("**/*.{spec,md}", true, false, true);
+            watcher.onDidCreate(refreshMethod);
+            watcher.onDidDelete(refreshMethod);
+
+            this._disposable = Disposable.from(disposable, watcher,
+                commands.registerCommand(GaugeVSCodeCommands.SwitchProject,
+                    () => gaugeWorkspace.showProjectOptions((path: string) => {
+                        this.changeClient(path);
+                    })
+                ),
+                commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecExplorer, () => {
+                    return this.gaugeWorkspace.getGaugeExecutor().runSpecification(this.activeFolder);
+                }),
+                commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
+                    if (scn) return this.gaugeWorkspace.getGaugeExecutor().execute(scn.executionIdentifier, {
+                        inParallel: false,
+                        status: scn.executionIdentifier,
+                        projectRoot: workspace.getWorkspaceFolder(Uri.file(scn.file)).uri.fsPath
+                    });
+                    return this.gaugeWorkspace.getGaugeExecutor().runScenario(true);
+                }),
+                commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, (spec: Spec) => {
+                    if (spec) {
+                        return this.gaugeWorkspace.getGaugeExecutor().execute(spec.file, {
+                            inParallel: false,
+                            status: spec.file,
+                            projectRoot: workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath
+                        });
+                    }
+                    return this.gaugeWorkspace.getGaugeExecutor().runSpecification();
+                }),
+                commands.registerCommand(GaugeVSCodeCommands.Open,
+                    (node: GaugeNode) => workspace.openTextDocument(node.file)
+                        .then(this.showDocumentWithSelection(node)))
+            );
+        }
     }
 
     refresh(element?: GaugeNode): void {
@@ -80,15 +88,16 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
     }
 
     getChildren(element?: GaugeNode): Thenable<GaugeNode[]> {
-        if (!this.workspaceRoot) {
+        if (!this.activeFolder) {
             vscode.window.showInformationMessage('No dependency in empty workspace');
             return Promise.resolve([]);
         }
+        if (!this._languageClient) return Promise.resolve([]);
 
         return new Promise((resolve, reject) => {
             if (element && element.contextValue === "specification") {
                 let uri = TextDocumentIdentifier.create(element.file);
-                return this.languageClient.sendRequest(GaugeRequests.Scenarios, {
+                return this._languageClient.sendRequest(GaugeRequests.Scenarios, {
                     textDocument: uri,
                     position: new vscode.Position(1, 1)
                 }, new vscode.CancellationTokenSource().token).then(
@@ -102,7 +111,7 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
                 );
             } else {
                 let token = new vscode.CancellationTokenSource().token;
-                return this.languageClient.sendRequest(GaugeRequests.Specs, {}, token)
+                return this._languageClient.sendRequest(GaugeRequests.Specs, {}, token)
                     .then(
                         (val: any[]) => {
                             resolve(val.map((x) => {
@@ -116,13 +125,39 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
         });
     }
 
+    private shouldRefresh(fileUri: vscode.Uri): boolean {
+        return extensions.includes(path.extname(fileUri.fsPath)) &&
+            workspace.getWorkspaceFolder(fileUri).uri.fsPath === this.activeFolder;
+    }
+
+    changeClient(projectPath: string) {
+        setCommandContext(GaugeCommandContext.Activated, false);
+        if (isSpecExplorerEnabled()) {
+            this.activateTreeDataProvider(projectPath);
+        }
+    }
+
+    private activateTreeDataProvider(projectPath: string) {
+        const workspacePath = Uri.file(projectPath).fsPath;
+        const client = this.gaugeWorkspace.getClients().get(workspacePath);
+        if (!client) return;
+        client.onReady().then(() => {
+            this._languageClient = client;
+            this.activeFolder = projectPath;
+            this.refresh();
+            setTimeout(setCommandContext, 1000, GaugeCommandContext.Activated, true);
+        }).catch((reason) => {
+            window.showErrorMessage("Failed to create test explorer.", reason);
+        });
+    }
+
     private showDocumentWithSelection(node: GaugeNode): (value: TextDocument) => TextEditor | Thenable<TextEditor> {
         return (document) => {
             if (node instanceof Scenario) {
                 let scenarioNode: Scenario = node;
                 let options: TextDocumentShowOptions = {
                     selection: new Range(new Position(scenarioNode.lineNo - 1, 0),
-                    new Position(scenarioNode.lineNo - 1, 0))
+                        new Position(scenarioNode.lineNo - 1, 0))
                 };
                 return window.showTextDocument(document, options);
             }
@@ -149,7 +184,6 @@ export abstract class GaugeNode extends vscode.TreeItem {
 }
 
 export class Spec extends GaugeNode {
-
     constructor(
         public readonly label: string,
         public readonly file: string
@@ -173,4 +207,9 @@ export class Scenario extends GaugeNode {
     readonly executionIdentifier = this.file + ":" + this.lineNo;
 
     contextValue = 'scenario';
+}
+
+function isSpecExplorerEnabled(): boolean {
+    let specExplorerConfig = workspace.getConfiguration('gauge.specExplorer');
+    return specExplorerConfig && specExplorerConfig.get<boolean>('enabled');
 }
