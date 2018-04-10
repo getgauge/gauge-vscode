@@ -20,7 +20,7 @@ export class ConfigProvider extends Disposable {
                 "some settings for best experience with Visual Studio Code.", "Save & Reload", "Ignore")
             .then((option) => {
                 if (option === "Save & Reload") {
-                    this.saveAndReload();
+                    return this.saveAndReload();
                 }
             });
         }
@@ -37,13 +37,13 @@ export class ConfigProvider extends Disposable {
         return true;
     }
 
-    private saveAndReload() {
+    private saveAndReload(): Thenable<any> {
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
                 workspace.getConfiguration().update(key, this.recommendedSettings[key], ConfigurationTarget.Global);
             }
         }
-        commands.executeCommand(VSCodeCommands.ReloadWindow);
+        return commands.executeCommand(VSCodeCommands.ReloadWindow);
     }
 
     dispose() {
