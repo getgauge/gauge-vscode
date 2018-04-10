@@ -59,6 +59,11 @@
     ],
     "commands": [
       {
+        "command": "gauge.config.saveRecommended",
+        "title": "Optimize VS Code configuration for Gauge",
+        "category": "Gauge"
+      },
+      {
         "command": "gauge.stopExecution",
         "title": "Stop current gauge execution",
         "category": "Gauge",

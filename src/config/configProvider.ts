@@ -1,5 +1,5 @@
 import { Disposable, ExtensionContext, window, commands, workspace, ConfigurationTarget } from "vscode";
-import { VSCodeCommands } from "../constants";
+import { VSCodeCommands, GaugeVSCodeCommands } from "../constants";
 
 export class ConfigProvider extends Disposable {
     private recommendedSettings = {
@@ -7,8 +7,13 @@ export class ConfigProvider extends Disposable {
         "files.autoSaveDelay": 500
     };
 
+    private _disposable: Disposable;
+
     constructor(private context: ExtensionContext) {
         super(() => this.dispose());
+
+        this._disposable = commands.registerCommand(GaugeVSCodeCommands.SaveRecommendedSettings,
+            () => this.saveAndReload());
 
         if (!this.verify()) {
             window.showInformationMessage("Gauge [recommends](https://docs.gauge.org/using.html#id31) " +
@@ -39,5 +44,9 @@ export class ConfigProvider extends Disposable {
             }
         }
         commands.executeCommand(VSCodeCommands.ReloadWindow);
+    }
+
+    dispose() {
+        this._disposable.dispose();
     }
 }
