@@ -225,6 +225,7 @@
     "publish": "vsce publish"
   },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.1",
     "@types/mocha": "^2.2.42",
     "@types/node": "^9.4.6",
     "copy-webpack-plugin": "^4.5.0",

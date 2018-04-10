@@ -10,7 +10,7 @@ import AdmZip = require('adm-zip');
 
 import { VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL } from "../constants";
 import { FileListItem } from '../types/fileListItem';
-import { spawnSync, execSync, spawn } from 'child_process';
+import { execSync, spawn } from 'child_process';
 
 export class ProjectInitializer extends Disposable {
     private isGaugeInstalled: boolean;
@@ -38,11 +38,14 @@ export class ProjectInitializer extends Disposable {
         const tmpl = await window.showQuickPick(this.getTemplatesList());
         if (!tmpl) return;
         let options: any = { prompt: "Enter a name for your new project", placeHolder: "gauge-tests" };
-        const name = await window.showInputBox();
+        const name = await window.showInputBox(options);
         if (!name) return;
-        options = { canSelectFolders: true, openLabel: "Select a folder to create the project in" };
+        options = {
+            canSelectFolders: true,
+            openLabel: "Select a folder to create the project in",
+            canSelectMany: false
+        };
         const folders = await window.showOpenDialog(options);
-        if (!folders || folders.length !== 1) return;
         const projectFolderUri = Uri.file(path.join(folders[0].fsPath, name));
         if (fs.existsSync(projectFolderUri.fsPath)) {
             return this.handleError(null, `A folder named ${name} already exists in ${folders[0].fsPath}`);
@@ -66,7 +69,7 @@ export class ProjectInitializer extends Disposable {
         let options = { cwd: projectFolder.fsPath, env: process.env };
         p.report("Initializing project...");
         let proc = spawn(GaugeCommands.Gauge, args, options);
-        proc.addListener('err', p.cancle);
+        proc.addListener('err', p.cancel);
         proc.addListener('close', async () => await p.end(projectFolder));
     }
 
@@ -86,7 +89,7 @@ export class ProjectInitializer extends Disposable {
             res.on('data', (d) => fs.appendFileSync(tmpFilePath, d));
             res.on('end', async () => await this.extractZipAndCopyFiles(tmpFilePath, tmpDir, tmpl.label, destUri, p));
         });
-        req.on('error', (err) => p.cancle("Failed to download template. " + err.message));
+        req.on('error', (err) => p.cancel("Failed to download template. " + err.message));
     }
 
     private async extractZipAndCopyFiles(zip, tmpDir, tmpl: string, destUri: Uri, p: ProgressHandler) {
@@ -98,7 +101,7 @@ export class ProjectInitializer extends Disposable {
             this.runPostInstall(destUri.fsPath, p);
             p.end(destUri);
         } catch (err) {
-            p.cancle(err);
+            p.cancel(err);
             return this.handleError(p, err);
         }
     }
@@ -121,7 +124,7 @@ export class ProjectInitializer extends Disposable {
     }
 
     private handleError(p: ProgressHandler, err: string) {
-        if (p) p.cancle(err);
+        if (p) p.cancel(err);
         return window.showErrorMessage("Failed to create project. " + err);
     }
 }
@@ -146,7 +149,7 @@ class ProgressHandler {
         commands.executeCommand(VSCodeCommands.OpenFolder, uri, !!workspace.workspaceFolders);
     }
 
-    cancle(message: string | Buffer) {
+    cancel(message: string | Buffer) {
         this.reject(message.toString());
     }
 }
