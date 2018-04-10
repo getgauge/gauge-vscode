@@ -13,14 +13,14 @@ export class ConfigProvider extends Disposable {
         super(() => this.dispose());
 
         this._disposable = commands.registerCommand(GaugeVSCodeCommands.SaveRecommendedSettings,
-            () => this.saveAndReload());
+            () => this.applyAndReload());
 
         if (!this.verify()) {
             window.showInformationMessage("Gauge [recommends](https://docs.gauge.org/using.html#id31) " +
-                "some settings for best experience with Visual Studio Code.", "Save & Reload", "Ignore")
+                "some settings for best experience with Visual Studio Code.", "Apply & Reload", "Ignore")
             .then((option) => {
-                if (option === "Save & Reload") {
-                    return this.saveAndReload();
+                if (option === "Apply & Reload") {
+                    return this.applyAndReload();
                 }
             });
         }
@@ -37,7 +37,7 @@ export class ConfigProvider extends Disposable {
         return true;
     }
 
-    private saveAndReload(): Thenable<any> {
+    private applyAndReload(): Thenable<any> {
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
                 workspace.getConfiguration().update(key, this.recommendedSettings[key], ConfigurationTarget.Global);
