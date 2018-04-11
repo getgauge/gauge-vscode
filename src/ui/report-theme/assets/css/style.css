@@ -130,12 +130,12 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
     display: none;
 }
 
-.specItemsContainer, .concept-steps {
+.scenario-details, .concept-steps {
     transition: visibility 0.3s;
     transition: max-height 0.3s;
 }
 
-.specItemsContainer.collapsed, .concept-steps.collapsed {
+.scenario-details.collapsed, .concept-steps.collapsed {
     visibility: hidden;
     max-height: 0;
 }
@@ -245,13 +245,22 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
 }
 
 .spec-head-wrapper{
-    cursor: pointer;
     padding-left: 10px;
+}
+
+h3 {
+    user-select: none;
 }
 
 h3.spec-head:before {
     content: "#";
     margin-right: 5px;
+}
+
+.scenario-head {
+    padding-bottom: 0.3em;
+    padding-left: 0.1em;
+    cursor: pointer;
 }
 
 .spec-head-wrapper.fail, .scenario-head.fail {
