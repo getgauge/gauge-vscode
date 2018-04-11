@@ -15,13 +15,13 @@
 /* The overview section of the report. Contains execution result statistics.
    Clicking on the pie chart causes the specs in sidebar to be filtered by the status. */
 {{define "reportOverviewTag"}}
-  <div class="report-overview {{if gt .Summary.Failed 0}}failed{{else if gt .Summary.Passed 0}}passed{{else}}skipped{{end}}">
+  <div class="report-overview {{if gt .ScenarioSummary.Failed 0}}failed{{else if gt .ScenarioSummary.Passed 0}}passed{{else}}skipped{{end}}">
     <ul>
-      <li><span class="value">{{.Summary.Failed}}</span><span class="txt">Failed</span></li>
+      <li><span class="value">{{.ScenarioSummary.Passed}}</span><span class="txt">Passed</span></li>
       <span class="sep"></span>
-      <li><span class="value">{{.Summary.Passed}}</span><span class="txt">Passed</span></li>
+      <li><span class="value">{{.ScenarioSummary.Failed}}</span><span class="txt">Failed</span></li>
       <span class="sep"></span>
-      <li><span class="value">{{.Summary.Skipped}}</span><span class="txt">Skipped</span></li>
+      <li><span class="value">{{.ScenarioSummary.Skipped}}</span><span class="txt">Skipped</span></li>
     </ul>
     <div class="actions">
       <a class="btn" href="#" id="collapse-all">Collapse All</a>
