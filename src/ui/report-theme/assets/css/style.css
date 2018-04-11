@@ -325,6 +325,15 @@ h3.spec-head:before {
     padding: 0;
 }
 
+.scenario-container .error-container {
+    padding-left: 3em;
+    padding-top: 1em;
+}
+
+.scenario-container h4, .scenario-container h4 pre {
+    margin: 0;
+}
+
 .scenario-container .not-executed .step {
     color: #a1a1a1;
 }
@@ -358,7 +367,7 @@ div.step {
     color: var(--pass-color);
 }
 
-.step .failed {
+.step .failed, .error-container.failed {
     color: var(--failure-color);
 }
 
