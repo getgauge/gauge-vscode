@@ -72,7 +72,7 @@ blockquote {
 }
 
 .report-overview .actions a{
-    color: var(--background-color);
+    color: var(--color);
     text-decoration: none;
     border: 0.5px solid;
     padding: 1px 2px;
@@ -241,7 +241,7 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
 .spec-head {
     margin: 10px 20px 10px 0;
     display: inline-block;
-    font-size: 1.2rem;
+    font-size: 14px;
 }
 
 .spec-head-wrapper{
@@ -260,13 +260,13 @@ h3.spec-head:before {
 
 .spec-head-wrapper:before, .scenario-head:before, .row-selector td.status {
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 14px;
     margin-right: 2px;
     border-radius: 50%;
     border: 1px dashed;
     text-align: center;
     display: inline-block;
-    width: 1.5rem;
+    width: 18px;
 }
 
 .spec-head-wrapper.fail:before, .scenario-head.fail:before, .row-selector.failed td.status:before {
@@ -329,9 +329,15 @@ h3.spec-head:before {
     color: #a1a1a1;
 }
 
+.scenario-container .skip-reason {
+    padding-left: 3em;
+    font-style: italic;
+}
+
 .scenario-head .head {
     margin: 0;
     display: inline-block;
+    font-size: 14px;
 }
 
 .scenario-head h3:before {
@@ -468,29 +474,84 @@ div.step {
 
 .message-container {
     display: flex;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
-.message-container i {
-    cursor: pointer;
+.gauge-message {
+    font-size: 12px;
+    font-style: normal;
+    width: 100%;
+    color: var(--color);
+    opacity: 0.8;
+}
+
+.gauge-message:hover:after {
+    font-style: italic;
+    font-size: 0.8rem;
+    padding-left: 2rem;
+    margin-top: 1rem;
+    opacity: 0.5;
+}
+
+.gauge-message:hover {
+    background-color: var(--hover-background);
+}
+
+.before-suite .gauge-message:hover:after{
+    content: "Before Suite Messages";
+}
+
+.after-suite .gauge-message:hover:after{
+    content: "After Suite Messages";
+}
+
+.before-spec .gauge-message:hover:after{
+    content: "Before Spec Messages";
+}
+
+.after-spec .gauge-message:hover:after{
+    content: "After Spec Messages";
+}
+
+.before-scenario .gauge-message:hover:after{
+    content: "Before Scenario Messages";
+}
+
+.after-scenario .gauge-message:hover:after{
+    content: "After Scenario Messages";
+}
+
+.before-step .gauge-message:hover:after{
+    content: "Before Step Messages";
+}
+
+.after-step .gauge-message:hover:after{
+    content: "After Step Messages";
+}
+
+.before-step, .after-step {
+    padding-left: 1.6em;
+}
+
+.before-scenario, .after-scenario {
+    padding-left: 3em;
+}
+
+.before-spec, .after-spec {
+    padding-left: 3.6em;
+}
+
+.before-suite, .after-suite {
+    padding-left: 1em;
 }
 
 .message-container .messages{
     display: block;
-    margin-left: 5px;
-    font-family:  Courier New;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    color: var(--color);
+    border-left: 3px solid var(--color);
 }
 
 .message-container .messages .step-message{
     padding: 0px 0px 0px 10px;
-}
-
-.message-container .messages .step-message p:before{
-    content: "$";
-    padding-right: 5px;
-    font-weight: bold;
-}
-
-.step .message-container {
-    margin-top: 5px;
 }
