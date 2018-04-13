@@ -68,11 +68,10 @@
 
 /* Prints out the messages that the user may have introduces using teh Gauge.WriteMessage API */
 {{define "messageDiv"}}
-  {{if .Messages}}
-    <div class="message-container">
-      <i class="fa fa-minus-square" aria-hidden="true"></i>
+  {{if .}}
+    <div class="message-container gauge-message">
       <div class="messages">
-        {{range .Messages}}<div class="step-message">{{. | encodeNewLine | parseMarkdown | sanitize}} </div>{{end}}
+        {{range .}}<div class="step-message">{{. | encodeNewLine | parseMarkdown | sanitize}} </div>{{end}}
       </div>
     </div>
   {{end}}
@@ -81,7 +80,7 @@
 /* Lists reason(s) for a spec being skipped in an execution */
 {{define "skippedReasonDiv"}}
   <div class="message-container">
-    <h4 class="skipReason">Skipped Reason: {{.SkippedReason | escapeHTML }}</h4>
+    <h4 class="skip-reason">Skipped Reason: {{.SkippedReason | escapeHTML }}</h4>
   </div>
 {{end}}
 
@@ -268,6 +267,11 @@
 {{define "step"}}
   {{template "stepStartDiv" .}}
   {{template "stepBodyDiv" .}}
+  {{if .PreHookMessages}}
+    <div class="before-step">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
   {{if .BeforeStepHookFailure}}
     {{ template "hookFailureDiv" .BeforeStepHookFailure }}
   {{end}}
@@ -279,7 +283,11 @@
   {{if .AfterStepHookFailure}}
     {{ template "hookFailureDiv" .AfterStepHookFailure }}
   {{end}}
-	{{template "messageDiv" .Result}}
+  {{if .PostHookMessages}}
+    <div class="after-step">
+    {{template "messageDiv" .PostHookMessages}}
+    </div>
+  {{end}}
 	</li></ul></div></div>
   {{with .Result}}
     {{if (and (eq .Status "skip") (ne .SkippedReason "")) }}
@@ -315,6 +323,11 @@
 	{{template "scenarioHeaderStartDiv" .}}
 	</div>
   <div class='scenario-details {{if ne .ExecutionStatus "fail"}}collapsed{{end}}'>
+  {{if .PreHookMessages}}
+    <div class="before-scenario">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
 	{{if .BeforeScenarioHookFailure}}
 		{{template "hookFailureDiv" .BeforeScenarioHookFailure}}
 	{{end}}
@@ -333,6 +346,11 @@
     </div>
   {{end}}
 
+  {{if .PostHookMessages}}
+    <div class="after-scenario">
+    {{template "messageDiv" .PostHookMessages}}
+    </div>
+  {{end}}
 	{{if .AfterScenarioHookFailure }}
 		{{template "hookFailureDiv" .AfterScenarioHookFailure}}
 	{{end}}
@@ -350,6 +368,11 @@
 		{{template "specErrorDiv" .}}
 		</div>
 	{{else}}
+    {{if .PreHookMessages}}
+      <div class="before-spec">
+      {{template "messageDiv" .PreHookMessages}}
+      </div>
+    {{end}}
     {{range $index, $beforeHook := .BeforeSpecHookFailures}}
       {{template "hookFailureDiv" $beforeHook}}
     {{end}}
@@ -361,11 +384,16 @@
       {{end}}
 
     </div>
-    </div>
 
+    {{if .PostHookMessages}}
+      <div class="after-spec">
+      {{template "messageDiv" .PostHookMessages}}
+      </div>
+    {{end}}
     {{range $index, $afterHook := .AfterSpecHookFailures}}
       {{template "hookFailureDiv" $afterHook}}
     {{end}}
+    </div>
     </div>
   {{end}}
 {{end}}
@@ -387,6 +415,11 @@
 	{{$overview := (toOverview . "")}}
 	{{template "htmlPageStartTag" $overview}}
 	{{template "reportOverviewTag" $overview}}
+  {{if .PreHookMessages}}
+    <div class="before-suite">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
 	{{if .BeforeSuiteHookFailure}}
     {{template "hookFailureDiv" .BeforeSuiteHookFailure}}
   {{end}}
@@ -398,6 +431,11 @@
     {{range $index, $sr := .SpecResults}}
       {{template "spec"  $sr}}
     {{end}}
+    </div>
+  {{end}}
+  {{if .PostHookMessages}}
+    <div class="after-suite">
+    {{template "messageDiv" .PostHookMessages}}
     </div>
   {{end}}
  	</div>
