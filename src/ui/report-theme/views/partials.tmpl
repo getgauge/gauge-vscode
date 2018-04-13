@@ -33,11 +33,12 @@
 /* Container to display errors in Execution hooks. Execution hooks can be at Suite/Spec or Scenario level */
 {{define "hookFailureDiv"}}
   <div class="error-container failed{{if gt .TableRowIndex 0}} hidden{{end}}"{{if ne .TableRowIndex -1}} data-tablerow='{{.TableRowIndex}}'{{end}}>
-    <div class="error-heading">{{.HookName}} Failed:<span class="error-message"> {{.ErrMsg | escapeHTML | encodeNewLine}}</span></div>
-    <div class="toggle-show">
-      [Show details]
+    <div class="error-heading">
+      <h4 class="error-message">
+        {{.HookName}} Failed:<pre>{{.ErrMsg | escapeHTML | encodeNewLine}}</pre>
+      </h4>
     </div>
-    <div class="exception-container hidden">
+    <div class="exception-container">
         <div class="exception">
           <pre class="stacktrace">{{.StackTrace | escapeHTML | encodeNewLine}}</pre>
         </div>
@@ -68,11 +69,10 @@
 
 /* Prints out the messages that the user may have introduces using teh Gauge.WriteMessage API */
 {{define "messageDiv"}}
-  {{if .Messages}}
-    <div class="message-container">
-      <i class="fa fa-minus-square" aria-hidden="true"></i>
+  {{if .}}
+    <div class="message-container gauge-message">
       <div class="messages">
-        {{range .Messages}}<div class="step-message">{{. | encodeNewLine | parseMarkdown | sanitize}} </div>{{end}}
+        {{range .}}<div class="step-message">{{. | encodeNewLine | parseMarkdown | sanitize}} </div>{{end}}
       </div>
     </div>
   {{end}}
@@ -81,7 +81,7 @@
 /* Lists reason(s) for a spec being skipped in an execution */
 {{define "skippedReasonDiv"}}
   <div class="message-container">
-    <h4 class="skipReason">Skipped Reason: {{.SkippedReason | escapeHTML }}</h4>
+    <h4 class="skip-reason">Skipped Reason: {{.SkippedReason | escapeHTML }}</h4>
   </div>
 {{end}}
 
@@ -89,7 +89,7 @@
 {{define "specHeaderStartTag"}}
   <div class="details">
     <header>
-      <div class="collapsible spec-head-wrapper {{if eq .Summary.Failed 0}}collapsed{{end}} {{if gt .Summary.Failed 0}}fail{{else if gt .Summary.Passed 0}}pass{{else}}skip{{end}}">
+      <div class="spec-head-wrapper {{if gt .Summary.Failed 0}}fail{{else if gt .Summary.Passed 0}}pass{{else}}skip{{end}}">
         <h3 class="spec-head" title="{{.FileName}}">{{.SpecName | escapeHTML }}</h3>
       </div>
 {{end}}
@@ -104,7 +104,7 @@
 
 /* Container for Scenario Header, holds the execution time of scenario */
 {{define "scenarioHeaderStartDiv"}}
-  <div class="scenario-head {{.ExecutionStatus}}">
+  <div class="collapsible scenario-head {{.ExecutionStatus}} {{if ne .ExecutionStatus "fail"}}collapsed{{end}}">
     <h3 class="head borderBottom">{{.Heading | escapeHTML }}</h3>
 {{end}}
 
@@ -209,35 +209,40 @@
 {{define "htmlPageEndWithJS"}}
     <script>
       (() => {
-        let specs = document.getElementsByClassName("spec-head-wrapper");
-        let parent = (s) => s.parentNode.parentNode.getElementsByClassName('specItemsContainer')[0];
+        let scenarios = document.getElementsByClassName("scenario-head");
+        let parent = (s) => s.parentNode.getElementsByClassName('scenario-details')[0];
         let forEach = (a, fn) => Array.prototype.forEach.call(a, fn);
-        forEach(specs, (s) => {
-          s.addEventListener('click', () => {
+        forEach(scenarios, (s) => {
+          s.addEventListener('click', (e) => {
+            e.preventDefault();
             s.classList.toggle('collapsed');
             parent(s).classList.toggle('collapsed');
           });
         });
         forEach(document.getElementsByClassName('concept'), (c) => {
-          c.addEventListener('click', () => {
+          c.addEventListener('click', (e) => {
+            e.preventDefault();
             c.classList.toggle('collapsed');
             forEach(c.parentNode.getElementsByClassName('concept-steps'), (cs) => cs.classList.toggle('collapsed'));
           });
         });
-        document.getElementById('expand-all').addEventListener('click', () => {
-          forEach(document.getElementsByClassName("spec-head-wrapper"), (s) => {
+        document.getElementById('expand-all').addEventListener('click', (e) => {
+          e.preventDefault();
+          forEach(document.getElementsByClassName("scenario-head"), (s) => {
             s.classList.remove('collapsed');
             parent(s).classList.remove('collapsed');
           });
         });
-        document.getElementById('collapse-all').addEventListener('click', () => {
-          forEach(document.getElementsByClassName("spec-head-wrapper"), (s) => {
+        document.getElementById('collapse-all').addEventListener('click', (e) => {
+          e.preventDefault();
+          forEach(document.getElementsByClassName("scenario-head"), (s) => {
             s.classList.add('collapsed');
             parent(s).classList.add('collapsed');
           });
         });
         forEach(document.getElementsByClassName('specItemsContainer'), (s) => {
-          forEach(s.getElementsByClassName('row-selector'), (tr) => tr.addEventListener('click', () =>{
+          forEach(s.getElementsByClassName('row-selector'), (tr) => tr.addEventListener('click', (e) =>{
+            e.preventDefault();
             forEach(s.getElementsByClassName('row-selector'), (tr) => tr.classList.remove('selected'));
             tr.classList.add('selected');
             let scenarios = s.getElementsByClassName('scenario-container');
@@ -263,6 +268,11 @@
 {{define "step"}}
   {{template "stepStartDiv" .}}
   {{template "stepBodyDiv" .}}
+  {{if .PreHookMessages}}
+    <div class="before-step">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
   {{if .BeforeStepHookFailure}}
     {{ template "hookFailureDiv" .BeforeStepHookFailure }}
   {{end}}
@@ -274,7 +284,11 @@
   {{if .AfterStepHookFailure}}
     {{ template "hookFailureDiv" .AfterStepHookFailure }}
   {{end}}
-	{{template "messageDiv" .Result}}
+  {{if .PostHookMessages}}
+    <div class="after-step">
+    {{template "messageDiv" .PostHookMessages}}
+    </div>
+  {{end}}
 	</li></ul></div></div>
   {{with .Result}}
     {{if (and (eq .Status "skip") (ne .SkippedReason "")) }}
@@ -309,6 +323,12 @@
 	{{template "scenarioContainerStartDiv" .}}
 	{{template "scenarioHeaderStartDiv" .}}
 	</div>
+  <div class='scenario-details {{if ne .ExecutionStatus "fail"}}collapsed{{end}}'>
+  {{if .PreHookMessages}}
+    <div class="before-scenario">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
 	{{if .BeforeScenarioHookFailure}}
 		{{template "hookFailureDiv" .BeforeScenarioHookFailure}}
 	{{end}}
@@ -327,10 +347,16 @@
     </div>
   {{end}}
 
+  {{if .PostHookMessages}}
+    <div class="after-scenario">
+    {{template "messageDiv" .PostHookMessages}}
+    </div>
+  {{end}}
 	{{if .AfterScenarioHookFailure }}
 		{{template "hookFailureDiv" .AfterScenarioHookFailure}}
 	{{end}}
 	</div>
+  </div>
 {{end}}
 
 /* container for a specification */
@@ -338,11 +364,16 @@
   {{$specHeader := toSpecHeader .}}
 	{{template "specHeaderStartTag" $specHeader}}
 	</header>
-	<div class="specItemsContainer {{if ne .ExecutionStatus "fail"}}collapsed{{end}}">
+	<div class="specItemsContainer">
 	{{if containsParseErrors .Errors}}
 		{{template "specErrorDiv" .}}
 		</div>
 	{{else}}
+    {{if .PreHookMessages}}
+      <div class="before-spec">
+      {{template "messageDiv" .PreHookMessages}}
+      </div>
+    {{end}}
     {{range $index, $beforeHook := .BeforeSpecHookFailures}}
       {{template "hookFailureDiv" $beforeHook}}
     {{end}}
@@ -354,11 +385,16 @@
       {{end}}
 
     </div>
-    </div>
 
+    {{if .PostHookMessages}}
+      <div class="after-spec">
+      {{template "messageDiv" .PostHookMessages}}
+      </div>
+    {{end}}
     {{range $index, $afterHook := .AfterSpecHookFailures}}
       {{template "hookFailureDiv" $afterHook}}
     {{end}}
+    </div>
     </div>
   {{end}}
 {{end}}
@@ -380,6 +416,11 @@
 	{{$overview := (toOverview . "")}}
 	{{template "htmlPageStartTag" $overview}}
 	{{template "reportOverviewTag" $overview}}
+  {{if .PreHookMessages}}
+    <div class="before-suite">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
 	{{if .BeforeSuiteHookFailure}}
     {{template "hookFailureDiv" .BeforeSuiteHookFailure}}
   {{end}}
@@ -391,6 +432,11 @@
     {{range $index, $sr := .SpecResults}}
       {{template "spec"  $sr}}
     {{end}}
+    </div>
+  {{end}}
+  {{if .PostHookMessages}}
+    <div class="after-suite">
+    {{template "messageDiv" .PostHookMessages}}
     </div>
   {{end}}
  	</div>

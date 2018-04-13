@@ -17,6 +17,7 @@ import { GaugeWorkspace } from './gaugeWorkspace';
 import { GaugeState } from './gaugeState';
 import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
+import { ConfigProvider } from './config/configProvider';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
@@ -45,7 +46,8 @@ export function activate(context: ExtensionContext) {
             reportIssue(versionInfo);
         }),
         new ReferenceProvider(clients),
-        new GenerateStubCommandProvider(clients)
+        new GenerateStubCommandProvider(clients),
+        new ConfigProvider(context)
     );
 }
 
