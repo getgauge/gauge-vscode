@@ -72,6 +72,10 @@
 		.intro{
 			font-size: 0.8em;
 		}
+		a.read-more {
+			font-size: small;
+			margin-left: 1em;
+		}
 		a {
 			outline: none;
 			text-decoration: none;
@@ -166,7 +170,7 @@
 			border:0.5px dashed red;
 		}
 		.link {
-			color: #66b6eb;
+			color: #66b6eb !important;
 		}
 		.command pre {
 			width: 90%;
@@ -253,10 +257,24 @@
 					<span>
 						<div>Open User Settings</div>
 						<span class="detail" title="Find and customize all Gauge settings">
-							Search for <pre>gauge</pre> and edit settings.
+							Search for <code>gauge</code> and edit settings.
 						</span>
 					</span>
 				</a>
+			</li>
+		</ul>
+		<ul>
+			<li>
+				<a class="action" href="command:gauge.config.saveRecommended">
+					<i class="fas fa-check-circle"></i>
+					<span>
+						<div>Apply Recommended Settings</div>
+						<span class="detail" title="Optimize VS Code configuration for Gauge">
+							Gauge recommends some settings for best experience with Visual Studio Code. Reloads current window.
+						</span>
+					</span>
+				</a>
+				<a class="read-more link" href='https://docs.gauge.org/using.html#id31'>Read more.</a>
 			</li>
 		</ul>
 	</section>
@@ -269,7 +287,7 @@
 					<span>
 						<div>Find and run all Gauge commands</div>
 						<span class="detail" title="Find and access Gauge commands from the Command Palette">
-							Search for <pre>gauge</pre> in the Command Pallette.
+							Search for <code>gauge</code> in the Command Pallette.
 						</span>
 					</span>
 				</a>
