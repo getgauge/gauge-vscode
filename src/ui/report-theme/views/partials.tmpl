@@ -88,7 +88,7 @@
 {{define "specHeaderStartTag"}}
   <div class="details">
     <header>
-      <div class="collapsible spec-head-wrapper {{if eq .Summary.Failed 0}}collapsed{{end}} {{if gt .Summary.Failed 0}}fail{{else if gt .Summary.Passed 0}}pass{{else}}skip{{end}}">
+      <div class="spec-head-wrapper {{if gt .Summary.Failed 0}}fail{{else if gt .Summary.Passed 0}}pass{{else}}skip{{end}}">
         <h3 class="spec-head" title="{{.FileName}}">{{.SpecName | escapeHTML }}</h3>
       </div>
 {{end}}
@@ -103,7 +103,7 @@
 
 /* Container for Scenario Header, holds the execution time of scenario */
 {{define "scenarioHeaderStartDiv"}}
-  <div class="scenario-head {{.ExecutionStatus}}">
+  <div class="collapsible scenario-head {{.ExecutionStatus}} {{if ne .ExecutionStatus "fail"}}collapsed{{end}}">
     <h3 class="head borderBottom">{{.Heading | escapeHTML }}</h3>
 {{end}}
 
@@ -208,35 +208,40 @@
 {{define "htmlPageEndWithJS"}}
     <script>
       (() => {
-        let specs = document.getElementsByClassName("spec-head-wrapper");
-        let parent = (s) => s.parentNode.parentNode.getElementsByClassName('specItemsContainer')[0];
+        let scenarios = document.getElementsByClassName("scenario-head");
+        let parent = (s) => s.parentNode.getElementsByClassName('scenario-details')[0];
         let forEach = (a, fn) => Array.prototype.forEach.call(a, fn);
-        forEach(specs, (s) => {
-          s.addEventListener('click', () => {
+        forEach(scenarios, (s) => {
+          s.addEventListener('click', (e) => {
+            e.preventDefault();
             s.classList.toggle('collapsed');
             parent(s).classList.toggle('collapsed');
           });
         });
         forEach(document.getElementsByClassName('concept'), (c) => {
-          c.addEventListener('click', () => {
+          c.addEventListener('click', (e) => {
+            e.preventDefault();
             c.classList.toggle('collapsed');
             forEach(c.parentNode.getElementsByClassName('concept-steps'), (cs) => cs.classList.toggle('collapsed'));
           });
         });
-        document.getElementById('expand-all').addEventListener('click', () => {
-          forEach(document.getElementsByClassName("spec-head-wrapper"), (s) => {
+        document.getElementById('expand-all').addEventListener('click', (e) => {
+          e.preventDefault();
+          forEach(document.getElementsByClassName("scenario-head"), (s) => {
             s.classList.remove('collapsed');
             parent(s).classList.remove('collapsed');
           });
         });
-        document.getElementById('collapse-all').addEventListener('click', () => {
-          forEach(document.getElementsByClassName("spec-head-wrapper"), (s) => {
+        document.getElementById('collapse-all').addEventListener('click', (e) => {
+          e.preventDefault();
+          forEach(document.getElementsByClassName("scenario-head"), (s) => {
             s.classList.add('collapsed');
             parent(s).classList.add('collapsed');
           });
         });
         forEach(document.getElementsByClassName('specItemsContainer'), (s) => {
-          forEach(s.getElementsByClassName('row-selector'), (tr) => tr.addEventListener('click', () =>{
+          forEach(s.getElementsByClassName('row-selector'), (tr) => tr.addEventListener('click', (e) =>{
+            e.preventDefault();
             forEach(s.getElementsByClassName('row-selector'), (tr) => tr.classList.remove('selected'));
             tr.classList.add('selected');
             let scenarios = s.getElementsByClassName('scenario-container');
@@ -317,6 +322,7 @@
 	{{template "scenarioContainerStartDiv" .}}
 	{{template "scenarioHeaderStartDiv" .}}
 	</div>
+  <div class='scenario-details {{if ne .ExecutionStatus "fail"}}collapsed{{end}}'>
   {{if .PreHookMessages}}
     <div class="before-scenario">
     {{template "messageDiv" .PreHookMessages}}
@@ -349,6 +355,7 @@
 		{{template "hookFailureDiv" .AfterScenarioHookFailure}}
 	{{end}}
 	</div>
+  </div>
 {{end}}
 
 /* container for a specification */
@@ -356,7 +363,7 @@
   {{$specHeader := toSpecHeader .}}
 	{{template "specHeaderStartTag" $specHeader}}
 	</header>
-	<div class="specItemsContainer {{if ne .ExecutionStatus "fail"}}collapsed{{end}}">
+	<div class="specItemsContainer">
 	{{if containsParseErrors .Errors}}
 		{{template "specErrorDiv" .}}
 		</div>
