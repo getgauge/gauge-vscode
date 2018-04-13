@@ -7,6 +7,7 @@ export enum VSCodeCommands {
     SetContext = 'setContext',
     ShowReferences = 'editor.action.showReferences',
     Preview = 'vscode.previewHtml',
+    OpenFolder = 'vscode.openFolder',
     ReloadWindow = 'workbench.action.reloadWindow'
 }
 
@@ -34,7 +35,8 @@ export enum GaugeVSCodeCommands {
     RepeatExecution = 'gauge.execute.repeat',
     SwitchProject = 'gauge.specexplorer.switchProject',
     ExtractConcept = 'gauge.extract.concept',
-    ExecuteInTerminal = "gauge.executeIn.terminal"
+    ExecuteInTerminal = "gauge.executeIn.terminal",
+    CreateProject = "gauge.createProject",
 }
 
 export enum GaugeCommands {
@@ -47,6 +49,7 @@ export enum GaugeCommands {
     RerunFailed = '--failed',
     Repeat = '--repeat',
     HideSuggestion = '--hide-suggestion',
+    Init = 'init',
 }
 
 export enum GaugeCommandContext {
@@ -69,8 +72,9 @@ export enum GaugeRequests {
 }
 
 export const LAST_REPORT_PATH = 'gauge.execution.report';
-
 export const WELCOME_PAGE_URI = "gauge://global/welcome";
 export const REPORT_URI = "gauge://workspace/htmlreport";
 export const COPY_TO_CLIPBOARD = 'Copy To Clipboard';
 export const NEW_FILE = 'New File';
+export const GAUGE_TEMPLATE_URL = 'https://downloads.gauge.org/templates';
+export const GAUGE_MANIFEST_FILE = 'manifest.json';

@@ -1,19 +1,22 @@
 'use strict';
+import * as path from 'path';
 
 import {
     workspace, ExtensionContext, Uri, extensions, Position,
-     commands,  window, CancellationTokenSource, version, languages,
+    commands, window, CancellationTokenSource, version, languages,
 } from 'vscode';
 
 import opn = require('opn');
-import { GaugeExecutor} from "./execution/gaugeExecutor";
-import { VSCodeCommands, GaugeVSCodeCommands } from './constants';
+import { existsSync } from 'fs';
+import { GaugeExecutor } from "./execution/gaugeExecutor";
+import { VSCodeCommands, GaugeVSCodeCommands, GAUGE_MANIFEST_FILE } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
-import { GenerateStubCommandProvider} from './annotator/generateStub';
+import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { GaugeWorkspace } from './gaugeWorkspace';
 import { GaugeState } from './gaugeState';
 import { ReferenceProvider } from './gaugeReference';
+import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
@@ -23,13 +26,14 @@ const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
     let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
-    let gaugeVersionInfo = getGaugeVersionInfo();
-    if (!gaugeVersionInfo || !gaugeVersionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
-        return;
-    }
-    languages.setLanguageConfiguration('gauge', {
-        wordPattern: /^(?:[*])([^*].*)$/g
-    });
+    let versionInfo = getGaugeVersionInfo();
+    let folders = workspace.workspaceFolders;
+    context.subscriptions.push(new ProjectInitializer(!!versionInfo));
+
+    if (!folders || !folders.some((folder) => existsSync(path.join(folder.uri.fsPath, GAUGE_MANIFEST_FILE)))) return;
+    if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
+
+    languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
 
     let gaugeWorkspace = new GaugeWorkspace(new GaugeState(context));
 
@@ -39,7 +43,7 @@ export function activate(context: ExtensionContext) {
         new PageProvider(context, hasUpgraded),
         gaugeWorkspace,
         commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => {
-            reportIssue(gaugeVersionInfo);
+            reportIssue(versionInfo);
         }),
         new ReferenceProvider(clients),
         new GenerateStubCommandProvider(clients),
