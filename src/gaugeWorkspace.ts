@@ -1,15 +1,15 @@
-import { LanguageClient, DynamicFeature, RevealOutputChannelOn } from "vscode-languageclient";
+import * as path from 'path';
 import {
-    Disposable, workspace, WorkspaceFolder, WorkspaceFoldersChangeEvent, Uri,
-    CancellationTokenSource, OutputChannel, window, WorkspaceConfiguration, commands, ExtensionContext
+    CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration,
+    WorkspaceFolder, WorkspaceFoldersChangeEvent, commands, window, workspace
 } from "vscode";
-import { GaugeCommandContext, setCommandContext, GaugeVSCodeCommands } from "./constants";
+import { DynamicFeature, LanguageClient, RevealOutputChannelOn } from "vscode-languageclient";
+import { GaugeCommandContext, setCommandContext } from "./constants";
+import { GaugeExecutor } from "./execution/gaugeExecutor";
+import { SpecNodeProvider } from "./explorer/specExplorer";
+import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import fs = require('fs');
-import * as path from 'path';
-import { SpecNodeProvider } from "./explorer/specExplorer";
-import { GaugeExecutor } from "./execution/gaugeExecutor";
-import { GaugeState } from "./gaugeState";
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -161,11 +161,12 @@ export class GaugeWorkspace extends Disposable {
     }
 
     dispose(): Thenable<void> {
-        this._disposable.dispose();
         let promises: Thenable<void>[] = [];
         for (let client of this._clients.values()) {
             promises.push(client.stop());
         }
-        return Promise.all(promises).then(() => undefined);
+        return Promise.all(promises).then((f) => {
+            this._disposable.dispose();
+        });
     }
 }
