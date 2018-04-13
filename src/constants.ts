@@ -6,10 +6,12 @@ export enum VSCodeCommands {
     Open = 'vscode.open',
     SetContext = 'setContext',
     ShowReferences = 'editor.action.showReferences',
-    Preview = 'vscode.previewHtml'
+    Preview = 'vscode.previewHtml',
+    ReloadWindow = 'workbench.action.reloadWindow'
 }
 
 export enum GaugeVSCodeCommands {
+    SaveRecommendedSettings = 'gauge.config.saveRecommended',
     ShowReport = 'gauge.report.html',
     Welcome = 'gauge.welcome',
     ToggleWelcome = 'gauge.welcome.toggle',
