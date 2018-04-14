@@ -60,23 +60,11 @@ blockquote {
     clear: both;
 }
 
-.actions a {
-    outline: 0;
-}
-
 .report-overview {
     display: grid;
-    grid-template-columns: auto 13rem;
+    grid-template-columns: auto 5rem;
     align-items: center;
     height: 2rem;
-}
-
-.report-overview .actions a{
-    color: var(--color);
-    text-decoration: none;
-    border: 0.5px solid;
-    padding: 1px 2px;
-    border-radius: 3px;
 }
 
 .report-overview ul{
@@ -84,8 +72,6 @@ blockquote {
     display: flex;
     margin: 0;
     font-family: monospace;
-    /* font-size: 1.25rem; */
-    align-items: center;
     padding-left: 10px;
 }
 
@@ -99,22 +85,33 @@ blockquote {
     margin: 10px 10px;
 }
 
-.report-overview {
-    opacity: 0.75;
-}
-
 body:not(.vscode-high-contrast) .report-overview.failed {
-    background-color: var(--failure-color);
+    border-top: 5px solid var(--failure-color);
 }
 
 body:not(.vscode-high-contrast) .report-overview.passed {
-    background-color: var(--pass-color);
-    color: var(--background-color);
+    border-top: 5px solid var(--pass-color);
 }
 
 body:not(.vscode-high-contrast) .report-overview.skipped {
-    background-color: var(--skip-color);
-    color: var(--background-color);
+    border-top: 5px solid var(--skip-color);
+}
+
+.chevron {
+    font-weight: bold;
+    font-size: 1.7em;
+    margin-left: 5px;
+    cursor: pointer;
+    padding:5px;
+}
+
+.chevron.up {
+    transform:rotate(-90deg);
+    to
+}
+
+.chevron.down {
+    transform:rotate(90deg);
 }
 
 .specifications:after {

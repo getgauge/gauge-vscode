@@ -16,16 +16,16 @@
    Clicking on the pie chart causes the specs in sidebar to be filtered by the status. */
 {{define "reportOverviewTag"}}
   <div class="report-overview {{if gt .ScenarioSummary.Failed 0}}failed{{else if gt .ScenarioSummary.Passed 0}}passed{{else}}skipped{{end}}">
-    <ul>
+    <ul class="status">
       <li><span class="value">{{.ScenarioSummary.Passed}}</span><span class="txt">Passed</span></li>
       <span class="sep"></span>
       <li><span class="value">{{.ScenarioSummary.Failed}}</span><span class="txt">Failed</span></li>
       <span class="sep"></span>
       <li><span class="value">{{.ScenarioSummary.Skipped}}</span><span class="txt">Skipped</span></li>
     </ul>
-    <div class="actions">
-      <a class="btn" href="#" id="collapse-all">Collapse All</a>
-      <a class="btn" href="#" id="expand-all">Expand All</a>
+    <ul class="actions">
+      <li id="collapse-all" class="chevron up" alt="collapse all scenarios" title="collapse all scenarios">&raquo;</li>
+      <li id="expand-all" class="chevron down" alt="expand all scenarios" title="expand all scenarios">&raquo;</li>
     </div>
   </div>
 {{end}}
