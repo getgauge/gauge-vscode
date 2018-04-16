@@ -9,6 +9,10 @@ let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 's
 suite('Gauge Execution Tests', () => {
     setup(async () => { await commands.executeCommand('workbench.action.closeAllEditors'); });
 
+    teardown(async () => {
+        await commands.executeCommand(GaugeVSCodeCommands.StopExecution);
+    });
+
     test('should execute given specification', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
         await window.showTextDocument(Uri.file(spec));
