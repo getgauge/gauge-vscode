@@ -29,4 +29,4 @@ install:
   - gauge install html-report
 script:
   - npm run build
-  - npm test --silent
+  - npm test
