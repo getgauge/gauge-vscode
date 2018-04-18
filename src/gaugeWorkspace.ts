@@ -1,3 +1,5 @@
+'use strict';
+
 import * as path from 'path';
 import {
     CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration, WorkspaceFolder,
@@ -9,6 +11,7 @@ import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
+import { isGaugeProject } from './util';
 
 import fs = require('fs');
 
@@ -39,6 +42,7 @@ export class GaugeWorkspace extends Disposable {
         this._specNodeProvider = new SpecNodeProvider(this);
         this._disposable = Disposable.from(
             this._specNodeProvider,
+            this._executor,
             this.onConfigurationChange()
         );
     }
@@ -101,9 +105,7 @@ export class GaugeWorkspace extends Disposable {
 
     private startServerFor(folder: WorkspaceFolder) {
         let folderPath = folder.uri.fsPath;
-        if (!fs.existsSync(path.join(folderPath, GAUGE_MANIFEST_FILE))) {
-            return;
-        }
+        if (!isGaugeProject(folder)) return;
         let serverOptions = {
             command: 'gauge',
             args: ["daemon", "--lsp", "--dir=" + folderPath],
@@ -126,7 +128,6 @@ export class GaugeWorkspace extends Disposable {
         this.registerDynamicFeatures(languageClient);
         this._clients.set(folderPath, languageClient);
         languageClient.start();
-
         languageClient.onReady().then(() => { this.setLanguageId(languageClient, folderPath); });
     }
 
