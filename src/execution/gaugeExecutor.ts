@@ -60,6 +60,9 @@ export class GaugeExecutor extends Disposable {
                     let lineText = chunk.toString();
                     chan.appendOutBuf(lineText);
                     if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
+                        if (lineText.indexOf("\n") >= 0) {
+                            lineText = lineText.split("\n")[0];
+                        }
                         let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
                         this.gaugeWorkspace.setReportPath(reportPath);
                     }
