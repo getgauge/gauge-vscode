@@ -61,9 +61,14 @@ export class WelcomePage extends Disposable implements Page {
         let rootPath = path.join('out', 'welcome');
         let root = Uri.file(this._context.asAbsolutePath(rootPath)).toString();
         let docPath = Uri.file(this._context.asAbsolutePath(path.join(rootPath, 'index.html')));
-        const doc = await workspace.openTextDocument(docPath);
-        let text =  doc.getText();
-        return new WelcomePageTokenReplace().replaceText(text, this.supressed(), root);
+        try {
+            const doc = await workspace.openTextDocument(docPath);
+            let text =  doc.getText();
+            return new WelcomePageTokenReplace().replaceText(text, this.supressed(), root);
+        } catch (error) {
+            console.log(error);
+            return Promise.reject(error);
+        }
     }
 
     dispose() {

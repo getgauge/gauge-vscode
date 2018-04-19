@@ -19,9 +19,15 @@ export class ReportPage extends Disposable implements Page {
 
     async content(): Promise<string> {
         let reportPath = this._context.workspaceState.get<string>(LAST_REPORT_PATH);
-        const doc = await workspace.openTextDocument(Uri.file(reportPath));
-        let text =  doc.getText();
-        return text.replace('type="text/css" href="', `type="text/css" href="${Uri.file(path.dirname(reportPath))}/`);
+        try {
+            const doc = await workspace.openTextDocument(Uri.file(reportPath));
+            let text =  doc.getText();
+            return text.replace('type="text/css" href="',
+                `type="text/css" href="${Uri.file(path.dirname(reportPath))}/`);
+        } catch (e) {
+            console.log(e);
+            return Promise.reject(e);
+        }
     }
 
     dispose() {
