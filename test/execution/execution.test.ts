@@ -69,7 +69,7 @@ suite('Gauge Execution Tests', () => {
                     "Expected one document to have last run report");
                 done();
             }, (e) => done(e));
-        });
+        }, (e) => done(e));
     });
 
     test('should reject execution when another is already in progress', async () => {
