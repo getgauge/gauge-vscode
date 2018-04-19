@@ -63,12 +63,13 @@ suite('Gauge Execution Tests', () => {
 
     test('should open reports inline after execution', async () => {
         await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
-        setTimeout(async () => {
+        const delay = (ms) => new Promise((_) => setTimeout(_, ms));
+        delay(1000).then(async () => {
             await commands.executeCommand(GaugeVSCodeCommands.ShowReport);
             assert.ok(workspace.textDocuments.some((d) =>
                 !d.isClosed && d.uri.toString() === REPORT_URI),
                 "Expected one document to have last run report");
-        }, 1000);
+        });
     });
 
     test('should reject execution when another is already in progress', async () => {
