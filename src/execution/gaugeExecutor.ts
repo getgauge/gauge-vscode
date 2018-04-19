@@ -50,6 +50,7 @@ export class GaugeExecutor extends Disposable {
             this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
             this.gaugeDebugger.addDebugEnv().then((env) => {
                 env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
+                env.use_nested_specs = "false";
                 let args = this.getArgs(spec, config);
                 let chan = new OutputChannel(this.outputChannel,
                     ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '),
@@ -59,6 +60,9 @@ export class GaugeExecutor extends Disposable {
                     let lineText = chunk.toString();
                     chan.appendOutBuf(lineText);
                     if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
+                        if (lineText.indexOf("\n") >= 0) {
+                            lineText = lineText.split("\n")[0];
+                        }
                         let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
                         this.gaugeWorkspace.setReportPath(reportPath);
                     }
