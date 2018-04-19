@@ -13,10 +13,7 @@ export class ReportPage extends Disposable implements Page {
         this._context = context;
         this._disposable = commands.registerCommand(GaugeVSCodeCommands.ShowReport, () => {
             return commands.executeCommand(VSCodeCommands.Preview,
-                REPORT_URI, ViewColumn.Active, 'Last Execution Report').then((success) => {
-            }, (reason) => {
-                window.showErrorMessage(reason);
-            });
+                REPORT_URI, ViewColumn.Active, 'Last Execution Report');
         });
     }
 
