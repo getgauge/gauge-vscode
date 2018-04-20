@@ -3,7 +3,6 @@ const webpack = require('webpack');
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = function(env, argv) {
     if (env === undefined) {
@@ -29,13 +28,7 @@ module.exports = function(env, argv) {
                 },
                 sourceMap: sourceMaps,
             }
-		}),
-		new CopyWebpackPlugin([
-			{
-                from: path.join("src", "ui"),
-                force: true
-            },
-		])
+		})
     ];
 
     return {
