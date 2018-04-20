@@ -1,6 +1,6 @@
-$env:GAUGE_PREFIX=C:\GAUGE
+$env:GAUGE_PREFIX="C:\GAUGE"
 
-mkdir C:\GAUGE
+mkdir $env:GAUGE_PREFIX
 
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/getgauge/infrastructure/master/nightly_scripts/install_latest_gauge_nightly.ps1" -OutFile install_latest_gauge_nightly.ps1
 .\install_latest_gauge_nightly.ps1
