@@ -1,2 +1,4 @@
+image: Visual Studio 2017
+
 build_script:
 - ps: docker run --rm --mount type=bind,source=${PWD},destination=c:\gauge-vscode\ -w="c:\gauge-vscode\" stefanscherer/node-windows:9 powershell run_test.ps1
