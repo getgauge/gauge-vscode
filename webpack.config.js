@@ -31,7 +31,11 @@ module.exports = function(env, argv) {
             }
 		}),
 		new CopyWebpackPlugin([
-			{from: "src/ui", to: path.resolve(__dirname, "out")},
+			{
+                from: path.resolve(__dirname,"src", "ui"),
+                to: path.resolve(__dirname, "out"),
+                force: true
+            },
 		])
     ];
 
