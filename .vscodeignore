@@ -21,5 +21,5 @@ package-lock.json
 webpack.config.js
 appveyor.yml
 *.ps1
-node_modules/**
+node_modules
 bin/**
