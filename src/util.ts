@@ -11,7 +11,7 @@ export function isGaugeProject(folder: WorkspaceFolder): boolean {
         try {
             const content = readFileSync(filePath);
             const data = JSON.parse(content.toString());
-            return !data.Language ? false : true;
+            return !!data.Language;
         } catch (e) {
             return false;
         }

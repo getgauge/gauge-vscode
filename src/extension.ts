@@ -30,9 +30,7 @@ export function activate(context: ExtensionContext) {
     let folders = workspace.workspaceFolders;
     context.subscriptions.push(new ProjectInitializer(!!versionInfo));
 
-    if (!folders || !folders.some((folder) => {
-        return isGaugeProject(folder);
-    })) return;
+    if (!folders || !folders.some(isGaugeProject)) return;
     if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
 
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
