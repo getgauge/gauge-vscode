@@ -29,7 +29,7 @@ export class ConfigProvider extends Disposable {
     private verify(): boolean {
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
-                if (workspace.getConfiguration().get(key) !== this.recommendedSettings[key]) {
+                if (workspace.getConfiguration().inspect(key).globalValue !== this.recommendedSettings[key]) {
                     return false;
                 }
             }
@@ -38,12 +38,14 @@ export class ConfigProvider extends Disposable {
     }
 
     private applyAndReload(): Thenable<any> {
+        let updatePromises = [];
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
-                workspace.getConfiguration().update(key, this.recommendedSettings[key], ConfigurationTarget.Global);
+                updatePromises.push(workspace.getConfiguration()
+                    .update(key, this.recommendedSettings[key], ConfigurationTarget.Global));
             }
         }
-        return commands.executeCommand(VSCodeCommands.ReloadWindow);
+        return Promise.all(updatePromises).then(() => commands.executeCommand(VSCodeCommands.ReloadWindow));
     }
 
     dispose() {
