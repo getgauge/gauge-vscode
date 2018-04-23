@@ -107,7 +107,6 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
 
 .chevron.up {
     transform:rotate(-90deg);
-    to
 }
 
 .chevron.down {
@@ -127,6 +126,15 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
     display: none;
 }
 
+.scenario-details {
+    margin-bottom: 0.5em;
+}
+
+div.step {
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
+}
+
 .scenario-details, .concept-steps {
     transition: visibility 0.3s;
     transition: max-height 0.3s;
@@ -141,6 +149,10 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
     display: none;
 }
 
+.details {
+    padding-left: 10px;
+}
+
 .details:after {
     content: "";
     display: table;
@@ -148,7 +160,6 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
 }
 
 .details .content {
-    padding: 0.5rem;
     font-size: 0.9rem;
 }
 
@@ -158,35 +169,18 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
     clear: both;
 }
 
-.details table {
-    border-collapse: collapse;
+.details .cell, .inline-table td, .inline-table th {
     border: 0.5px dashed #777;
-    border-bottom: 0;
-    border-right: 0;
-}
-
-.details table td, .details table th {
-    border-bottom: 0.5px dashed #777;
-    border-right: 0.5px dashed #777;
     padding: 5px 5px;
 }
 
 .details .data-table {
     border-collapse: collapse;
-    border: 0.5px dashed #777;
-    border-bottom: 0;
-    border-right: 0;
     margin-left: 2.5rem;
     margin-bottom: 1rem;
 }
 
-.data-table .no-border {
-    border-style: hidden;
-    border-right-style: dashed;
-}
-
 .details .data-table td {
-    color: #000000;
     padding: 0.2rem 0.5rem;
     cursor: pointer;
     opacity: 0.75;
@@ -208,19 +202,21 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
     opacity: 1;
 }
 
+.row-selector.selected td:first-child {
+    color: var(--color);
+
+}
+
+.row-selector:not(.selected) td:first-child {
+    visibility: hidden;
+}
+
 .data-table tr.selected td:nth-child(2) {
-    border-right: 4px solid #0085C9;
+    border-left: 2px solid #0085C9;
 }
 
 .data-table tr:hover td {
     opacity: 0.9;
-}
-
-.row-selector.selected:after {
-    content: "*";
-    height: 100%;
-    vertical-align: middle;
-    margin-left: 0.5rem;
 }
 
 .row-selector:not(.selected):hover:after {
@@ -241,10 +237,6 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
     font-size: 14px;
 }
 
-.spec-head-wrapper{
-    padding-left: 10px;
-}
-
 h3 {
     user-select: none;
 }
@@ -254,10 +246,8 @@ h3.spec-head:before {
     margin-right: 5px;
 }
 
-.scenario-head {
-    padding-bottom: 0.3em;
-    padding-left: 0.1em;
-    cursor: pointer;
+.spec-head i.status, .scenario-head i.status {
+    margin-left: 2rem;
 }
 
 .spec-head-wrapper.fail, .scenario-head.fail {
@@ -273,18 +263,6 @@ h3.spec-head:before {
     text-align: center;
     display: inline-block;
     width: 18px;
-}
-
-.spec-head-wrapper.fail:before, .scenario-head.fail:before, .row-selector.failed td.status:before {
-    content: "F";
-}
-
-.spec-head-wrapper.skip:before, .scenario-head.skip:before, .row-selector.skipped td.status:before {
-    content: "S";
-}
-
-.spec-head-wrapper.pass:before, .scenario-head.pass:before, .row-selector.passed td.status:before {
-    content: "P";
 }
 
 .spec-head-wrapper.pass, .scenario-head.pass {
@@ -331,10 +309,9 @@ h3.spec-head:before {
     padding: 0;
 }
 
-.scenario-container .error-container {
-    padding-left: 3em;
+/* .scenario-container .error-container {
     padding-top: 1em;
-}
+} */
 
 .scenario-container h4, .scenario-container h4 pre {
     margin: 0;
@@ -347,6 +324,10 @@ h3.spec-head:before {
 .scenario-container .skip-reason {
     padding-left: 3em;
     font-style: italic;
+}
+
+.scenario-head {
+    margin-bottom: 0.5em;
 }
 
 .scenario-head .head {
@@ -362,11 +343,7 @@ h3.spec-head:before {
 
 .step-txt:before{
     content: "*";
-    margin-right: 5px;
-}
-
-div.step {
-    margin-left: 2.5rem;
+    font-style: normal;
 }
 
 .step ul {
@@ -419,6 +396,10 @@ div.step {
     margin: 0.5rem 1rem;
 }
 
+.inline-table table {
+    border-collapse: collapse;
+}
+
 .exception-container {
     display: flex;
     flex-direction: column;
@@ -457,7 +438,9 @@ div.step {
 .error-container {
     font-size: 0.9rem;
     position: relative;
-    margin-left: 1rem;
+    margin-left: 1.2rem;
+    border-left: 2px solid;
+    padding-left: 0.5em
 }
 
 .toggle-show {

@@ -90,7 +90,11 @@
   <div class="details">
     <header>
       <div class="spec-head-wrapper {{if gt .Summary.Failed 0}}fail{{else if gt .Summary.Passed 0}}pass{{else}}skip{{end}}">
-        <h3 class="spec-head" title="{{.FileName}}">{{.SpecName | escapeHTML }}</h3>
+        <h3 class="spec-head" title="{{.FileName}}">{{.SpecName | escapeHTML }}
+          <i class="status">
+            {{if gt .Summary.Failed 0}}&#x2718;{{else if gt .Summary.Passed 0}}&#x2714;{{else}}&#x0021;{{end}}
+          </i>
+        </h3>
       </div>
 {{end}}
 
@@ -105,7 +109,11 @@
 /* Container for Scenario Header, holds the execution time of scenario */
 {{define "scenarioHeaderStartDiv"}}
   <div class="collapsible scenario-head {{.ExecutionStatus}} {{if ne .ExecutionStatus "fail"}}collapsed{{end}}">
-    <h3 class="head borderBottom">{{.Heading | escapeHTML }}</h3>
+    <h3 class="head borderBottom">{{.Heading | escapeHTML }}
+      <i class="status">
+        {{if eq .ExecutionStatus "fail"}}&#x2718;{{else if eq .ExecutionStatus "pass"}}&#x2714;{{else}}&#x0021;{{end}}
+      </i>
+    </h3>
 {{end}}
 
 /* renders a Table. Incase of Table-driven execution, this table appears above all scenarios.
@@ -113,17 +121,31 @@
 {{define "specCommentsAndTableTag"}}
   {{if .Datatable}}
     <table class="data-table">
-      <tr>
-        <th class="no-border"></th>
-        {{range .Datatable.Headers}}<th>{{. | escapeHTML }}</th>{{end}}
-      </tr>
+      <thead>
+        <tr>
+          <th></th>
+          {{range .Datatable.Headers}}<th class="cell">{{. | escapeHTML }}</th>{{end}}
+          <th></th>
+        </tr>
+      </thead>
       <tbody data-rowCount={{len .Datatable.Rows}}>
         {{range $index, $row := .Datatable.Rows}}
-          {{if eq $row.Result "pass"}}<tr class='row-selector passed{{if eq $index 0}} selected{{end}}' data-rowIndex='{{$index}}'><td class="no-border">P</td>
-          {{else if eq $row.Result "fail"}}<tr class='row-selector failed{{if eq $index 0}} selected{{end}}' data-rowIndex='{{$index}}'><td class="no-border">F</td>
-          {{else}}<tr class='row-selector skipped{{if eq $index 0}} selected{{end}}' data-rowIndex='{{$index}}'><td class="no-border">S</td>
+          {{if eq $row.Result "pass"}}
+            <tr class='row-selector passed{{if eq $index 0}} selected{{end}}' data-rowIndex='{{$index}}'>
+              <td>&#x21D2;</td>
+              {{range $row.Cells}}<td class="cell">{{. | escapeHTML }}</td>{{end}}
+              <td>&#x2714;</td>
+          {{else if eq $row.Result "fail"}}
+            <tr class='row-selector failed{{if eq $index 0}} selected{{end}}' data-rowIndex='{{$index}}'>
+              <td>&#x21D2;</td>
+              {{range $row.Cells}}<td class="cell">{{. | escapeHTML }}</td>{{end}}
+              <td>&#x2718;</td>
+          {{else}}
+            <tr class='row-selector skipped{{if eq $index 0}} selected{{end}}' data-rowIndex='{{$index}}'>
+              <td>&#x21D2;</td>
+              {{range $row.Cells}}<td class="cell">{{. | escapeHTML }}</td>{{end}}
+              <td>&#x0021;</td>
           {{end}}
-          {{range $row.Cells}}<td>{{. | escapeHTML }}</td>{{end}}
         </tr>
         {{end}}
       </tbody>
