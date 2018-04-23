@@ -8,3 +8,4 @@ logs
 .idea
 welcome.html
 .DS_Store
+test/testdata/**/.vscode/

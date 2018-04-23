@@ -3,13 +3,12 @@ import * as path from 'path';
 
 import {
     workspace, ExtensionContext, Uri, extensions, Position,
-    commands, window, CancellationTokenSource, version, languages,
+    commands, window, CancellationTokenSource, version, languages
 } from 'vscode';
 
 import opn = require('opn');
-import { existsSync } from 'fs';
 import { GaugeExecutor } from "./execution/gaugeExecutor";
-import { VSCodeCommands, GaugeVSCodeCommands, GAUGE_MANIFEST_FILE } from './constants';
+import { VSCodeCommands, GaugeVSCodeCommands } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
@@ -18,6 +17,7 @@ import { GaugeState } from './gaugeState';
 import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
+import { isGaugeProject } from './util';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
@@ -30,7 +30,7 @@ export function activate(context: ExtensionContext) {
     let folders = workspace.workspaceFolders;
     context.subscriptions.push(new ProjectInitializer(!!versionInfo));
 
-    if (!folders || !folders.some((folder) => existsSync(path.join(folder.uri.fsPath, GAUGE_MANIFEST_FILE)))) return;
+    if (!folders || !folders.some(isGaugeProject)) return;
     if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
 
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
