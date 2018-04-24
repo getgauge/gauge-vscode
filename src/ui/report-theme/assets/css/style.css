@@ -52,6 +52,12 @@ blockquote {
 
 .container {
     margin: 0 auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--background-color);
+    border-bottom: 0.5px solid var(--hover-background);
+    padding-bottom: 0.5em;
 }
 
 .container:after {
@@ -115,7 +121,7 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
 }
 
 .specifications .details {
-    border-bottom: 0.5px dashed #777;
+    border-bottom: 0.5px solid var(--hover-background);
 }
 
 .specifications:after {
