@@ -72,6 +72,7 @@ blockquote {
     display: flex;
     margin: 0;
     font-family: monospace;
+    font-weight: bold;
     padding-left: 10px;
 }
 
@@ -111,6 +112,10 @@ body:not(.vscode-high-contrast) .report-overview.skipped {
 
 .chevron.down {
     transform:rotate(90deg);
+}
+
+.specifications .details {
+    border-bottom: 0.5px dashed #777;
 }
 
 .specifications:after {
@@ -309,10 +314,6 @@ h3.spec-head:before {
     padding: 0;
 }
 
-/* .scenario-container .error-container {
-    padding-top: 1em;
-} */
-
 .scenario-container h4, .scenario-container h4 pre {
     margin: 0;
 }
@@ -440,7 +441,9 @@ h3.spec-head:before {
     position: relative;
     margin-left: 1.2rem;
     border-left: 2px solid;
-    padding-left: 0.5em
+    padding-left: 0.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
 }
 
 .toggle-show {
