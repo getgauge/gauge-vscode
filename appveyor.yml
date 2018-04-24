@@ -1,4 +1,28 @@
-image: Visual Studio 2017
+environment:
+  nodejs_version: "8"
+  GAUGE_PREFIX: C:\Program Files\Gauge\bin
+
+init:
+- ps: Install-Product node $env:nodejs_version
+- ps: sleep 10
+- ps: npm install npm@latest -g
+- ps: node --version
+- ps: npm --version
+- ps: npm config set package-lock false
 
 build_script:
-- ps: docker run --rm --mount type=bind,source=${PWD},destination=c:\gauge-vscode\ -w="c:\gauge-vscode\" stefanscherer/node-windows:9 powershell -File .\run_test.ps1
+- ps: |
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/getgauge/infrastructure/master/nightly_scripts/install_latest_gauge_nightly.ps1" -OutFile install_latest_gauge_nightly.ps1
+    .\install_latest_gauge_nightly.ps1
+    $env:Path = "c:\Program Files\Gauge\bin;" + [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Write-Host "PATH : $($env:PATH)"
+    gauge.exe version
+    gauge.exe install screenshot
+    echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" | add-content $env:APPDATA/gauge/config/gauge.properties -Encoding Ascii
+    gauge.exe install js
+    gauge.exe install html-report
+    gauge.exe version
+
+test_script:
+- ps: npm install; npm run lint; npm run compile; npm run pack
+- ps: npm test
