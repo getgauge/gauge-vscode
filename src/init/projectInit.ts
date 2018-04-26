@@ -46,6 +46,7 @@ export class ProjectInitializer extends Disposable {
             canSelectMany: false
         };
         const folders = await window.showOpenDialog(options);
+        if (!folders) return;
         const projectFolderUri = Uri.file(path.join(folders[0].fsPath, name));
         if (fs.existsSync(projectFolderUri.fsPath)) {
             return this.handleError(null, `A folder named ${name} already exists in ${folders[0].fsPath}`);
