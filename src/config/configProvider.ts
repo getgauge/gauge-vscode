@@ -41,7 +41,9 @@ export class ConfigProvider extends Disposable {
     private verify(): boolean {
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
-                if (workspace.getConfiguration().inspect(key).globalValue !== this.recommendedSettings[key]) {
+                let configVal = workspace.getConfiguration().inspect(key);
+                if (!configVal.workspaceFolderValue && !configVal.workspaceValue &&
+                    configVal.globalValue !== this.recommendedSettings[key]) {
                     return false;
                 }
             }
