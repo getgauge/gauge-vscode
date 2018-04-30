@@ -19,6 +19,7 @@ const extensions = [".spec", ".md"];
 const GAUGE_EXECUTION_CONFIG = "gauge.execution";
 const REPORT_PATH_PREFIX = "Successfully generated html-report to => ";
 const ATTACH_DEBUGGER_EVENT = "Runner Ready for Debugging";
+const NO_DEBUGGER_ATTACHED = "No debugger attached";
 
 export class GaugeExecutor extends Disposable {
     private executing: boolean;
@@ -68,6 +69,12 @@ export class GaugeExecutor extends Disposable {
                     }
                     if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
                         this.gaugeDebugger.startDebugger();
+                    }
+                    console.log(lineText);
+
+                    if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
+                        window.showErrorMessage("No debugger attached. Stopping the execution");
+                        this.cancel();
                     }
                 });
                 this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
