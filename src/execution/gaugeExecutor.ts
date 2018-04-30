@@ -70,8 +70,6 @@ export class GaugeExecutor extends Disposable {
                     if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
                         this.gaugeDebugger.startDebugger();
                     }
-                    console.log(lineText);
-
                     if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
                         window.showErrorMessage("No debugger attached. Stopping the execution");
                         this.cancel();
