@@ -18,6 +18,8 @@
   ],
   "activationEvents": [
     "onCommand:gauge.createProject",
+    "onCommand:gauge.welcome",
+    "onCommand:gauge.help.reportIssue",
     "workspaceContains:manifest.json"
   ],
   "icon": "images/gauge-icon.png",
@@ -148,7 +150,47 @@
       "commandPalette": [
         {
           "command": "gauge.specexplorer.switchProject",
-          "when": "1 == 2"
+          "when": "false"
+        },
+        {
+          "command": "gauge.execute.repeat",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.execute.specification",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.execute.specification.all",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.execute.scenario",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.execute.scenarios",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.showReferences.atCursor",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.report.html",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.execute.failed",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.stopExecution",
+          "when": "gauge:activated"
+        },
+        {
+          "command": "gauge.config.saveRecommended",
+          "when": "gauge:activated"
         },
         {
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",

@@ -28,8 +28,14 @@ export function activate(context: ExtensionContext) {
     let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
     let versionInfo = getGaugeVersionInfo();
     let folders = workspace.workspaceFolders;
-    context.subscriptions.push(new ProjectInitializer(!!versionInfo));
-    context.subscriptions.push(new PageProvider(context, hasUpgraded, !!versionInfo));
+    context.subscriptions.push(
+        new ProjectInitializer(!!versionInfo),
+        new PageProvider(context, hasUpgraded, !!versionInfo),
+        commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => {
+            reportIssue(versionInfo);
+        })
+    );
+
     if (!folders || !folders.some(isGaugeProject)) return;
     if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
 
@@ -41,9 +47,6 @@ export function activate(context: ExtensionContext) {
 
     context.subscriptions.push(
         gaugeWorkspace,
-        commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => {
-            reportIssue(versionInfo);
-        }),
         new ReferenceProvider(clients),
         new GenerateStubCommandProvider(clients),
         new ConfigProvider(context)
