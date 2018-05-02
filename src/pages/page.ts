@@ -1,3 +1,3 @@
 export interface Page {
-    content(): string | Thenable<string>;
+    content(activated: Boolean): string | Thenable<string>;
 }

@@ -121,6 +121,10 @@
 		.action:hover {
 			background-color: var(--button-hover-background);
 		}
+		.action.disabled {
+			pointer-events: none;
+			opacity: 0.4;
+		}
 		.content i.fas, .content i.fab {
 			margin-right: 1em;
 			font-size: 1.5em;
@@ -197,6 +201,9 @@
 		.text {
 			font-size: 0.75em;
 		}
+		.text a {
+			font-size: 1em;
+		}
 	</style>
 	<link rel="stylesheet" href="{{root}}/css/fontawesome-all.min.css"/>
 </head>
@@ -219,23 +226,10 @@
 	</section>
 	<section class={{showGaugeInstall}}>
 		<span class="error"><i class="fas fa-exclamation-circle"></i>Gauge executable not found! </span>
-		<!-- TODO : Show the correct run commands -->
-		<!-- <ul>
-			<li>
-				<div class="instructions">
-					<ul>
-						<li><div class="text">Install gauge using the following instruction:</div></li>
-						<li><h4>{{name}}</h4></li>
-						<li class="command"><pre>{{command}}</pre><a id="execute" href="{{installCommand}}"><span class="run">Run</span></a></li>
-						<li><div class="text">For other installation options <a href="https://gauge.org/get-started.html"><span class="link">click here.</span></a></div></li>
-					</ul>
-				</div>
-			</li>
-		</ul> -->
 		<ul>
 			<li>
 				<div class="instructions">
-					<div class="text">For instructions to install Gauge <a href="https://gauge.org/get-started.html"><span class="link">click here</span></a>.</div>
+					<div class="text">For instructions to install Gauge <a href="https://gauge.org/get-started.html"><span class="link">click here</span></a></div>
 				</div>
 			</li>
 		</ul>
@@ -244,7 +238,7 @@
 		<h4>Project/Workspace</h4>
 		<ul>
 			<li>
-				<a class="action" href="command:gauge.execute.specification.all">
+				<a class="action {{activated}}" href="command:gauge.execute.specification.all">
 					<i class="fas fa-play"></i>
 					<span>
 						<div>Run All Specifications</div>
