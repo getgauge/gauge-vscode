@@ -28,4 +28,4 @@ install:
   - gauge install html-report
 script:
   - npm run build
-  - xvfb-run npm test
+  - npm test
