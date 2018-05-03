@@ -9,6 +9,9 @@ let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 's
 suite('Gauge Execution Tests', () => {
     setup(async () => { await commands.executeCommand('workbench.action.closeAllEditors'); });
 
+    let assertStatus = (status, val = true) => assert.equal(status, val, "Output:\n\n" +
+        workspace.textDocuments.find((x) =>  x.languageId === "Log").getText());
+
     teardown(async () => {
         await commands.executeCommand(GaugeVSCodeCommands.StopExecution);
     });
@@ -17,7 +20,7 @@ suite('Gauge Execution Tests', () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
         await window.showTextDocument(Uri.file(spec));
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
-        assert.ok(status);
+        assertStatus(status);
     }).timeout(10000);
 
     test('should execute given scenario', async () => {
@@ -25,19 +28,19 @@ suite('Gauge Execution Tests', () => {
         await window.showTextDocument(spec);
         let scenario = spec.path + ":6";
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, scenario);
-        assert.ok(status);
+        assertStatus(status);
     }).timeout(10000);
 
     test('should execute all specification in spec dir', async () => {
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
-        assert.ok(status);
+        assertStatus(status);
     }).timeout(10000);
 
     test('should execute currently open specification', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
         await window.showTextDocument(specFile);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteSpec);
-        assert.ok(status);
+        assertStatus(status);
     }).timeout(10000);
 
     test('should execute scenario at cursor', async () => {
@@ -47,7 +50,7 @@ suite('Gauge Execution Tests', () => {
         let cm = { to: 'down', by: 'line', value: 8 };
         await commands.executeCommand("cursorMove", cm);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteScenario);
-        assert.ok(status);
+        assertStatus(status);
     }).timeout(10000);
 
     test('should abort execution', async () => {
@@ -58,11 +61,11 @@ suite('Gauge Execution Tests', () => {
         // It seems like over-complicating things for a non-human scenario :)
         setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
-        assert.equal(status, false);
+        assertStatus(status, false);
     });
 
     test('should open reports inline after execution', async () => {
-        assert.ok(await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs));
+        assertStatus(await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs));
         await commands.executeCommand(GaugeVSCodeCommands.ShowReport);
         assert.ok(workspace.textDocuments.some((d) =>
             !d.isClosed && d.uri.toString() === REPORT_URI),
