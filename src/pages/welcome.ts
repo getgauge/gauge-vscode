@@ -57,14 +57,14 @@ export class WelcomePage extends Disposable implements Page {
         return this._context.globalState.get<boolean>(GAUGE_SUPPRESS_WELCOME);
     }
 
-    async content(): Promise<string> {
+    async content(activated: Boolean): Promise<string> {
         let rootPath = path.join('out', 'welcome');
         let root = Uri.file(this._context.asAbsolutePath(rootPath)).toString();
         let docPath = Uri.file(this._context.asAbsolutePath(path.join(rootPath, 'index.html')));
         try {
             const doc = await workspace.openTextDocument(docPath);
             let text =  doc.getText();
-            return new WelcomePageTokenReplace().replaceText(text, this.supressed(), root);
+            return new WelcomePageTokenReplace().replaceText(text, this.supressed(), activated, root);
         } catch (error) {
             console.log(error);
             return Promise.reject(error);

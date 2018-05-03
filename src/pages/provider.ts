@@ -4,6 +4,7 @@ import { WelcomePage } from "./welcome";
 import { ReportPage } from "./report";
 
 export class PageProvider extends Disposable implements TextDocumentContentProvider {
+    activated: Boolean;
     private _onDidChange = new EventEmitter<Uri>();
     private readonly _disposable: Disposable;
     private readonly _pages: Map<string, Page>;
@@ -20,7 +21,7 @@ export class PageProvider extends Disposable implements TextDocumentContentProvi
     }
 
     provideTextDocumentContent(uri: Uri): string | Thenable<string> {
-        return this._pages.get(uri.path.replace('/', '')).content();
+        return this._pages.get(uri.path.replace('/', '')).content(this.activated);
     }
 
     get onDidChange(): Event<Uri> {

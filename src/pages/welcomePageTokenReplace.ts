@@ -39,13 +39,14 @@ export class WelcomePageTokenReplace {
         }
     }
 
-    replaceText(text: string, supress: Boolean, root: string): string {
+    replaceText(text: string, supress: Boolean, activated: Boolean, root: string): string {
         let replace = [{key : /{{showGaugeInstall}}/g, value : !getGaugeVersionInfo() ?  "" : "hidden"},
                         {key : /{{installCommand}}/g, value : encodeURI('command:gauge.executeIn.terminal?' +
                                 JSON.stringify([this.getInstallCommandBasedOnOS().command]))},
                         {key : /{{name}}/g, value : this.getInstallCommandBasedOnOS().name},
                         {key : /{{command}}/g, value : this.getInstallCommandBasedOnOS().displayText},
-                        {key : /{{root}}/g, value : root}];
+                        {key : /{{root}}/g, value : root},
+                        {key : /{{activated}}/g, value : activated ? "activated" : "disabled"}];
         replace.forEach((element) =>  {
             text = text.replace(new RegExp(element.key), element.value);
         });

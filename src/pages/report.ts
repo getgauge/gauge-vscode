@@ -17,7 +17,7 @@ export class ReportPage extends Disposable implements Page {
         });
     }
 
-    async content(): Promise<string> {
+    async content(activated: Boolean): Promise<string> {
         let reportPath = this._context.workspaceState.get<string>(LAST_REPORT_PATH);
         try {
             const doc = await workspace.openTextDocument(Uri.file(reportPath));
