@@ -2,7 +2,7 @@ os:
   - linux
 language: node_js
 node_js:
-  - "9"
+  - "node"
 addons:
   apt:
     packages:
@@ -21,11 +21,11 @@ before_install:
     fi
   - export PATH=$PATH:$GAUGE_PREFIX/bin
 install:
-  - gauge -v
   - gauge install screenshot
   - echo "gauge_repository_url = https://raw.githubusercontent.com/getgauge/gauge-nightly-repository/master/" >> $HOME/.gauge/config/gauge.properties
   - gauge install js
   - gauge install html-report
+  - gauge -v
 script:
   - npm run build
   - npm test
