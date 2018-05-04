@@ -28,4 +28,4 @@ install:
   - gauge -v
 script:
   - npm run build
-  - npm test
+  - npm test --silent
