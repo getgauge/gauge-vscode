@@ -15,7 +15,7 @@ $ code --install-extension getgauge.gauge
 This extension adds language support for the Gauge projects, including:
 
 ### Code Completion for steps, parameters and tags
-![Code Completion preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/autocomplete.gif)
+![Code Completion preview](images/newProj.gif)
 
 ### Goto definition for steps
 ![Goto Definition preview](https://raw.githubusercontent.com/getgauge/gauge-vscode/master/images/gotoDefinition.gif)
