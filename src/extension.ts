@@ -18,6 +18,7 @@ import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
 import { isGaugeProject } from './util';
+import { showWelcomePage } from './pages/welcome';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
@@ -25,10 +26,9 @@ const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
-    let hasUpgraded = hasExtensionUpdated(context, currentExtensionVersion);
     let versionInfo = getGaugeVersionInfo();
     let folders = workspace.workspaceFolders;
-    let pageProvider = new PageProvider(context, hasUpgraded, !!versionInfo);
+    let pageProvider = new PageProvider(context, !!versionInfo);
     context.subscriptions.push(
         new ProjectInitializer(!!versionInfo),
         pageProvider,
@@ -38,6 +38,7 @@ export function activate(context: ExtensionContext) {
     );
 
     if (!folders || !folders.some(isGaugeProject)) return;
+    showWelcomePage(context, hasExtensionUpdated(context, currentExtensionVersion));
     if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
 
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
