@@ -9,8 +9,11 @@ let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 's
 suite('Gauge Execution Tests', () => {
     setup(async () => { await commands.executeCommand('workbench.action.closeAllEditors'); });
 
-    let assertStatus = (status, val = true) => assert.equal(status, val, "Output:\n\n" +
-        workspace.textDocuments.find((x) =>  x.languageId === "Log").getText());
+    let assertStatus = (status, val = true) => {
+        let logDoc = workspace.textDocuments.find((x) =>  x.languageId === "Log");
+        let output  = logDoc && logDoc.getText() || "Couldn't find the log output.";
+        assert.equal(status, val, "Output:\n\n" + output);
+    };
 
     teardown(async () => {
         await commands.executeCommand(GaugeVSCodeCommands.StopExecution);
