@@ -2,7 +2,7 @@ os:
   - linux
 language: node_js
 node_js:
-  - "node"
+  - "9"
 addons:
   apt:
     packages:
@@ -28,4 +28,4 @@ install:
   - gauge -v
 script:
   - npm run build
-  - npm test --silent
+  - npm test
