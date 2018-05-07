@@ -9,11 +9,11 @@ export class PageProvider extends Disposable implements TextDocumentContentProvi
     private readonly _disposable: Disposable;
     private readonly _pages: Map<string, Page>;
 
-    constructor(context: ExtensionContext, upgraded: boolean, isGaugeInstalled: boolean) {
+    constructor(context: ExtensionContext, isGaugeInstalled: boolean) {
         super(() => this.dispose());
         this._disposable = workspace.registerTextDocumentContentProvider('gauge', this);
         this._pages = new Map<string, Page>([
-            ['welcome', new WelcomePage(context, upgraded)]
+            ['welcome', new WelcomePage(context)]
         ]);
         if (isGaugeInstalled) {
             this._pages.set('htmlreport', new ReportPage(context));
