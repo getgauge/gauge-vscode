@@ -16,7 +16,7 @@ export class WelcomePage extends Disposable implements Page {
     private readonly _disposable: Disposable;
     private readonly _pages: Map<string, Page>;
 
-    constructor(context: ExtensionContext, upgraded: boolean) {
+    constructor(context: ExtensionContext) {
         super(() => this.dispose());
         this._context = context;
         this._disposable = Disposable.from(
@@ -40,17 +40,6 @@ export class WelcomePage extends Disposable implements Page {
                 context.workspaceState.update(IS_WELCOME_PAGE_OPEN, false);
             }
         });
-
-        let welcomePageConfig = workspace.getConfiguration('gauge.welcomePage');
-        let showWelcomePageOn = workspace.getConfiguration('gauge.welcome').get<string>('showOn');
-        if (welcomePageConfig && welcomePageConfig.get<boolean>('enabled')) {
-            if ((showWelcomePageOn === "versionUpgrade" && upgraded) ||
-            (showWelcomePageOn === "newProjectLoad" && !context.workspaceState.get(HAS_OPENED_BEFORE)) ||
-            context.workspaceState.get(IS_WELCOME_PAGE_OPEN) || !getGaugeVersionInfo()) {
-                commands.executeCommand(GaugeVSCodeCommands.Welcome);
-            }
-            context.workspaceState.update(HAS_OPENED_BEFORE, true);
-        }
     }
 
     supressed(): boolean {
@@ -73,5 +62,18 @@ export class WelcomePage extends Disposable implements Page {
 
     dispose() {
         this._disposable.dispose();
+    }
+}
+
+export function showWelcomePage(context: ExtensionContext, upgraded: Boolean) {
+    let welcomePageConfig = workspace.getConfiguration('gauge.welcomePage');
+    let showWelcomePageOn = workspace.getConfiguration('gauge.welcome').get<string>('showOn');
+    if (welcomePageConfig && welcomePageConfig.get<boolean>('enabled')) {
+        if ((showWelcomePageOn === "versionUpgrade" && upgraded) ||
+        (showWelcomePageOn === "newProjectLoad" && !context.workspaceState.get(HAS_OPENED_BEFORE)) ||
+        context.workspaceState.get(IS_WELCOME_PAGE_OPEN) || !getGaugeVersionInfo()) {
+            commands.executeCommand(GaugeVSCodeCommands.Welcome);
+        }
+        context.workspaceState.update(HAS_OPENED_BEFORE, true);
     }
 }
