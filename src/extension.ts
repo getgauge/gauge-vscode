@@ -74,5 +74,5 @@ ${gaugeVersion.toString()}
 function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): boolean {
     const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
     context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
-    return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion === latestVersion;
+    return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion !== latestVersion;
 }
