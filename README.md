@@ -74,11 +74,11 @@ Suport for Debugging of step implementations in JS, Python and Ruby
 
 View execution reports inside VS Code
 
-<img src="images/report.jpg" alt="Execution Report preview" style="width: 600px;"/>
+<img src="images/reports.jpg" alt="Execution Report preview" style="width: 600px;"/>
 
 ## Test Explorer
 
-<img src="images/explorer.jpg" alt="Test Explorer preview" style="width: 200px;"/>
+<img src="images/testExplorer.jpg" alt="Test Explorer preview" style="width: 600px;"/>
 
 ## Snippets for specification, scenarios and tables
 

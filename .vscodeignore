@@ -9,6 +9,7 @@ integration-test/**
 .vscode-test/**
 .travis.yml
 **/*.gif
+**/*.jpg
 out/test/**
 out/src/**
 out/integration-test/**
