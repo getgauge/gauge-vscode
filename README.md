@@ -24,7 +24,7 @@ $ code --install-extension getgauge.gauge
 * [Debug Specs/Scenarios](#debug-specifications-and-scenarios)
 * [Reports](#reports)
 * [Test Explorer](#test-explorer)
-* [Code Snippets](#snippets-for-specification,-scenarios-and-tables)
+* [Code Snippets](#snippets-for-specification-scenarios-and-tables)
 
 ## Create new project
 
