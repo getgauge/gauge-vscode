@@ -20,6 +20,7 @@ $ code --install-extension getgauge.gauge
 * [Diagnostics](#diagnostics)
 * [Format Specifications](#format-specifications)
 * [References](#references)
+* [Symbols](#symbols)
 * [Run Specs/Scenarios](#run-specifications-and-scenarios)
 * [Debug Specs/Scenarios](#debug-specifications-and-scenarios)
 * [Reports](#reports)
@@ -45,6 +46,10 @@ Execute the Command `Gauge: Create new Gauge Project` and select the appropriate
 ## Format Specifications
 
 <img src="https://github.com/getgauge/gauge-vscode/raw/master/images/format.jpg" alt="Formatting preview" style="width: 600px;"/>
+
+## Symbols
+
+<img src="https://github.com/getgauge/gauge-vscode/raw/master/images/symbols.jpg" alt="Symbols preview" style="width: 600px;"/>
 
 ## References
 
