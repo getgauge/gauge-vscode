@@ -86,7 +86,7 @@ export class ProjectInitializer extends Disposable {
     }
 
     private async downloadTemplateAndSetup(tmpl: FileListItem, tmpFilePath, tmpDir, destUri: Uri, p: ProgressHandler) {
-        let req = get(GAUGE_TEMPLATE_URL + `${GAUGE_TEMPLATE_URL}/${tmpl.value}`, (res) => {
+        let req = get(`${GAUGE_TEMPLATE_URL}/${tmpl.value}`, (res) => {
             res.on('data', (d) => fs.appendFileSync(tmpFilePath, d));
             res.on('end', async () => await this.extractZipAndCopyFiles(tmpFilePath, tmpDir, tmpl.label, destUri, p));
         });
@@ -118,9 +118,8 @@ export class ProjectInitializer extends Disposable {
 
     private createTempDir() {
         let tmpDir = path.join(os.tmpdir(), 'gauge');
-        if (!fs.existsSync(tmpDir)) {
-            fs.mkdirSync(tmpDir);
-        }
+        fs.removeSync(tmpDir);
+        fs.mkdirSync(tmpDir);
         return tmpDir;
     }
 
