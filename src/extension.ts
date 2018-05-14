@@ -58,11 +58,17 @@ export function activate(context: ExtensionContext) {
 
 function reportIssue(gaugeVersion: GaugeVersionInfo) {
     let extVersion = extensions.getExtension("getgauge.gauge").packageJSON.version;
+    let gaugeVersionInfo = "";
+    if (gaugeVersion != null) {
+        gaugeVersionInfo = gaugeVersion.toString();
+    } else {
+        gaugeVersionInfo = "Gauge executable not found!!";
+    }
     let issueTemplate = `\`\`\`
 VS-Code version: ${version}
 Gauge Extension Version: ${extVersion}
 
-${gaugeVersion.toString()}
+${gaugeVersionInfo}
 \`\`\``;
 
     return opn(`https://github.com/getgauge/gauge-vscode/issues/new?body=${escape(issueTemplate)}`).then(
