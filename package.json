@@ -231,7 +231,7 @@
         },
         "gauge.welcomePage.enabled": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "When true, gauge welcome page will be loaded."
         },
         "gauge.launch.enableDebugLogs": {
