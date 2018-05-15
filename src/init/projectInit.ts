@@ -49,7 +49,8 @@ export class ProjectInitializer extends Disposable {
         if (!folders) return;
         const projectFolderUri = Uri.file(path.join(folders[0].fsPath, name));
         if (fs.existsSync(projectFolderUri.fsPath)) {
-            return this.handleError(null, `A folder named ${name} already exists in ${folders[0].fsPath}`);
+            return this.handleError(
+                null, `A folder named ${name} already exists in ${folders[0].fsPath}`, projectFolderUri.fsPath, false);
         }
         fs.mkdirSync(projectFolderUri.fsPath);
         return this.createProjectInDir(tmpl, projectFolderUri);
@@ -70,7 +71,9 @@ export class ProjectInitializer extends Disposable {
         let options = { cwd: projectFolder.fsPath, env: process.env };
         p.report("Initializing project...");
         let proc = spawn(GaugeCommands.Gauge, args, options);
-        proc.addListener('err', p.cancel);
+        proc.addListener('err', async (err) => {
+            this.handleError(p, "Failed to create template. " + err.message, projectFolder.fsPath);
+        });
         proc.addListener('close', async () => await p.end(projectFolder));
     }
 
@@ -90,7 +93,9 @@ export class ProjectInitializer extends Disposable {
             res.on('data', (d) => fs.appendFileSync(tmpFilePath, d));
             res.on('end', async () => await this.extractZipAndCopyFiles(tmpFilePath, tmpDir, tmpl.label, destUri, p));
         });
-        req.on('error', (err) => p.cancel("Failed to download template. " + err.message));
+        req.on('error', (err) => {
+            this.handleError(p, "Failed to download template. " + err.message, destUri.fsPath);
+        });
     }
 
     private async extractZipAndCopyFiles(zip, tmpDir, tmpl: string, destUri: Uri, p: ProgressHandler) {
@@ -102,8 +107,7 @@ export class ProjectInitializer extends Disposable {
             this.runPostInstall(destUri.fsPath, p);
             p.end(destUri);
         } catch (err) {
-            p.cancel(err);
-            return this.handleError(p, err);
+            return this.handleError(p, "Failed to extract template. " + err.message, destUri.fsPath);
         }
     }
 
@@ -123,9 +127,10 @@ export class ProjectInitializer extends Disposable {
         return tmpDir;
     }
 
-    private handleError(p: ProgressHandler, err: string) {
+    private handleError(p: ProgressHandler, err, dirPath: string, removeDir: boolean = true) {
+        if (removeDir) fs.removeSync(dirPath);
         if (p) p.cancel(err);
-        return window.showErrorMessage("Failed to create project. " + err);
+        return window.showErrorMessage(err);
     }
 }
 
