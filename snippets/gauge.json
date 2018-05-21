@@ -16,6 +16,14 @@
 			],
 			"description" : "New Scenario"
 		},
+		"concept": {
+			"prefix": "con",
+			"body": [
+				"# ${1:Concept Heading}",
+				"* $0"
+			],
+			"description" : "New Concept"
+		},
 		"table_1": {
 			"prefix": "table:1",
 			"body": [
