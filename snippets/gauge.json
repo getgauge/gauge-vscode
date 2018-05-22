@@ -17,7 +17,7 @@
 			"description" : "New Scenario"
 		},
 		"concept": {
-			"prefix": "con",
+			"prefix": "cpt",
 			"body": [
 				"# ${1:Concept Heading}",
 				"* $0"
