@@ -110,7 +110,6 @@ export class GaugeExecutor extends Disposable {
         if (activeTextEditor) {
             let doc = activeTextEditor.document;
             if (!extensions.includes(path.extname(doc.fileName))) {
-                window.showWarningMessage(`No specification found. Current file is not a gauge specification.`);
                 return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
             }
             return this.execute(doc.fileName, {
@@ -119,7 +118,6 @@ export class GaugeExecutor extends Disposable {
                 projectRoot: workspace.getWorkspaceFolder(doc.uri).uri.fsPath
             });
         } else {
-            window.showWarningMessage(`A gauge specification file should be open to run this command.`);
             return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
         }
     }
@@ -131,7 +129,6 @@ export class GaugeExecutor extends Disposable {
             let spec = activeTextEditor.document.fileName;
             let lc = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath);
             if (!extensions.includes(path.extname(spec))) {
-                window.showWarningMessage(`No scenario(s) found. Current file is not a gauge specification.`);
                 return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
             }
             return this.getAllScenarios(lc, atCursor).then((scenarios: any): Thenable<any> => {
@@ -144,7 +141,6 @@ export class GaugeExecutor extends Disposable {
                 return Promise.reject(reason);
             });
         } else {
-            window.showWarningMessage(`A gauge specification file should be open to run this command.`);
             return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
         }
     }
