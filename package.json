@@ -30,7 +30,7 @@
   "main": "./out/extension",
   "contributes": {
     "views": {
-      "explorer": [
+      "test": [
         {
           "id": "gauge:specExplorer",
           "name": "Gauge Specs",
