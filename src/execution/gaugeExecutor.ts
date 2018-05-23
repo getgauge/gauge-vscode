@@ -16,7 +16,6 @@ import { GaugeWorkspace } from '../gaugeWorkspace';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
-const GAUGE_EXECUTION_CONFIG = "gauge.execution";
 const REPORT_PATH_PREFIX = "Successfully generated html-report to => ";
 const ATTACH_DEBUGGER_EVENT = "Runner Ready for Debugging";
 const NO_DEBUGGER_ATTACHED = "No debugger attached";
@@ -102,9 +101,8 @@ export class GaugeExecutor extends Disposable {
 
     public runSpecification(projectRoot?: string): Thenable<any> {
         if (projectRoot) {
-            let dirs = workspace.getConfiguration(GAUGE_EXECUTION_CONFIG).get<Array<string>>("specDirs");
-            return this.execute(dirs.join(" "),
-                { inParallel: false, status: dirs.join(" "), projectRoot: projectRoot });
+            return this.execute(null,
+                { inParallel: false, status: path.join(projectRoot, "All specs"), projectRoot: projectRoot });
         }
         let activeTextEditor = window.activeTextEditor;
         if (activeTextEditor) {
@@ -153,9 +151,15 @@ export class GaugeExecutor extends Disposable {
             return [GaugeCommands.Run, GaugeCommands.Repeat];
         }
         if (config.inParallel) {
-            return [GaugeCommands.Run, GaugeCommands.Parallel, spec, GaugeCommands.HideSuggestion];
+            if (spec) {
+                return [GaugeCommands.Run, GaugeCommands.Parallel, spec, GaugeCommands.HideSuggestion];
+            }
+            return [GaugeCommands.Run, GaugeCommands.Parallel, GaugeCommands.HideSuggestion];
         }
-        return [GaugeCommands.Run, spec, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
+        if (spec) {
+            return [GaugeCommands.Run, spec, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
+        }
+        return [GaugeCommands.Run, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
     }
 
     private getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Thenable<any> {
@@ -226,9 +230,10 @@ export class GaugeExecutor extends Disposable {
                 if (this.gaugeWorkspace.getClients().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
                         return this.execute(null, { rerunFailed: true,
-                            status: "failed scenarios", projectRoot: selection });
+                            status: path.join(selection, "failed scenarios"), projectRoot: selection });
                     });
-                return this.execute(null, { rerunFailed: true, status: "failed scenarios",
+                return this.execute(null, { rerunFailed: true,
+                    status: path.join(this.gaugeWorkspace.getDefaultFolder(), "failed scenarios"),
                     projectRoot: this.gaugeWorkspace.getDefaultFolder() });
             }),
 
@@ -246,10 +251,12 @@ export class GaugeExecutor extends Disposable {
             commands.registerCommand(GaugeVSCodeCommands.RepeatExecution, () => {
                 if (this.gaugeWorkspace.getClients().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
-                        return this.execute(null, { repeat: true, status: "previous run", projectRoot: selection });
+                        return this.execute(null, { repeat: true, status: path.join(selection, "previous run"),
+                        projectRoot: selection });
                     });
                 return this.execute(null,
-                    { repeat: true, status: "previous run", projectRoot: this.gaugeWorkspace.getDefaultFolder() });
+                    { repeat: true, status: path.join(this.gaugeWorkspace.getDefaultFolder(), "previous run"),
+                    projectRoot: this.gaugeWorkspace.getDefaultFolder() });
             })
         ));
     }

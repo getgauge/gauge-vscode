@@ -243,13 +243,6 @@
           "type": "int",
           "default": 9229,
           "description": "Default debug port."
-        },
-        "gauge.execution.specDirs": {
-          "type": "array",
-          "default": [
-            "specs"
-          ],
-          "description": "List of specification directories."
         }
       }
     },
