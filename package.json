@@ -67,6 +67,11 @@
         "category": "Gauge"
       },
       {
+        "command": "gauge.create.specification",
+        "title": "Create New Specification",
+        "category": "Gauge"
+      },
+      {
         "command": "gauge.config.saveRecommended",
         "title": "Optimize VS Code configuration for Gauge",
         "category": "Gauge"
@@ -148,6 +153,10 @@
     ],
     "menus": {
       "commandPalette": [
+        {
+          "command": "gauge.create.specification",
+          "when": "gauge:activated"
+        },
         {
           "command": "gauge.specexplorer.switchProject",
           "when": "false"
@@ -243,6 +252,11 @@
           "type": "int",
           "default": 9229,
           "description": "Default debug port."
+        },
+        "gauge.create.specification.withHelp": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, create the specification wtih help comments."
         }
       }
     },
