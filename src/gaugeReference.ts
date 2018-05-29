@@ -49,7 +49,7 @@ export class ReferenceProvider extends Disposable {
                 languageClient.protocol2CodeConverter.asPosition(position),
                 locations.map(languageClient.protocol2CodeConverter.asLocation));
         }
-        window.showInformationMessage('No reference found!');
+        window.showInformationMessage('Action NA: Try this on an implementation.');
         return Promise.resolve(false);
     }
 }
