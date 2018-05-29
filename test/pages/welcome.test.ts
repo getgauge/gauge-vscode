@@ -12,4 +12,12 @@ suite('Welcome Page', () => {
         assert.ok(workspace.textDocuments.some((d) => !d.isClosed && d.uri.toString() === WELCOME_PAGE_URI),
             "Expected one document to have welcome page");
     });
+
+    test.only('should have a link to create a new specification', async () => {
+        await commands.executeCommand(GaugeVSCodeCommands.Welcome);
+        const docs = workspace.textDocuments;
+        let welcomePage = docs.find((d) => d.uri.toString() === WELCOME_PAGE_URI);
+        assert.ok(welcomePage, "Expected one document to have welcome page");
+        assert.ok(welcomePage.getText().includes("Create New Specification"));
+    });
 });

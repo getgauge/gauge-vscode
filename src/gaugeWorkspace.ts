@@ -6,9 +6,10 @@ import {
     WorkspaceFoldersChangeEvent, commands, window, workspace
 } from "vscode";
 import { DynamicFeature, LanguageClient, RevealOutputChannelOn } from "vscode-languageclient";
-import { GAUGE_MANIFEST_FILE, GaugeCommandContext, setCommandContext } from "./constants";
+import { GaugeCommandContext, setCommandContext } from "./constants";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
+import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import { isGaugeProject } from './util';
@@ -19,6 +20,7 @@ const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
 
 export class GaugeWorkspace extends Disposable {
+    private readonly _fileProvider: SpecificationProvider;
     private _executor: GaugeExecutor;
     private _clients: Map<string, LanguageClient> = new Map();
     private _clientLanguageMap: Map<string, string> = new Map();
@@ -39,10 +41,12 @@ export class GaugeWorkspace extends Disposable {
             if (event.removed) this.onFolderDeletion(event);
             setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
         });
+        this._fileProvider = new SpecificationProvider(this);
         this._specNodeProvider = new SpecNodeProvider(this);
         this._disposable = Disposable.from(
             this._specNodeProvider,
             this._executor,
+            this._fileProvider,
             this.onConfigurationChange()
         );
     }
@@ -76,7 +80,8 @@ export class GaugeWorkspace extends Disposable {
     showProjectOptions(onChange: Function) {
         let projectItems = [];
         this._clients.forEach((v, k) => projectItems.push({ label: path.basename(k), description: k }));
-        return window.showQuickPick(projectItems).then((selected) => {
+        let options = { canPickMany: false, placeHolder: "Choose a project" };
+        return window.showQuickPick(projectItems, options).then((selected: any) => {
             if (selected) {
                 return onChange(selected.description);
             }

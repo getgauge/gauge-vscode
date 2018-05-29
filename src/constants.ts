@@ -37,6 +37,7 @@ export enum GaugeVSCodeCommands {
     ExtractConcept = 'gauge.extract.concept',
     ExecuteInTerminal = "gauge.executeIn.terminal",
     CreateProject = "gauge.createProject",
+    CreateSpecification = "gauge.create.specification",
 }
 
 export enum GaugeCommands {
@@ -68,7 +69,8 @@ export enum GaugeRequests {
     Scenarios = 'gauge/scenarios',
     Files = "gauge/getImplFiles",
     AddStub = 'gauge/putStubImpl',
-    GenerateConcept = 'gauge/generateConcept'
+    GenerateConcept = 'gauge/generateConcept',
+    SpecDirs = 'gauge/specDirs'
 }
 
 export const LAST_REPORT_PATH = 'gauge.execution.report';
