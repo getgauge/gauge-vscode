@@ -294,7 +294,7 @@ h3.spec-head:before {
     cursor: pointer;
 }
 
-.collapsible.collapsed:hover h3:after, .collapsible.collapsed:hover span:after {
+.collapsible.collapsed:hover h3:after, .collapsible.collapsed:hover span:last-child:after {
     content: "click to expand";
     font-size: 0.8rem;
     font-weight: normal;
@@ -304,7 +304,7 @@ h3.spec-head:before {
     margin-left: 1rem;
 }
 
-.collapsible:not(.collapsed):hover h3:after, .collapsible:not(.collapsed):hover span:after {
+.collapsible:not(.collapsed):hover h3:after, .collapsible:not(.collapsed):hover span:last-child:after {
     content: "click to collapse";
     font-size: 0.8rem;
     font-weight: normal;
@@ -379,11 +379,11 @@ h3.spec-head:before {
     font-weight: bold;
 }
 
-.concept .step-txt span:before {
+.concept .step-txt span:first-child:before {
     content: "[-]";
 }
 
-.concept.collapsed .step-txt span:before {
+.concept.collapsed .step-txt span:first-child:before {
     content: "[+]";
 }
 
