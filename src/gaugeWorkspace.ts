@@ -18,6 +18,8 @@ import fs = require('fs');
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
+const GAUGE_CODELENSE_CONFIG = 'gauge.codeLenses';
+const REFERENCE_CONFIG = 'reference';
 
 export class GaugeWorkspace extends Disposable {
     private readonly _fileProvider: SpecificationProvider;
@@ -26,6 +28,7 @@ export class GaugeWorkspace extends Disposable {
     private _clientLanguageMap: Map<string, string> = new Map();
     private _outputChannel: OutputChannel = window.createOutputChannel('gauge');
     private _launchConfig: WorkspaceConfiguration;
+    private _codeLensConfig: WorkspaceConfiguration;
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
 
@@ -114,12 +117,19 @@ export class GaugeWorkspace extends Disposable {
         let serverOptions = {
             command: 'gauge',
             args: ["daemon", "--lsp", "--dir=" + folderPath],
+            options: {
+                env: process.env
+            }
         };
 
         this._launchConfig = workspace.getConfiguration(GAUGE_LAUNCH_CONFIG);
         if (this._launchConfig.get(DEBUG_LOG_LEVEL_CONFIG)) {
             serverOptions.args.push("-l");
             serverOptions.args.push("debug");
+        }
+        this._codeLensConfig = workspace.getConfiguration(GAUGE_CODELENSE_CONFIG);
+        if (this._codeLensConfig.has(REFERENCE_CONFIG) && !this._codeLensConfig.get(REFERENCE_CONFIG)) {
+            serverOptions.options.env.gauge_lsp_reference_codelense = 'false';
         }
         let clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'gauge', pattern: `${folderPath}/**/*` }],
