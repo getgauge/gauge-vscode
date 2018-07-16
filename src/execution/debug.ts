@@ -13,6 +13,7 @@ export class GaugeDebugger {
     private languageId: string;
     private projectRoot: string;
     private debug: boolean;
+    private dotnetProcessID: number;
 
     constructor(clientLanguageMap: Map<string, string>, config: any) {
         this.languageId = clientLanguageMap.get(config.projectRoot);
@@ -53,7 +54,20 @@ export class GaugeDebugger {
                     remotePort: this.debugPort
                 };
             }
+            case "csharp": {
+                return {
+                    name: GAUGE_DEBUGGER_NAME,
+                    type: "coreclr",
+                    request: REQUEST_TYPE,
+                    processId: this.dotnetProcessID,
+                    justMyCode: false
+                };
+            }
         }
+    }
+
+    addProcessId(pid: number): any {
+        this.dotnetProcessID = pid;
     }
 
     public addDebugEnv(): Thenable<any> {
