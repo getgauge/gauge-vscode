@@ -33,7 +33,7 @@ export class GaugeExecutor extends Disposable {
     constructor(private gaugeWorkspace: GaugeWorkspace) {
         super(() => this.dispose());
 
-        this._reportThemePath  = gaugeWorkspace.getReportThemePath();
+        this._reportThemePath = gaugeWorkspace.getReportThemePath();
         this.registerExecutionStatus();
         this.registerStopExecution();
         this.registerCommands();
@@ -67,6 +67,7 @@ export class GaugeExecutor extends Disposable {
                         this.gaugeWorkspace.setReportPath(reportPath);
                     }
                     if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
+                        this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
                         this.gaugeDebugger.startDebugger();
                     }
                     if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
@@ -229,12 +230,16 @@ export class GaugeExecutor extends Disposable {
             commands.registerCommand(GaugeVSCodeCommands.ExecuteFailed, () => {
                 if (this.gaugeWorkspace.getClients().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
-                        return this.execute(null, { rerunFailed: true,
-                            status: path.join(selection, "failed scenarios"), projectRoot: selection });
+                        return this.execute(null, {
+                            rerunFailed: true,
+                            status: path.join(selection, "failed scenarios"), projectRoot: selection
+                        });
                     });
-                return this.execute(null, { rerunFailed: true,
+                return this.execute(null, {
+                    rerunFailed: true,
                     status: path.join(this.gaugeWorkspace.getDefaultFolder(), "failed scenarios"),
-                    projectRoot: this.gaugeWorkspace.getDefaultFolder() });
+                    projectRoot: this.gaugeWorkspace.getDefaultFolder()
+                });
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecs, () => {
@@ -251,12 +256,16 @@ export class GaugeExecutor extends Disposable {
             commands.registerCommand(GaugeVSCodeCommands.RepeatExecution, () => {
                 if (this.gaugeWorkspace.getClients().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
-                        return this.execute(null, { repeat: true, status: path.join(selection, "previous run"),
-                        projectRoot: selection });
+                        return this.execute(null, {
+                            repeat: true, status: path.join(selection, "previous run"),
+                            projectRoot: selection
+                        });
                     });
                 return this.execute(null,
-                    { repeat: true, status: path.join(this.gaugeWorkspace.getDefaultFolder(), "previous run"),
-                    projectRoot: this.gaugeWorkspace.getDefaultFolder() });
+                    {
+                        repeat: true, status: path.join(this.gaugeWorkspace.getDefaultFolder(), "previous run"),
+                        projectRoot: this.gaugeWorkspace.getDefaultFolder()
+                    });
             })
         ));
     }
@@ -290,22 +299,22 @@ export class GaugeExecutor extends Disposable {
                 let languageClient = this.gaugeWorkspace.getClients().get(Uri.file(projectRoot).fsPath);
                 return languageClient.sendRequest("gauge/executionStatus", {},
                     new CancellationTokenSource().token).then(
-                    (val: any) => {
-                        let status = '#999999';
-                        if (val.sceFailed > 0)
-                            status = '#E73E48';
-                        else if (val.scePassed > 0)
-                            status = '#66ff66';
-                        executionStatus.color = status;
-                        executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
-                            `  $(issue-opened) ` + val.sceSkipped;
-                        executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
-                            + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
-                            + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
-                            + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
-                        executionStatus.show();
-                    }
-                );
+                        (val: any) => {
+                            let status = '#999999';
+                            if (val.sceFailed > 0)
+                                status = '#E73E48';
+                            else if (val.scePassed > 0)
+                                status = '#66ff66';
+                            executionStatus.color = status;
+                            executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
+                                `  $(issue-opened) ` + val.sceSkipped;
+                            executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
+                                + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
+                                + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
+                                + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
+                            executionStatus.show();
+                        }
+                    );
             }
         });
     }
