@@ -13,7 +13,7 @@ suite('Welcome Page', () => {
             "Expected one document to have welcome page");
     });
 
-    test.only('should have a link to create a new specification', async () => {
+    test('should have a link to create a new specification', async () => {
         await commands.executeCommand(GaugeVSCodeCommands.Welcome);
         const docs = workspace.textDocuments;
         let welcomePage = docs.find((d) => d.uri.toString() === WELCOME_PAGE_URI);
