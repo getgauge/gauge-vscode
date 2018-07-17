@@ -20,6 +20,7 @@ export class ProjectInitializer extends Disposable {
         { name: 'python', desc: "template for gauge-python projects", },
         { name: 'js', desc: "template for gauge-javascript projects", },
         { name: 'ruby', desc: "template for gauge-ruby projects", },
+        { name: 'dotnet', desc: "template for gauge-dotnet projects", }
     ];
 
     constructor(isGaugeInstalled: boolean) {
