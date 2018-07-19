@@ -18,7 +18,7 @@ import fs = require('fs');
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
-const GAUGE_CODELENSE_CONFIG = 'gauge.codeLenses';
+const GAUGE_CODELENS_CONFIG = 'gauge.codeLenses';
 const REFERENCE_CONFIG = 'reference';
 
 export class GaugeWorkspace extends Disposable {
@@ -127,7 +127,7 @@ export class GaugeWorkspace extends Disposable {
             serverOptions.args.push("-l");
             serverOptions.args.push("debug");
         }
-        this._codeLensConfig = workspace.getConfiguration(GAUGE_CODELENSE_CONFIG);
+        this._codeLensConfig = workspace.getConfiguration(GAUGE_CODELENS_CONFIG);
         if (this._codeLensConfig.has(REFERENCE_CONFIG) && !this._codeLensConfig.get(REFERENCE_CONFIG)) {
             serverOptions.options.env.gauge_lsp_reference_codelens = 'false';
         }
