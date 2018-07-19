@@ -129,7 +129,7 @@ export class GaugeWorkspace extends Disposable {
         }
         this._codeLensConfig = workspace.getConfiguration(GAUGE_CODELENSE_CONFIG);
         if (this._codeLensConfig.has(REFERENCE_CONFIG) && !this._codeLensConfig.get(REFERENCE_CONFIG)) {
-            serverOptions.options.env.gauge_lsp_reference_codelense = 'false';
+            serverOptions.options.env.gauge_lsp_reference_codelens = 'false';
         }
         let clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'gauge', pattern: `${folderPath}/**/*` }],
