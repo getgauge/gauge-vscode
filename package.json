@@ -257,6 +257,11 @@
           "type": "boolean",
           "default": true,
           "description": "When true, create the specification wtih help comments."
+        },
+        "gauge.codeLenses.reference": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, reference codeLenses appers in implementation files."
         }
       }
     },
