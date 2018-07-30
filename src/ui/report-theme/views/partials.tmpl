@@ -299,15 +299,13 @@
 {{define "step"}}
   {{template "stepStartDiv" .}}
   {{template "stepBodyDiv" .}}
-  {{if or (.PreHookMessages) (gt (len .PreHookScreenshots) 0)}}
-    {{if .PreHookMessages}}
-      <div class="before-step">
-      {{template "messageDiv" .PreHookMessages}}
-      </div>
-    {{end}}
-    {{if (gt (len .PreHookScreenshots) 0)}}
-      {{template "screenshotDiv" .PreHookScreenshots}}
-    {{end}}
+  {{if .PreHookMessages}}
+    <div class="before-step">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
+  {{if (gt (len .PreHookScreenshots) 0)}}
+    {{template "screenshotDiv" .PreHookScreenshots}}
   {{end}}
   {{if .BeforeStepHookFailure}}
     {{ template "hookFailureDiv" .BeforeStepHookFailure }}
@@ -320,15 +318,13 @@
   {{if .AfterStepHookFailure}}
     {{ template "hookFailureDiv" .AfterStepHookFailure }}
   {{end}}
-  {{if or (.PostHookMessages) (gt (len .PostHookScreenshots) 0)}}
-    {{if .PostHookMessages}}
-      <div class="after-step">
-      {{template "messageDiv" .PostHookMessages}}
-      </div>
-    {{end}}
-    {{if (gt (len .PostHookScreenshots) 0)}}
-      {{template "screenshotDiv" .PostHookScreenshots}}
-    {{end}}
+  {{if .PostHookMessages}}
+    <div class="after-step">
+    {{template "messageDiv" .PostHookMessages}}
+    </div>
+  {{end}}
+  {{if (gt (len .PostHookScreenshots) 0)}}
+    {{template "screenshotDiv" .PostHookScreenshots}}
   {{end}}
 	</li></ul></div></div>
   {{with .Result}}
@@ -365,15 +361,13 @@
 	{{template "scenarioHeaderStartDiv" .}}
 	</div>
   <div class='scenario-details {{if ne .ExecutionStatus "fail"}}collapsed{{end}}'>
-  {{if or (.PreHookMessages) (gt (len .PreHookScreenshots) 0)}}
-    {{if .PreHookMessages}}
-      <div class="before-scenario">
-      {{template "messageDiv" .PreHookMessages}}
-      </div>
-    {{end}}
-    {{if (gt (len .PreHookScreenshots) 0)}}
-      {{template "screenshotDiv" .PreHookScreenshots}}
-    {{end}}
+  {{if .PreHookMessages}}
+    <div class="before-scenario">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
+  {{if (gt (len .PreHookScreenshots) 0)}}
+    {{template "screenshotDiv" .PreHookScreenshots}}
   {{end}}
 	{{if .BeforeScenarioHookFailure}}
 		{{template "hookFailureDiv" .BeforeScenarioHookFailure}}
@@ -392,15 +386,13 @@
       {{template "item" $t}}
     </div>
   {{end}}
-  {{if or (.PostHookMessages) (gt (len .PostHookScreenshots) 0)}}
-    {{if .PostHookMessages}}
+  {{if .PostHookMessages}}
     <div class="after-scenario">
     {{template "messageDiv" .PostHookMessages}}
     </div>
   {{end}}
-    {{if (gt (len .PostHookScreenshots) 0)}}
-      {{template "screenshotDiv" .PostHookScreenshots}}
-    {{end}}
+  {{if (gt (len .PostHookScreenshots) 0)}}
+    {{template "screenshotDiv" .PostHookScreenshots}}
   {{end}}
 	{{if .AfterScenarioHookFailure }}
 		{{template "hookFailureDiv" .AfterScenarioHookFailure}}
@@ -419,15 +411,13 @@
 		{{template "specErrorDiv" .}}
 		</div>
 	{{else}}
-    {{if or (.PreHookMessages) (gt (len .PreHookScreenshots) 0)}}
-    {{if .PreHookMessages}}
-      <div class="before-spec">
-      {{template "messageDiv" .PreHookMessages}}
-      </div>
-    {{end}}
-    {{if (gt (len .PreHookScreenshots) 0)}}
-      {{template "screenshotDiv" .PreHookScreenshots}}
-    {{end}}
+  {{if .PreHookMessages}}
+    <div class="before-spec">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
+  {{if (gt (len .PreHookScreenshots) 0)}}
+    {{template "screenshotDiv" .PreHookScreenshots}}
   {{end}}
     {{range $index, $beforeHook := .BeforeSpecHookFailures}}
       {{template "hookFailureDiv" $beforeHook}}
@@ -440,15 +430,13 @@
       {{end}}
 
     </div>
-    {{if or (.PostHookMessages) (gt (len .PostHookScreenshots) 0)}}
-      {{if .PostHookMessages}}
-        <div class="after-spec">
-        {{template "messageDiv" .PostHookMessages}}
-        </div>
-      {{end}}
-      {{if (gt (len .PostHookScreenshots) 0)}}
-        {{template "screenshotDiv" .PostHookScreenshots}}
-      {{end}}
+    {{if .PostHookMessages}}
+      <div class="after-spec">
+      {{template "messageDiv" .PostHookMessages}}
+      </div>
+    {{end}}
+    {{if (gt (len .PostHookScreenshots) 0)}}
+      {{template "screenshotDiv" .PostHookScreenshots}}
     {{end}}
     {{range $index, $afterHook := .AfterSpecHookFailures}}
       {{template "hookFailureDiv" $afterHook}}
@@ -475,7 +463,6 @@
 	{{$overview := (toOverview . "")}}
 	{{template "htmlPageStartTag" $overview}}
 	{{template "reportOverviewTag" $overview}}
-{{if or (.PreHookMessages) (gt (len .PreHookScreenshots) 0)}}
   {{if .PreHookMessages}}
     <div class="before-suite">
     {{template "messageDiv" .PreHookMessages}}
@@ -484,8 +471,6 @@
   {{if (gt (len .PreHookScreenshots) 0)}}
     {{template "screenshotDiv" .PreHookScreenshots}}
   {{end}}
-{{end}}
-
 	{{if .BeforeSuiteHookFailure}}
     {{template "hookFailureDiv" .BeforeSuiteHookFailure}}
   {{end}}
@@ -499,15 +484,13 @@
     {{end}}
     </div>
   {{end}}
-  {{if or (.PostHookMessages) (gt (len .PostHookScreenshots) 0)}}
-    {{if .PostHookMessages}}
-      <div class="after-suite">
-      {{template "messageDiv" .PostHookMessages}}
-      </div>
-    {{end}}
-    {{if (gt (len .PostHookScreenshots) 0)}}
-      {{template "screenshotDiv" .PostHookScreenshots}}
-    {{end}}
+  {{if .PostHookMessages}}
+    <div class="after-suite">
+    {{template "messageDiv" .PostHookMessages}}
+    </div>
+  {{end}}
+  {{if (gt (len .PostHookScreenshots) 0)}}
+    {{template "screenshotDiv" .PostHookScreenshots}}
   {{end}}
  	</div>
 	</main>
