@@ -424,12 +424,16 @@ h3.spec-head:before {
     width: 100%;
 }
 
-.exception-container .screenshot-container {
+.screenshot-container {
     position: relative;
 }
 
-.exception-container img {
+.screenshot-container img {
     max-width: 50%;
+}
+
+.screenshot-container .screenshot {
+    width: 16.66%;
 }
 
 .execution-time {
