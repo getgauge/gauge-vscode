@@ -42,11 +42,7 @@
         <div class="exception">
           <pre class="stacktrace">{{.StackTrace | escapeHTML | encodeNewLine}}</pre>
         </div>
-        {{if .Screenshot}}
-          <div class="screenshot-container">
-            <img src="data:image/png;base64,{{.Screenshot}}" class="screenshot-thumbnail" alt='screenshot'/>
-          </div>
-        {{end}}
+        {{template "screenshotDiv" .Screenshot}}
     </div>
   </div>
 {{end}}
@@ -74,6 +70,21 @@
       <div class="messages">
         {{range .}}<div class="step-message">{{. | encodeNewLine | parseMarkdown | sanitize}} </div>{{end}}
       </div>
+    </div>
+  {{end}}
+{{end}}
+
+/* Show all screenshots that the user may have introduce using the Gauge.captureScreenshot API */
+{{define "screenshotDiv"}}
+  {{ if gt (len .) 0}}
+    <div class="screenshot-container gauge-screenshot">
+    {{range .}}
+      {{if .}}
+        <div class="screenshot">
+          <img src="data:image/png;base64,{{.}}" class="screenshot-thumbnail" />
+        </div>
+      {{end}}
+    {{end}}
     </div>
   {{end}}
 {{end}}
@@ -220,9 +231,7 @@
           </h4>
           <pre class="stacktrace">{{.StackTrace | escapeHTML | encodeNewLine}}</pre>
         </div>
-        {{if .Screenshot}}<div class="screenshot-container">
-          <img src="data:image/png;base64,{{.Screenshot}}" class="screenshot-thumbnail" />
-        </div>{{end}}
+        {{template "screenshotDiv" .Screenshot}}
     </div>
   </div>
 {{end}}
@@ -295,6 +304,11 @@
     {{template "messageDiv" .PreHookMessages}}
     </div>
   {{end}}
+  {{if (gt (len .PreHookScreenshots) 0)}}
+    <div class="before-step">
+      {{template "screenshotDiv" .PreHookScreenshots}}
+      </div>
+  {{end}}
   {{if .BeforeStepHookFailure}}
     {{ template "hookFailureDiv" .BeforeStepHookFailure }}
   {{end}}
@@ -310,6 +324,11 @@
     <div class="after-step">
     {{template "messageDiv" .PostHookMessages}}
     </div>
+  {{end}}
+  {{if (gt (len .PostHookScreenshots) 0)}}
+    <div class="after-step">
+      {{template "screenshotDiv" .PostHookScreenshots}}
+      </div>
   {{end}}
 	</li></ul></div></div>
   {{with .Result}}
@@ -351,6 +370,11 @@
     {{template "messageDiv" .PreHookMessages}}
     </div>
   {{end}}
+  {{if (gt (len .PreHookScreenshots) 0)}}
+    <div class="before-scenario">
+      {{template "screenshotDiv" .PreHookScreenshots}}
+      </div>
+  {{end}}
 	{{if .BeforeScenarioHookFailure}}
 		{{template "hookFailureDiv" .BeforeScenarioHookFailure}}
 	{{end}}
@@ -368,11 +392,15 @@
       {{template "item" $t}}
     </div>
   {{end}}
-
   {{if .PostHookMessages}}
     <div class="after-scenario">
     {{template "messageDiv" .PostHookMessages}}
     </div>
+  {{end}}
+  {{if (gt (len .PostHookScreenshots) 0)}}
+    <div class="after-scenario">
+      {{template "screenshotDiv" .PostHookScreenshots}}
+      </div>
   {{end}}
 	{{if .AfterScenarioHookFailure }}
 		{{template "hookFailureDiv" .AfterScenarioHookFailure}}
@@ -391,11 +419,16 @@
 		{{template "specErrorDiv" .}}
 		</div>
 	{{else}}
-    {{if .PreHookMessages}}
-      <div class="before-spec">
-      {{template "messageDiv" .PreHookMessages}}
+  {{if .PreHookMessages}}
+    <div class="before-spec">
+    {{template "messageDiv" .PreHookMessages}}
+    </div>
+  {{end}}
+  {{if (gt (len .PreHookScreenshots) 0)}}
+    <div class="before-spec">
+      {{template "screenshotDiv" .PreHookScreenshots}}
       </div>
-    {{end}}
+  {{end}}
     {{range $index, $beforeHook := .BeforeSpecHookFailures}}
       {{template "hookFailureDiv" $beforeHook}}
     {{end}}
@@ -407,11 +440,15 @@
       {{end}}
 
     </div>
-
     {{if .PostHookMessages}}
       <div class="after-spec">
       {{template "messageDiv" .PostHookMessages}}
       </div>
+    {{end}}
+    {{if (gt (len .PostHookScreenshots) 0)}}
+      <div class="after-spec">
+        {{template "screenshotDiv" .PostHookScreenshots}}
+        </div>
     {{end}}
     {{range $index, $afterHook := .AfterSpecHookFailures}}
       {{template "hookFailureDiv" $afterHook}}
@@ -443,6 +480,11 @@
     {{template "messageDiv" .PreHookMessages}}
     </div>
   {{end}}
+  {{if (gt (len .PreHookScreenshots) 0)}}
+    <div class="before-suite">
+      {{template "screenshotDiv" .PreHookScreenshots}}
+      </div>
+  {{end}}
 	{{if .BeforeSuiteHookFailure}}
     {{template "hookFailureDiv" .BeforeSuiteHookFailure}}
   {{end}}
@@ -460,6 +502,11 @@
     <div class="after-suite">
     {{template "messageDiv" .PostHookMessages}}
     </div>
+  {{end}}
+  {{if (gt (len .PostHookScreenshots) 0)}}
+    <div class="after-suite">
+      {{template "screenshotDiv" .PostHookScreenshots}}
+      </div>
   {{end}}
  	</div>
 	</main>

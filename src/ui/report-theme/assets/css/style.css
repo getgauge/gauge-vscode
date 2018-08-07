@@ -424,12 +424,20 @@ h3.spec-head:before {
     width: 100%;
 }
 
-.exception-container .screenshot-container {
+.screenshot-container {
     position: relative;
+    display: flex;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
-.exception-container img {
-    max-width: 50%;
+.screenshot-container img {
+    max-width: 100%;
+}
+
+.screenshot-container .screenshot {
+    width: 10%;
+    padding: 0px 0px 0px 10px;
 }
 
 .execution-time {
@@ -493,7 +501,7 @@ h3.spec-head:before {
     opacity: 0.8;
 }
 
-.gauge-message:hover:after {
+.gauge-message:hover:after, .gauge-screenshot:hover:after {
     font-style: italic;
     font-size: 0.8rem;
     padding-left: 2rem;
@@ -501,7 +509,7 @@ h3.spec-head:before {
     opacity: 0.5;
 }
 
-.gauge-message:hover {
+.gauge-message:hover, .gauge-screenshot:hover {
     background-color: var(--hover-background);
 }
 
@@ -535,6 +543,38 @@ h3.spec-head:before {
 
 .after-step .gauge-message:hover:after{
     content: "After Step Messages";
+}
+
+.before-suite .gauge-screenshot:hover:after{
+    content: "Before Suite Screenshot";
+}
+
+.after-suite .gauge-screenshot:hover:after{
+    content: "After Suite Screenshot";
+}
+
+.before-spec .gauge-screenshot:hover:after{
+    content: "Before Spec Screenshot";
+}
+
+.after-spec .gauge-screenshot:hover:after{
+    content: "After Spec Screenshot";
+}
+
+.before-scenario .gauge-screenshot:hover:after{
+    content: "Before Scenario Screenshot";
+}
+
+.after-scenario .gauge-screenshot:hover:after{
+    content: "After Scenario Screenshot";
+}
+
+.before-step .gauge-screenshot:hover:after{
+    content: "Before Step Screenshot";
+}
+
+.after-step .gauge-screenshot:hover:after{
+    content: "After Step Screenshot";
 }
 
 .before-step, .after-step {
