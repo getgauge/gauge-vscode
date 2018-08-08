@@ -48,7 +48,7 @@ export class GaugeExecutor extends Disposable {
             this.executing = true;
             this.preExecute.forEach((f) => f.call(null, path.relative(config.projectRoot, config.status)));
             this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
-            this.gaugeDebugger.addDebugEnv().then((env) => {
+            this.gaugeDebugger.addDebugEnv(config.projectRoot).then((env) => {
                 env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
                 env.use_nested_specs = "false";
                 let args = this.getArgs(spec, config);

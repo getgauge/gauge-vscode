@@ -2,6 +2,7 @@
 
 import { window, workspace, debug } from 'vscode';
 import getPort = require('get-port');
+import { isDotnetProject } from '../util';
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
 const REQUEST_TYPE = "attach";
@@ -60,7 +61,7 @@ export class GaugeDebugger {
                     type: "coreclr",
                     request: REQUEST_TYPE,
                     processId: this.dotnetProcessID,
-                    justMyCode: false
+                    justMyCode: true
                 };
             }
         }
@@ -70,11 +71,12 @@ export class GaugeDebugger {
         this.dotnetProcessID = pid;
     }
 
-    public addDebugEnv(): Thenable<any> {
+    public addDebugEnv(projectRoot: string): Thenable<any> {
         let env = Object.create(process.env);
         if (this.debug) {
             env.DEBUGGING = true;
             return getPort({ port: DEBUG_PORT }).then((port) => {
+                if (isDotnetProject(projectRoot)) env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
                 env.DEBUG_PORT = port;
                 this.debugPort = port;
                 return env;
