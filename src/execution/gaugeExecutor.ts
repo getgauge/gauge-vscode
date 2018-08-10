@@ -1,18 +1,16 @@
 'use strict';
 
+import { ChildProcess } from 'child_process';
 import {
-    window, Position, workspace, Uri, CancellationTokenSource, debug, ExtensionContext, Disposable,
-    commands, StatusBarAlignment
+    CancellationTokenSource, commands, Disposable, Position, StatusBarAlignment, Uri, window, workspace
 } from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
+import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
+import { GaugeWorkspace } from '../gaugeWorkspace';
+import { GaugeDebugger } from "./debug";
+import { OutputChannel } from './outputChannel';
 import cp = require('child_process');
 import path = require('path');
-import { LineBuffer } from './lineBuffer';
-import { OutputChannel } from './outputChannel';
-import { GaugeVSCodeCommands, GaugeCommands, LAST_REPORT_PATH } from '../constants';
-import { ChildProcess } from 'child_process';
-import { GaugeDebugger } from "./debug";
-import { GaugeWorkspace } from '../gaugeWorkspace';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -46,7 +44,6 @@ export class GaugeExecutor extends Disposable {
                 return;
             }
             this.executing = true;
-            this.preExecute.forEach((f) => f.call(null, path.relative(config.projectRoot, config.status)));
             this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
             this.gaugeDebugger.addDebugEnv(config.projectRoot).then((env) => {
                 env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
@@ -55,6 +52,7 @@ export class GaugeExecutor extends Disposable {
                 let chan = new OutputChannel(this.outputChannel,
                     ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '),
                     config.projectRoot);
+                this.preExecute.forEach((f) => f.call(null, env, path.relative(config.projectRoot, config.status)));
                 this.childProcess = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot, env: env });
                 this.childProcess.stdout.on('data', (chunk) => {
                     let lineText = chunk.toString();
@@ -275,7 +273,8 @@ export class GaugeExecutor extends Disposable {
         stopExecution.command = GaugeVSCodeCommands.StopExecution;
         stopExecution.tooltip = 'Click to Stop Run';
         this._disposables.push(stopExecution);
-        this.onBeforeExecute((s) => {
+        this.onBeforeExecute((env, s) => {
+            if (env.DEBUGGING) return;
             stopExecution.text = `$(primitive-square) Running ${s}`;
             stopExecution.show();
         });
