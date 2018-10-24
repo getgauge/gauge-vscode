@@ -1,5 +1,6 @@
 import { spawnSync } from 'child_process';
 import { GaugeCommands } from './constants';
+import { getGaugeCommand } from './util';
 
 export class GaugeVersionInfo {
     public version: string;
@@ -32,7 +33,7 @@ export class GaugeVersionInfo {
 }
 
 export function getGaugeVersionInfo() {
-    let gv = spawnSync(GaugeCommands.Gauge, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
+    let gv = spawnSync(getGaugeCommand(), [GaugeCommands.Version, GaugeCommands.MachineReadable]);
     if (gv.error) {
         return null;
     }

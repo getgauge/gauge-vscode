@@ -3,8 +3,10 @@
 import * as path from 'path';
 import { WorkspaceFolder } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
-import { GAUGE_MANIFEST_FILE } from './constants';
+import { GAUGE_MANIFEST_FILE, GaugeCommands } from './constants';
+import { spawnSync } from 'child_process';
 
+let gaugeCommand;
 export function isGaugeProject(folder: WorkspaceFolder): boolean {
     const filePath = path.join(folder.uri.fsPath, GAUGE_MANIFEST_FILE);
     if (existsSync(filePath)) {
@@ -24,4 +26,11 @@ export function isDotnetProject(projectRoot) {
     let mainfest = JSON.parse(readFileSync(filePath, 'utf-8'));
     return mainfest.Language === 'dotnet';
 
+}
+
+export function getGaugeCommand(): string {
+    if (gaugeCommand) return gaugeCommand;
+    gaugeCommand = GaugeCommands.Gauge;
+    if (spawnSync(gaugeCommand).error) gaugeCommand = GaugeCommands.GaugeCmd;
+    return gaugeCommand;
 }

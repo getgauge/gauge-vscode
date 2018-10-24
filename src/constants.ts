@@ -42,6 +42,7 @@ export enum GaugeVSCodeCommands {
 
 export enum GaugeCommands {
     Gauge = 'gauge',
+    GaugeCmd = 'gauge.cmd',
     Version = '--version',
     MachineReadable = '--machine-readable',
     Run = 'run',

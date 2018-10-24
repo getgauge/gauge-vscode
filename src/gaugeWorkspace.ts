@@ -12,9 +12,7 @@ import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-import { isGaugeProject } from './util';
-
-import fs = require('fs');
+import { isGaugeProject, getGaugeCommand } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -115,7 +113,7 @@ export class GaugeWorkspace extends Disposable {
         let folderPath = folder.uri.fsPath;
         if (!isGaugeProject(folder)) return;
         let serverOptions = {
-            command: 'gauge',
+            command: getGaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + folderPath],
             options: {
                 env: process.env
