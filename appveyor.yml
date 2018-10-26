@@ -1,6 +1,7 @@
 environment:
-  nodejs_version: "8"
+  nodejs_version: "10"
   GAUGE_PREFIX: C:\Program Files\Gauge\bin
+  GAUGE_TELEMETRY_ENABLED: false
 
 init:
 - ps: Install-Product node $env:nodejs_version
