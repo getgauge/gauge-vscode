@@ -2,13 +2,12 @@
 import * as path from 'path';
 
 import {
-    workspace, ExtensionContext, Uri, extensions, Position,
-    commands, window, CancellationTokenSource, version, languages
+    workspace, ExtensionContext, extensions,
+    commands, window, version, languages
 } from 'vscode';
 
 import opn = require('opn');
-import { GaugeExecutor } from "./execution/gaugeExecutor";
-import { VSCodeCommands, GaugeVSCodeCommands } from './constants';
+import { GaugeVSCodeCommands } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
@@ -19,10 +18,12 @@ import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
 import { isGaugeProject } from './util';
 import { showWelcomePage } from './pages/welcome';
+import { execSync } from 'child_process';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
+export let GAUGE_COMMAND;
 
 export function activate(context: ExtensionContext) {
     let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
