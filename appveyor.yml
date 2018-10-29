@@ -25,5 +25,5 @@ build_script:
     gauge.exe version
 
 test_script:
-- ps: npm run build --silent
+- ps: npm run build
 - ps: npm test
