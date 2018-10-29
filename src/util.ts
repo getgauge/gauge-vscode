@@ -19,9 +19,13 @@ export function isGaugeProject(folder: WorkspaceFolder): boolean {
     return false;
 }
 
-export function gaugeProjectsFromConfig(workspaceConfig: WorkspaceConfiguration): WorkspaceFolder [] {
-    const pwd = workspace.workspaceFolders[0];
-    return workspaceConfig.projectsDir.map( (dirName) => {
+export function findGaugeProjects( folders: WorkspaceFolder[]): WorkspaceFolder [] {
+    let gaugeProjects = [];
+    if (folders.some(isGaugeProject)) return folders;
+    let configuredGaugeProjects = workspace.getConfiguration("gauge").projectsDir;
+    if (!configuredGaugeProjects.length || folders.length > 1 ) return gaugeProjects;
+    const pwd = folders[0];
+    return configuredGaugeProjects.map( (dirName) => {
         let workspaceFolder = {
             uri: Uri.file(path.join(pwd.uri.fsPath, dirName))
         }  as  WorkspaceFolder;
