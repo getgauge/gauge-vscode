@@ -3,7 +3,7 @@
 import * as path from 'path';
 import {
     CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration, WorkspaceFolder,
-    WorkspaceFoldersChangeEvent, commands, window, workspace
+    WorkspaceFoldersChangeEvent, commands, window, workspace, Uri
 } from "vscode";
 import { DynamicFeature, LanguageClient, RevealOutputChannelOn } from "vscode-languageclient";
 import { GaugeCommandContext, setCommandContext } from "./constants";
@@ -32,11 +32,10 @@ export class GaugeWorkspace extends Disposable {
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
 
-    constructor(private state: GaugeState) {
+    constructor(private state: GaugeState, private workspaceFolders: WorkspaceFolder []) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
-        workspace.workspaceFolders.forEach((folder) => this.startServerFor(folder));
-
+        workspaceFolders.forEach((folder) => this.startServerFor(folder));
         setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
 
         workspace.onDidChangeWorkspaceFolders((event) => {

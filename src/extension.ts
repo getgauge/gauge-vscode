@@ -17,7 +17,7 @@ import { GaugeState } from './gaugeState';
 import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
-import { isGaugeProject } from './util';
+import { isGaugeProject, gaugeProjectsFromConfig } from './util';
 import { showWelcomePage } from './pages/welcome';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
@@ -37,13 +37,14 @@ export function activate(context: ExtensionContext) {
         })
     );
 
-    if (!folders || !folders.some(isGaugeProject)) return;
+    const projectsDir = gaugeProjectsFromConfig(workspace.getConfiguration("gauge"));
+    if (!folders || !folders.some(isGaugeProject) && !projectsDir.length) return;
     showWelcomePage(context, hasExtensionUpdated(context, currentExtensionVersion));
     if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
 
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
 
-    let gaugeWorkspace = new GaugeWorkspace(new GaugeState(context));
+    let gaugeWorkspace = new GaugeWorkspace(new GaugeState(context), folders.length > 1 ? folders : projectsDir);
 
     let clients = gaugeWorkspace.getClients();
     pageProvider.activated = true;

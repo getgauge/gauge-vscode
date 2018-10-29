@@ -1,12 +1,12 @@
 'use strict';
 
 import * as path from 'path';
-import { WorkspaceFolder } from 'vscode';
+import { WorkspaceFolder, WorkspaceConfiguration, Uri, workspace } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
 import { GAUGE_MANIFEST_FILE } from './constants';
 
 export function isGaugeProject(folder: WorkspaceFolder): boolean {
-    const filePath = path.join(folder.uri.fsPath, GAUGE_MANIFEST_FILE);
+    const filePath = path.join( folder.uri.fsPath, GAUGE_MANIFEST_FILE);
     if (existsSync(filePath)) {
         try {
             const content = readFileSync(filePath);
@@ -17,6 +17,16 @@ export function isGaugeProject(folder: WorkspaceFolder): boolean {
         }
     }
     return false;
+}
+
+export function gaugeProjectsFromConfig(workspaceConfig: WorkspaceConfiguration): WorkspaceFolder [] {
+    const pwd = workspace.workspaceFolders[0];
+    return workspaceConfig.projectsDir.map( (dirName) => {
+        let workspaceFolder = {
+            uri: Uri.file(path.join(pwd.uri.fsPath, dirName))
+        }  as  WorkspaceFolder;
+        return workspaceFolder;
+    });
 }
 
 export function isDotnetProject(projectRoot) {
