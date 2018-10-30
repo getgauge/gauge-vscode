@@ -36,7 +36,8 @@ export function findGaugeProjects( folders: WorkspaceFolder[]): WorkspaceFolder 
 }
 
 export function setGaugeProjectRoot(absPath: string) {
-    let basePath = path.basename(absPath);
+    let pwd = workspace.workspaceFolders[0];
+    let basePath = path.relative(pwd.uri.fsPath, absPath);
     const config = workspace.getConfiguration();
     let projectsDir = config.inspect(GAUGE_PROJECTS_DIR_CONF).workspaceValue as Array<String>;
     if (projectsDir) {
