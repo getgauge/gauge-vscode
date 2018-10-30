@@ -11,6 +11,7 @@ import AdmZip = require('adm-zip');
 import { VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL } from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
+import { getGaugeCommand } from '../util';
 
 export class ProjectInitializer extends Disposable {
     private isGaugeInstalled: boolean;
@@ -71,7 +72,7 @@ export class ProjectInitializer extends Disposable {
         let args = [GaugeCommands.Init, template.label];
         let options = { cwd: projectFolder.fsPath, env: process.env };
         p.report("Initializing project...");
-        let proc = spawn(GaugeCommands.Gauge, args, options);
+        let proc = spawn(getGaugeCommand(), args, options);
         proc.addListener('err', async (err) => {
             this.handleError(p, "Failed to create template. " + err.message, projectFolder.fsPath);
         });

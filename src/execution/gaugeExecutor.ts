@@ -9,6 +9,7 @@ import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
+import { getGaugeCommand } from '../util';
 import cp = require('child_process');
 import path = require('path');
 
@@ -50,10 +51,10 @@ export class GaugeExecutor extends Disposable {
                 env.use_nested_specs = "false";
                 let args = this.getArgs(spec, config);
                 let chan = new OutputChannel(this.outputChannel,
-                    ['Running tool:', GaugeCommands.Gauge, args.join(' ')].join(' '),
+                    ['Running tool:', getGaugeCommand(), args.join(' ')].join(' '),
                     config.projectRoot);
                 this.preExecute.forEach((f) => f.call(null, env, path.relative(config.projectRoot, config.status)));
-                this.childProcess = cp.spawn(GaugeCommands.Gauge, args, { cwd: config.projectRoot, env: env });
+                this.childProcess = cp.spawn(getGaugeCommand(), args, { cwd: config.projectRoot, env: env });
                 this.childProcess.stdout.on('data', (chunk) => {
                     let lineText = chunk.toString();
                     chan.appendOutBuf(lineText);
