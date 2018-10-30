@@ -149,6 +149,11 @@
           "light": "resources/light/icon-list.svg",
           "dark": "resources/dark/icon-list.svg"
         }
+      },
+      {
+        "command":"gauge.setGaugeProjectRoot",
+        "title":"Set gauge project",
+        "category": "Gauge"
       }
     ],
     "menus": {
@@ -204,6 +209,12 @@
         {
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",
           "when": "false"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "gauge.setGaugeProjectRoot",
+          "when": "explorerResourceIsFolder"
         }
       ],
       "view/title": [

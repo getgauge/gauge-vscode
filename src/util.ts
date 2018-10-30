@@ -1,9 +1,10 @@
 'use strict';
 
 import * as path from 'path';
-import { WorkspaceFolder, WorkspaceConfiguration, Uri, workspace } from 'vscode';
+import { WorkspaceFolder, Uri, workspace, ConfigurationTarget, commands } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
-import { GAUGE_MANIFEST_FILE } from './constants';
+import { GAUGE_MANIFEST_FILE, VSCodeCommands } from './constants';
+const GAUGE_PROJECTS_DIR_CONF = "gauge.projectsDir";
 
 export function isGaugeProject(folder: WorkspaceFolder): boolean {
     const filePath = path.join( folder.uri.fsPath, GAUGE_MANIFEST_FILE);
@@ -22,7 +23,8 @@ export function isGaugeProject(folder: WorkspaceFolder): boolean {
 export function findGaugeProjects( folders: WorkspaceFolder[]): WorkspaceFolder [] {
     let gaugeProjects = [];
     if (folders.some(isGaugeProject)) return folders;
-    let configuredGaugeProjects = workspace.getConfiguration("gauge").projectsDir;
+    const config = workspace.getConfiguration();
+    let configuredGaugeProjects = config.inspect(GAUGE_PROJECTS_DIR_CONF).workspaceValue as Array<string> || [];
     if (!configuredGaugeProjects.length || folders.length > 1 ) return gaugeProjects;
     const pwd = folders[0];
     return configuredGaugeProjects.map( (dirName) => {
@@ -31,6 +33,19 @@ export function findGaugeProjects( folders: WorkspaceFolder[]): WorkspaceFolder 
         }  as  WorkspaceFolder;
         return workspaceFolder;
     });
+}
+
+export function setGaugeProjectRoot(absPath: string) {
+    let basePath = path.basename(absPath);
+    const config = workspace.getConfiguration();
+    let projectsDir = config.inspect(GAUGE_PROJECTS_DIR_CONF).workspaceValue as Array<String>;
+    if (projectsDir) {
+        projectsDir = projectsDir.concat(basePath);
+    } else {
+        projectsDir = [basePath];
+    }
+    config.update(GAUGE_PROJECTS_DIR_CONF, projectsDir, ConfigurationTarget.Workspace)
+        .then(() => commands.executeCommand(VSCodeCommands.ReloadWindow));
 }
 
 export function isDotnetProject(projectRoot) {

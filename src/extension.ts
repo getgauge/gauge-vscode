@@ -1,14 +1,11 @@
 'use strict';
-import * as path from 'path';
 
 import {
-    workspace, ExtensionContext, Uri, extensions, Position,
-    commands, window, CancellationTokenSource, version, languages
+    workspace, ExtensionContext, extensions, commands, window, version, languages
 } from 'vscode';
 
 import opn = require('opn');
-import { GaugeExecutor } from "./execution/gaugeExecutor";
-import { VSCodeCommands, GaugeVSCodeCommands } from './constants';
+import { GaugeVSCodeCommands } from './constants';
 import { getGaugeVersionInfo, GaugeVersionInfo } from './gaugeVersion';
 import { PageProvider } from './pages/provider';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
@@ -17,7 +14,7 @@ import { GaugeState } from './gaugeState';
 import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
-import { isGaugeProject, findGaugeProjects } from './util';
+import { findGaugeProjects, setGaugeProjectRoot } from './util';
 import { showWelcomePage } from './pages/welcome';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
@@ -34,7 +31,8 @@ export function activate(context: ExtensionContext) {
         pageProvider,
         commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => {
             reportIssue(versionInfo);
-        })
+        }),
+        commands.registerCommand(GaugeVSCodeCommands.SetGaugeProjectRoot, (dir) => setGaugeProjectRoot(dir.fsPath) )
     );
 
     const gaugeProjects = findGaugeProjects(folders);

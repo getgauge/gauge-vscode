@@ -38,6 +38,7 @@ export enum GaugeVSCodeCommands {
     ExecuteInTerminal = "gauge.executeIn.terminal",
     CreateProject = "gauge.createProject",
     CreateSpecification = "gauge.create.specification",
+    SetGaugeProjectRoot = "gauge.setGaugeProjectRoot"
 }
 
 export enum GaugeCommands {
