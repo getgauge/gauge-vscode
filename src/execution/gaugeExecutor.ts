@@ -11,6 +11,7 @@ import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
 import cp = require('child_process');
 import path = require('path');
+import { getGaugeProject } from '../util';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -124,7 +125,7 @@ export class GaugeExecutor extends Disposable {
         let activeTextEditor = window.activeTextEditor;
         if (activeTextEditor) {
             let spec = activeTextEditor.document.fileName;
-            let lc = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath);
+            let lc = clients.get(getGaugeProject(window.activeTextEditor.document.uri).uri.fsPath);
             if (!extensions.includes(path.extname(spec))) {
                 return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
             }
@@ -221,7 +222,7 @@ export class GaugeExecutor extends Disposable {
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.Debug, (spec) => {
-                let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+                let cwd = getGaugeProject(window.activeTextEditor.document.uri).uri.fsPath;
                 return this.execute(spec, { inParallel: false, status: spec, projectRoot: cwd, debug: true });
             }),
 

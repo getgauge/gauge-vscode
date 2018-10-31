@@ -35,6 +35,11 @@ export function findGaugeProjects( folders: WorkspaceFolder[]): WorkspaceFolder 
     });
 }
 
+export function getGaugeProject(uri: Uri): WorkspaceFolder {
+    let projects = findGaugeProjects(workspace.workspaceFolders);
+    return projects.find( (project) => !!uri.fsPath.match(project.uri.fsPath) );
+}
+
 export function setGaugeProjectRoot(absPath: string) {
     let pwd = workspace.workspaceFolders[0];
     let basePath = path.relative(pwd.uri.fsPath, absPath);
