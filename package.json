@@ -152,8 +152,8 @@
         }
       },
       {
-        "command":"gauge.setGaugeProjectRoot",
-        "title":"Set gauge project",
+        "command": "gauge.setGaugeProjectRoot",
+        "title": "Set gauge project",
         "category": "Gauge"
       }
     ],
