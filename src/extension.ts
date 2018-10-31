@@ -14,7 +14,7 @@ import { GaugeState } from './gaugeState';
 import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
-import { findGaugeProjects, setGaugeProjectRoot } from './util';
+import { findGaugeProjects, setGaugeProjectRoot, getProjectRootFromSpecPath } from './util';
 import { showWelcomePage } from './pages/welcome';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
@@ -32,7 +32,13 @@ export function activate(context: ExtensionContext) {
         commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => {
             reportIssue(versionInfo);
         }),
-        commands.registerCommand(GaugeVSCodeCommands.SetGaugeProjectRoot, (dir) => setGaugeProjectRoot(dir.fsPath) )
+        commands.registerCommand(GaugeVSCodeCommands.SetGaugeProjectRoot, (dir) => setGaugeProjectRoot(dir.fsPath) ),
+        window.onDidChangeActiveTextEditor( ( event ) => {
+            if (isGaugeDocument(event.document)) {
+                let proejctRoot = getProjectRootFromSpecPath(event.document.uri.fsPath);
+                setGaugeProjectRoot(proejctRoot);
+            }
+        })
     );
 
     const gaugeProjects = findGaugeProjects(folders);
@@ -53,6 +59,10 @@ export function activate(context: ExtensionContext) {
         new GenerateStubCommandProvider(clients),
         new ConfigProvider(context)
     );
+}
+
+function isGaugeDocument(document) {
+    return document.languageId === "gauge";
 }
 
 function reportIssue(gaugeVersion: GaugeVersionInfo) {

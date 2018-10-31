@@ -6,8 +6,9 @@ import { existsSync, readFileSync } from 'fs';
 import { GAUGE_MANIFEST_FILE, VSCodeCommands } from './constants';
 const GAUGE_PROJECTS_DIR_CONF = "gauge.projectsDir";
 
-export function isGaugeProject(folder: WorkspaceFolder): boolean {
-    const filePath = path.join( folder.uri.fsPath, GAUGE_MANIFEST_FILE);
+export function isGaugeProject(folder: WorkspaceFolder | string): boolean {
+    const basePath = (typeof folder === 'string' ? folder : folder.uri.fsPath);
+    const filePath = path.join( basePath, GAUGE_MANIFEST_FILE);
     if (existsSync(filePath)) {
         try {
             const content = readFileSync(filePath);
@@ -46,6 +47,7 @@ export function setGaugeProjectRoot(absPath: string) {
     const config = workspace.getConfiguration();
     let projectsDir = config.inspect(GAUGE_PROJECTS_DIR_CONF).workspaceValue as Array<String>;
     if (projectsDir) {
+        if (projectsDir.includes(basePath) ) return;
         projectsDir = projectsDir.concat(basePath);
     } else {
         projectsDir = [basePath];
@@ -54,6 +56,13 @@ export function setGaugeProjectRoot(absPath: string) {
         .then(() => commands.executeCommand(VSCodeCommands.ReloadWindow));
 }
 
+export function getProjectRootFromSpecPath(specFilePath: string): string {
+    let projectRoot = path.parse(specFilePath);
+    while ( !isGaugeProject(projectRoot.dir)) {
+        projectRoot = path.parse(projectRoot.dir);
+    }
+    return projectRoot.dir;
+}
 export function isDotnetProject(projectRoot) {
     const filePath = path.join(projectRoot, GAUGE_MANIFEST_FILE);
     let mainfest = JSON.parse(readFileSync(filePath, 'utf-8'));

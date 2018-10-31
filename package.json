@@ -20,7 +20,8 @@
     "onCommand:gauge.createProject",
     "onCommand:gauge.welcome",
     "onCommand:gauge.help.reportIssue",
-    "workspaceContains:**/manifest.json"
+    "workspaceContains:**/manifest.json",
+    "onLanguage:gauge"
   ],
   "icon": "images/gauge-icon.png",
   "galleryBanner": {
