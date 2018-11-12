@@ -1,5 +1,4 @@
 'use strict';
-import * as path from 'path';
 
 import {
     workspace, ExtensionContext, extensions,
@@ -18,7 +17,6 @@ import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
 import { isGaugeProject } from './util';
 import { showWelcomePage } from './pages/welcome';
-import { execSync } from 'child_process';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_VSCODE_VERSION = 'gauge.version';

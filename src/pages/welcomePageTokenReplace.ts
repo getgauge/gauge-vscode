@@ -1,3 +1,5 @@
+'use strict';
+
 import { spawnSync } from "child_process";
 import { getGaugeVersionInfo } from '../gaugeVersion';
 

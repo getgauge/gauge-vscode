@@ -1,3 +1,5 @@
+'use strict';
+
 import { LanguageClient } from "vscode-languageclient";
 import { commands, workspace, window, CancellationTokenSource, Disposable } from "vscode";
 import * as path from 'path';

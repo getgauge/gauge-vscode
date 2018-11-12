@@ -1,3 +1,5 @@
+'use strict';
+
 import { Disposable, window, ExtensionContext, commands, Terminal } from "vscode";
 import { GaugeVSCodeCommands } from "../constants";
 

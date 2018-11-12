@@ -1,3 +1,5 @@
+'use strict';
+
 import { TextDocumentContentProvider, Disposable, Uri, Event, ExtensionContext, EventEmitter, workspace } from "vscode";
 import { Page } from "./page";
 import { WelcomePage } from "./welcome";

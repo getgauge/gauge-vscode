@@ -1,9 +1,9 @@
-import { workspace, Disposable } from 'vscode';
-import { DynamicFeature, RegistrationData, BaseLanguageClient, NextSignature } from 'vscode-languageclient';
+'use strict';
 
-import {
-    ClientCapabilities, InitializedParams, RPCMessageType, CancellationToken
-} from 'vscode-languageserver-protocol';
+import { workspace, Disposable } from 'vscode';
+import { DynamicFeature, RegistrationData, BaseLanguageClient } from 'vscode-languageclient';
+
+import { ClientCapabilities, InitializedParams, RPCMessageType } from 'vscode-languageserver-protocol';
 
 import { SaveFilesRequest, GaugeClientCapabilities } from './protocol/gauge.proposed';
 
@@ -28,7 +28,7 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
 
     public initialize(): void {
         let client = this._client;
-        client.onRequest(SaveFilesRequest.type, (token: CancellationToken) => {
+        client.onRequest(SaveFilesRequest.type, () => {
             return workspace.saveAll(false).then(() => {
                 return null;
             });
