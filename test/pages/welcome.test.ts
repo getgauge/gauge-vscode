@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { commands, window, workspace } from 'vscode';
+import { commands, workspace } from 'vscode';
 import { GaugeVSCodeCommands, WELCOME_PAGE_URI } from '../../src/constants';
 
 suite('Welcome Page', () => {
