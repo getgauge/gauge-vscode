@@ -26,4 +26,4 @@ build_script:
 
 test_script:
 - ps: npm run build
-- ps: npm test --silent
+- ps: npm test -- --silent
