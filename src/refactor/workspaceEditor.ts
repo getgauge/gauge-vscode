@@ -1,3 +1,5 @@
+'use strict';
+
 import {
     WorkspaceEdit, window, workspace, TextDocument, TextEdit, Uri, TextEditor,
     TextDocumentShowOptions, Position, Range

@@ -1,3 +1,5 @@
+'use strict';
+
 import { Disposable, ExtensionContext } from "vscode";
 import * as path from 'path';
 import { LAST_REPORT_PATH } from "./constants";

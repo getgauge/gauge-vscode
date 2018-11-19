@@ -1,10 +1,12 @@
+'use strict';
+
 import * as os from 'os';
 import * as path from 'path';
 import { get } from 'https';
 
 import * as fs from 'fs-extra';
 
-import { ExtensionContext, Disposable, commands, window, Uri, workspace, QuickPickItem, Progress } from 'vscode';
+import { Disposable, commands, window, Uri, workspace, Progress } from 'vscode';
 
 import AdmZip = require('adm-zip');
 

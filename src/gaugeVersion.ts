@@ -1,3 +1,5 @@
+'use strict';
+
 import { spawnSync } from 'child_process';
 import { GaugeCommands } from './constants';
 import { getGaugeCommand } from './util';

@@ -2,7 +2,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = function(env, argv) {
     if (env === undefined) {
@@ -14,11 +14,11 @@ module.exports = function(env, argv) {
     const sourceMaps = !env.production;
 
     const plugins = [
-    	new webpack.optimize.ModuleConcatenationPlugin(),
-    	new UglifyJsPlugin({
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new TerserPlugin({
             parallel: true,
             sourceMap: sourceMaps,
-            uglifyOptions: {
+            terserOptions: {
                 ecma: 8,
                 compress: minify ? {} : false,
                 mangle: minify,
@@ -45,7 +45,7 @@ module.exports = function(env, argv) {
         externals: [
             nodeExternals()
         ],
-        devtool: sourceMaps ? 'inline-source-map' : false,
+        devtool: sourceMaps ? 'source-map' : false,
         module: {
             rules: [
                 {

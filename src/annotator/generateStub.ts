@@ -1,8 +1,10 @@
+'use strict';
+
 import { LanguageClient } from "vscode-languageclient";
 import { commands, workspace, window, CancellationTokenSource, Disposable } from "vscode";
 import * as path from 'path';
 
-import copyPaste = require("copy-paste");
+import clipboardy = require("clipboardy");
 
 import { GaugeVSCodeCommands, GaugeRequests, NEW_FILE, COPY_TO_CLIPBOARD } from "../constants";
 import { FileListItem } from "../types/fileListItem";
@@ -45,7 +47,7 @@ export class GenerateStubCommandProvider implements Disposable {
             window.showQuickPick(this.getFileLists(files, cwd)).then((selected: FileListItem) => {
                 if (!selected) return;
                 if (selected.isCopyToClipBoard()) {
-                    copyPaste.copy(code);
+                    clipboardy.writeSync(code);
                     window.showInformationMessage("Step Implementation copied to clipboard");
                 } else {
                     let params = { implementationFilePath: selected.value, codes: [code] };

@@ -1,3 +1,5 @@
+'use strict';
+
 import { Disposable, commands, workspace, Uri, CancellationTokenSource, window } from "vscode";
 import { GaugeVSCodeCommands, VSCodeCommands } from "./constants";
 import {

@@ -1,6 +1,5 @@
 import * as assert from 'assert';
 import * as path from 'path';
-import { TextDocument } from 'vscode-languageclient/lib/main';
 import { Uri, commands, window, workspace } from 'vscode';
 import { GaugeVSCodeCommands, REPORT_URI } from '../../src/constants';
 
@@ -48,7 +47,7 @@ suite('Gauge Execution Tests', () => {
 
     test('should execute scenario at cursor', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
-        let editor = await window.showTextDocument(specFile);
+        await window.showTextDocument(specFile);
         await commands.executeCommand("workbench.action.focusFirstEditorGroup");
         let cm = { to: 'down', by: 'line', value: 8 };
         await commands.executeCommand("cursorMove", cm);

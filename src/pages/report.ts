@@ -1,4 +1,6 @@
-import {Disposable, workspace, Uri, ExtensionContext, commands, ViewColumn, window} from 'vscode';
+'use strict';
+
+import {Disposable, workspace, Uri, ExtensionContext, commands, ViewColumn} from 'vscode';
 import {Page} from "./page";
 import * as path from 'path';
 import {LAST_REPORT_PATH, GaugeVSCodeCommands, VSCodeCommands, REPORT_URI} from "../constants";

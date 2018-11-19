@@ -1,4 +1,5 @@
-import * as path from 'path';
+'use strict';
+
 import { QuickPickItem } from 'vscode';
 import { COPY_TO_CLIPBOARD } from '../constants';
 

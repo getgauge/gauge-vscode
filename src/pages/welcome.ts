@@ -1,3 +1,5 @@
+'use strict';
+
 import { Disposable, Uri, workspace, commands, ViewColumn, window, ExtensionContext, TextDocument } from "vscode";
 import { GaugeVSCodeCommands, VSCodeCommands, WELCOME_PAGE_URI } from "../constants";
 import * as path from 'path';

@@ -1,7 +1,6 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeVSCodeCommands, GaugeRequests, setCommandContext, GaugeCommandContext } from '../constants';
@@ -9,7 +8,6 @@ import {
     commands, workspace, TextDocument, Uri, Position, Range, window,
     TextDocumentShowOptions, TextEditor, Disposable
 } from 'vscode';
-import { GaugeExecutor } from '../execution/gaugeExecutor';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 
 const extensions = [".spec", ".md"];
