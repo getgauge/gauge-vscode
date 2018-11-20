@@ -3,7 +3,7 @@
 import * as path from 'path';
 import {
     CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration, WorkspaceFolder,
-    WorkspaceFoldersChangeEvent, commands, window, workspace
+    WorkspaceFoldersChangeEvent, commands, window, workspace, Uri
 } from "vscode";
 import { DynamicFeature, LanguageClient, RevealOutputChannelOn } from "vscode-languageclient";
 import { GaugeCommandContext, setCommandContext } from "./constants";
@@ -12,7 +12,7 @@ import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-import { isGaugeProject, getGaugeCommand } from './util';
+import { isGaugeProject, getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -34,6 +34,13 @@ export class GaugeWorkspace extends Disposable {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
         workspace.workspaceFolders.forEach((folder) => this.startServerFor(folder));
+        if (hasActiveGaugeDocument(window.activeTextEditor)) {
+            let projectRootv = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
+            let workspaceFolder = {
+                uri: Uri.file(projectRootv)
+            } as WorkspaceFolder;
+            this.startServerFor(workspaceFolder);
+        }
 
         setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
 
