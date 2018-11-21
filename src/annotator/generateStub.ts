@@ -9,6 +9,7 @@ import clipboardy = require("clipboardy");
 import { GaugeVSCodeCommands, GaugeRequests, NEW_FILE, COPY_TO_CLIPBOARD } from "../constants";
 import { FileListItem } from "../types/fileListItem";
 import { WorkspaceEditor } from "../refactor/workspaceEditor";
+import { getProjectRootFromSpecPath } from "../util";
 
 export class GenerateStubCommandProvider implements Disposable {
     private readonly _clients: Map<string, LanguageClient>;
@@ -25,7 +26,7 @@ export class GenerateStubCommandProvider implements Disposable {
         );
     }
     private generateConceptStub(conceptInfo: any) {
-        let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+        let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
         let languageClient = this._clients.get(cwd);
         let t = new CancellationTokenSource().token;
         languageClient.sendRequest(GaugeRequests.Files, { concept: true }, t).then((files: string[]) => {
@@ -40,7 +41,7 @@ export class GenerateStubCommandProvider implements Disposable {
     }
 
     private generateStepStub(code: string) {
-        let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+        let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
         let languageClient = this._clients.get(cwd);
         let token = new CancellationTokenSource().token;
         languageClient.sendRequest(GaugeRequests.Files, token).then((files: string[]) => {

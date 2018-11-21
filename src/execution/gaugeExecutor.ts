@@ -9,7 +9,7 @@ import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
-import { getGaugeCommand } from '../util';
+import { getGaugeCommand, getProjectRootFromSpecPath } from '../util';
 import cp = require('child_process');
 import path = require('path');
 
@@ -113,7 +113,7 @@ export class GaugeExecutor extends Disposable {
             return this.execute(doc.fileName, {
                 inParallel: false,
                 status: doc.fileName,
-                projectRoot: workspace.getWorkspaceFolder(doc.uri).uri.fsPath
+                projectRoot: getProjectRootFromSpecPath(doc.uri.fsPath)
             });
         } else {
             return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
@@ -125,7 +125,7 @@ export class GaugeExecutor extends Disposable {
         let activeTextEditor = window.activeTextEditor;
         if (activeTextEditor) {
             let spec = activeTextEditor.document.fileName;
-            let lc = clients.get(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath);
+            let lc = clients.get(getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath));
             if (!extensions.includes(path.extname(spec))) {
                 return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
             }
@@ -185,7 +185,7 @@ export class GaugeExecutor extends Disposable {
             if (selected) {
                 let sce = scenarios.find((sce) => selected.label === sce.heading);
                 let path = sce.executionIdentifier.substring(0, sce.executionIdentifier.lastIndexOf(":"));
-                let pr = workspace.getWorkspaceFolder(Uri.file(path)).uri.fsPath;
+                let pr = getProjectRootFromSpecPath(Uri.file(path).fsPath);
                 return this.execute(sce.executionIdentifier, {
                     inParallel: false,
                     status: sce.executionIdentifier,
@@ -202,7 +202,7 @@ export class GaugeExecutor extends Disposable {
             return this.executeOptedScenario(scenarios);
         }
         let path = scenarios.executionIdentifier.substring(0, scenarios.executionIdentifier.lastIndexOf(":"));
-        let pr = workspace.getWorkspaceFolder(Uri.file(path)).uri.fsPath;
+        let pr = getProjectRootFromSpecPath(Uri.file(path).fsPath);
         return this.execute(scenarios.executionIdentifier, {
             inParallel: false,
             status: scenarios.executionIdentifier,
@@ -213,16 +213,16 @@ export class GaugeExecutor extends Disposable {
     private registerCommands() {
         this._disposables.push(Disposable.from(
             commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
-                let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+                let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, { inParallel: false, status: spec, projectRoot: cwd });
             }),
             commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => {
-                let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+                let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, { inParallel: true, status: spec, projectRoot: cwd });
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.Debug, (spec) => {
-                let cwd = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri).uri.fsPath;
+                let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, { inParallel: false, status: spec, projectRoot: cwd, debug: true });
             }),
 

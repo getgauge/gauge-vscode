@@ -9,6 +9,7 @@ import {
     TextDocumentShowOptions, TextEditor, Disposable
 } from 'vscode';
 import { GaugeWorkspace } from '../gaugeWorkspace';
+import { getProjectRootFromSpecPath } from '../util';
 
 const extensions = [".spec", ".md"];
 
@@ -125,7 +126,7 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
 
     private shouldRefresh(fileUri: vscode.Uri): boolean {
         return extensions.includes(path.extname(fileUri.fsPath)) &&
-            workspace.getWorkspaceFolder(fileUri).uri.fsPath === this.activeFolder;
+            getProjectRootFromSpecPath(fileUri.fsPath) === this.activeFolder;
     }
 
     changeClient(projectPath: string) {
