@@ -262,6 +262,11 @@
           "type": "boolean",
           "default": true,
           "description": "When true, reference codeLenses appers in implementation files."
+        },
+        "gauge.showRecommendedSettings": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, Gauge recommended settings are shown."
         }
       }
     },

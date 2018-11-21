@@ -18,14 +18,17 @@ export class ConfigProvider extends Disposable {
 
         this.applyDefaultSettings();
         this._disposable = commands.registerCommand(GaugeVSCodeCommands.SaveRecommendedSettings,
-            () => this.applyAndReload());
+            () => this.applyAndReload(this.recommendedSettings));
 
-        if (!this.verify()) {
+        if (!this.verifyRecommendedConfig()) {
             window.showInformationMessage("Gauge [recommends](https://docs.gauge.org/using.html#id31) " +
-                "some settings for best experience with Visual Studio Code.", "Apply & Reload", "Ignore")
+                "some settings for best experience with Visual Studio Code.",
+                "Apply & Reload", "Ignore", "Ignore Always")
                 .then((option) => {
                     if (option === "Apply & Reload") {
-                        return this.applyAndReload();
+                        return this.applyAndReload(this.recommendedSettings);
+                    } else if (option === "Ignore Always") {
+                        return this.applyAndReload({"gauge.showRecommendedSettings": false});
                     }
                 });
         }
@@ -40,7 +43,8 @@ export class ConfigProvider extends Disposable {
         workspace.getConfiguration().update(FILE_ASSOCIATIONS_KEY, recomendedConfig, ConfigurationTarget.Workspace);
     }
 
-    private verify(): boolean {
+    private verifyRecommendedConfig(): boolean {
+        if (!workspace.getConfiguration().get("gauge.showRecommendedSettings")) return true;
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
                 let configVal = workspace.getConfiguration().inspect(key);
@@ -53,12 +57,12 @@ export class ConfigProvider extends Disposable {
         return true;
     }
 
-    private applyAndReload(): Thenable<any> {
+    private applyAndReload(settings: Object): Thenable<any> {
         let updatePromises = [];
-        for (const key in this.recommendedSettings) {
-            if (this.recommendedSettings.hasOwnProperty(key)) {
+        for (const key in settings) {
+            if (settings.hasOwnProperty(key)) {
                 updatePromises.push(workspace.getConfiguration()
-                    .update(key, this.recommendedSettings[key], ConfigurationTarget.Global));
+                    .update(key, settings[key], ConfigurationTarget.Global));
             }
         }
         return Promise.all(updatePromises).then(() => commands.executeCommand(VSCodeCommands.ReloadWindow));
