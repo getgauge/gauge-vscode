@@ -7,11 +7,11 @@ let testDataPath = path.join(__dirname, '..', '..', 'test', 'testdata', 'sampleP
 suite('Gauge References Tests', () => {
     setup(async () => {
         await commands.executeCommand('workbench.action.closeAllEditors');
+        let implFile = Uri.file(path.join(testDataPath, 'tests', 'step_implementation.js'));
+        await window.showTextDocument(implFile);
     });
 
     test('should show references for step at cursor', async () => {
-        let implFile = Uri.file(path.join(testDataPath, 'tests', 'step_implementation.js'));
-        await window.showTextDocument(implFile);
         await commands.executeCommand("workbench.action.focusFirstEditorGroup");
         await commands.executeCommand("cursorMove", { to: 'down', by: 'line', value: 18 });
         let value = await commands.executeCommand('gauge.showReferences.atCursor');
