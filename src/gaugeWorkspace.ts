@@ -3,7 +3,7 @@
 import * as path from 'path';
 import {
     CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration, WorkspaceFolder,
-    WorkspaceFoldersChangeEvent, commands, window, workspace, Uri
+    WorkspaceFoldersChangeEvent, commands, window, workspace, Uri, TextEditor
 } from "vscode";
 import { DynamicFeature, LanguageClient, RevealOutputChannelOn, LanguageClientOptions } from "vscode-languageclient";
 import { GaugeCommandContext, setCommandContext } from "./constants";
@@ -34,10 +34,8 @@ export class GaugeWorkspace extends Disposable {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
         workspace.workspaceFolders.forEach((folder) => this.startServerFor(folder));
-        if (hasActiveGaugeDocument(window.activeTextEditor)) {
-            let projectRoot = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
-            this.startServerFor(projectRoot);
-        }
+        if (hasActiveGaugeDocument(window.activeTextEditor))
+            this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
 
         setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
 
@@ -52,8 +50,22 @@ export class GaugeWorkspace extends Disposable {
             this._specNodeProvider,
             this._executor,
             this._fileProvider,
-            this.onConfigurationChange()
+            this.onConfigurationChange(),
+            this.onEditorChange()
         );
+    }
+
+    private onEditorChange(): Disposable {
+        return window.onDidChangeActiveTextEditor((editor) => {
+            if (hasActiveGaugeDocument(editor))
+                this.startServerForSpecFile(editor.document.uri.fsPath);
+        });
+    }
+
+    private startServerForSpecFile(file: string) {
+        let projectRoot = getProjectRootFromSpecPath(file);
+        if (!this._clients.has(projectRoot))
+            this.startServerFor(projectRoot);
     }
 
     setReportPath(reportPath: string) {
