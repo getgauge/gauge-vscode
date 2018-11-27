@@ -5,6 +5,7 @@ import { GaugeVSCodeCommands, VSCodeCommands } from "./constants";
 import {
     LanguageClient, TextDocumentIdentifier, Location as LSLocation, Position as LSPosition
 } from 'vscode-languageclient';
+import { getProjectRootFromSpecPath } from "./util";
 
 export class ReferenceProvider extends Disposable {
     private _disposable: Disposable;
@@ -22,7 +23,7 @@ export class ReferenceProvider extends Disposable {
     private showStepReferences(clients: Map<string, LanguageClient>):
     (uri: string, position: LSPosition, stepValue: string) => Thenable<any> {
     return (uri: string, position: LSPosition, stepValue: string) => {
-        let languageClient = clients.get(workspace.getWorkspaceFolder(Uri.parse(uri)).uri.fsPath);
+        let languageClient = clients.get(getProjectRootFromSpecPath(Uri.parse(uri).fsPath));
         return languageClient.sendRequest("gauge/stepReferences", stepValue, new CancellationTokenSource().token).then(
             (locations: LSLocation[]) => {
                 return this.showReferences(locations, uri, languageClient, position);
@@ -35,7 +36,7 @@ export class ReferenceProvider extends Disposable {
             let position = window.activeTextEditor.selection.active;
             let documentId = TextDocumentIdentifier.create(window.activeTextEditor.document.uri.toString());
             let activeEditor = window.activeTextEditor.document.uri;
-            let languageClient = clients.get(workspace.getWorkspaceFolder(activeEditor).uri.fsPath);
+            let languageClient = clients.get(getProjectRootFromSpecPath(activeEditor.fsPath));
             let params = { textDocument: documentId, position };
             return languageClient.sendRequest("gauge/stepValueAt", params, new CancellationTokenSource().token).then(
                 (stepValue: string) => {

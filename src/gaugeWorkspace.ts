@@ -3,16 +3,16 @@
 import * as path from 'path';
 import {
     CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration, WorkspaceFolder,
-    WorkspaceFoldersChangeEvent, commands, window, workspace
+    WorkspaceFoldersChangeEvent, commands, window, workspace, Uri, TextEditor
 } from "vscode";
-import { DynamicFeature, LanguageClient, RevealOutputChannelOn } from "vscode-languageclient";
+import { DynamicFeature, LanguageClient, RevealOutputChannelOn, LanguageClientOptions } from "vscode-languageclient";
 import { GaugeCommandContext, setCommandContext } from "./constants";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-import { isGaugeProject, getGaugeCommand } from './util';
+import { isGaugeProject, getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -34,6 +34,8 @@ export class GaugeWorkspace extends Disposable {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
         workspace.workspaceFolders.forEach((folder) => this.startServerFor(folder));
+        if (hasActiveGaugeDocument(window.activeTextEditor))
+            this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
 
         setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
 
@@ -48,8 +50,22 @@ export class GaugeWorkspace extends Disposable {
             this._specNodeProvider,
             this._executor,
             this._fileProvider,
-            this.onConfigurationChange()
+            this.onConfigurationChange(),
+            this.onEditorChange()
         );
+    }
+
+    private onEditorChange(): Disposable {
+        return window.onDidChangeActiveTextEditor((editor) => {
+            if (hasActiveGaugeDocument(editor))
+                this.startServerForSpecFile(editor.document.uri.fsPath);
+        });
+    }
+
+    private startServerForSpecFile(file: string) {
+        let projectRoot = getProjectRootFromSpecPath(file);
+        if (!this._clients.has(projectRoot))
+            this.startServerFor(projectRoot);
     }
 
     setReportPath(reportPath: string) {
@@ -109,9 +125,9 @@ export class GaugeWorkspace extends Disposable {
         this._specNodeProvider.changeClient(this.getDefaultFolder());
     }
 
-    private startServerFor(folder: WorkspaceFolder) {
-        let folderPath = folder.uri.fsPath;
-        if (!isGaugeProject(folder)) return;
+    private startServerFor(folder: WorkspaceFolder | string) {
+        let folderPath = typeof folder === 'string' ? folder : folder.uri.fsPath;
+        if (!isGaugeProject(folderPath)) return;
         let serverOptions = {
             command: getGaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + folderPath],
@@ -129,13 +145,13 @@ export class GaugeWorkspace extends Disposable {
         if (this._codeLensConfig.has(REFERENCE_CONFIG) && !this._codeLensConfig.get(REFERENCE_CONFIG)) {
             serverOptions.options.env.gauge_lsp_reference_codelens = 'false';
         }
-        let clientOptions = {
+        let clientOptions: LanguageClientOptions = {
             documentSelector: [{ scheme: 'file', language: 'gauge', pattern: `${folderPath}/**/*` }],
             diagnosticCollectionName: 'gauge',
-            workspaceFolder: folder,
             outputChannel: this._outputChannel,
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
+        if (typeof folder !== 'string') clientOptions.workspaceFolder = folder;
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
 
         this.registerDynamicFeatures(languageClient);

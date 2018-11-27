@@ -1,14 +1,15 @@
 'use strict';
 
 import * as path from 'path';
-import { WorkspaceFolder } from 'vscode';
+import { WorkspaceFolder, TextDocument, TextEditor } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
 import { GAUGE_MANIFEST_FILE, GaugeCommands } from './constants';
 import { spawnSync } from 'child_process';
 
 let gaugeCommand;
-export function isGaugeProject(folder: WorkspaceFolder): boolean {
-    const filePath = path.join(folder.uri.fsPath, GAUGE_MANIFEST_FILE);
+export function isGaugeProject(folder: WorkspaceFolder | string): boolean {
+    const basePath = (typeof folder === 'string' ? folder : folder.uri.fsPath);
+    const filePath = path.join( basePath, GAUGE_MANIFEST_FILE);
     if (existsSync(filePath)) {
         try {
             const content = readFileSync(filePath);
@@ -26,6 +27,22 @@ export function isDotnetProject(projectRoot) {
     let mainfest = JSON.parse(readFileSync(filePath, 'utf-8'));
     return mainfest.Language === 'dotnet';
 
+}
+
+export function getProjectRootFromSpecPath(specFilePath: string): string {
+    let projectRoot = path.parse(specFilePath);
+    while ( !isGaugeProject(projectRoot.dir)) {
+        projectRoot = path.parse(projectRoot.dir);
+    }
+    return projectRoot.dir;
+}
+
+export function hasActiveGaugeDocument(activeTextEditor: TextEditor) {
+    return activeTextEditor && isGaugeDocument(activeTextEditor.document);
+}
+
+function isGaugeDocument(document: TextDocument ) {
+    return document.languageId === "gauge";
 }
 
 export function getGaugeCommand(): string {

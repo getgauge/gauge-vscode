@@ -15,7 +15,7 @@ import { GaugeState } from './gaugeState';
 import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
-import { isGaugeProject } from './util';
+import { isGaugeProject, hasActiveGaugeDocument } from './util';
 import { showWelcomePage } from './pages/welcome';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
@@ -36,7 +36,7 @@ export function activate(context: ExtensionContext) {
         })
     );
 
-    if (!folders || !folders.some(isGaugeProject)) return;
+    if (!(hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
     showWelcomePage(context, hasExtensionUpdated(context, currentExtensionVersion));
     if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
 
