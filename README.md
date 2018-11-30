@@ -103,7 +103,7 @@ To override default configurations in [VSCode settings](https://code.visualstudi
 * `gauge.launch.enableDebugLogs`:  Starts gauge lsp server with log-level `debug`, defaults to `false`
 * `gauge.execution.debugPort`:  Debug port, defaults to `9229`
 * `gauge.notification.suppressUpdateNotification`:  Stops notifications for gauge-vscode plugin auto-updates, defaults to `false`
-* `gauge.create.specification.withHelp`: Crete specification template with help comments, defults to `true`
+* `gauge.create.specification.withHelp`: Create specification template with help comments, defaults to `true`
 
 # Install from source
 
