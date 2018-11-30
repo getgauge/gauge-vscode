@@ -42,7 +42,13 @@
         <div class="exception">
           <pre class="stacktrace">{{.StackTrace | escapeHTML | encodeNewLine}}</pre>
         </div>
-        {{template "screenshotDiv" .Screenshot}}
+        {{if .FailureScreenshot}}
+          <div class="screenshot-container gauge-screenshot">
+            <div class="screenshot">
+              <img src="data:image/png;base64,{{.FailureScreenshot}}" class="screenshot-thumbnail" />
+            </div>
+          </div>
+      {{end}}
     </div>
   </div>
 {{end}}
@@ -231,7 +237,13 @@
           </h4>
           <pre class="stacktrace">{{.StackTrace | escapeHTML | encodeNewLine}}</pre>
         </div>
-        {{template "screenshotDiv" .Screenshot}}
+        {{if .FailureScreenshot}}
+          <div class="screenshot-container gauge-screenshot">
+            <div class="screenshot">
+              <img src="data:image/png;base64,{{.FailureScreenshot}}" class="screenshot-thumbnail" />
+            </div>
+          </div>
+      {{end}}
     </div>
   </div>
 {{end}}
@@ -316,6 +328,8 @@
     {{if and (and (eq .Status "fail") (ne .ErrorMessage "")) (ne .StackTrace "") }}
         {{template "stepFailureDiv" .}}
     {{end }}
+    {{template "messageDiv" .Messages}}
+    {{template "screenshotDiv" .Screenshots}}
   {{end}}
   {{if .AfterStepHookFailure}}
     {{ template "hookFailureDiv" .AfterStepHookFailure }}
