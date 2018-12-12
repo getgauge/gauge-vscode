@@ -264,10 +264,15 @@
           "default": true,
           "description": "When true, reference codeLenses appers in implementation files."
         },
-        "gauge.showRecommendedSettings": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, Gauge recommended settings are shown."
+        "gauge.recommendedSettings.options": {
+          "type": "string",
+          "default": "Apply & Reload",
+          "enum": [
+            "Apply & Reload",
+            "Ignore",
+            "Ignore Always"
+          ],
+          "description": "Gauge recommended settings are shown/ignored based on the given value."
         }
       }
     },

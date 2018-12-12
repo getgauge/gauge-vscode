@@ -26,9 +26,16 @@ export class ConfigProvider extends Disposable {
                 "Apply & Reload", "Ignore", "Ignore Always")
                 .then((option) => {
                     if (option === "Apply & Reload") {
-                        return this.applyAndReload(this.recommendedSettings);
+                        let settings = {...this.recommendedSettings,
+                            ...{"gauge.recommendedSettings.options": "Apply & Reload"}};
+                        return this.applyAndReload(settings);
                     } else if (option === "Ignore Always") {
-                        return this.applyAndReload({"gauge.showRecommendedSettings": false});
+                        return this.applyAndReload({"gauge.recommendedSettings.options": "Ignore Always"});
+                    } else if (option === "Ignore") {
+                        let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
+                        if (config.globalValue !== "Ignore") {
+                            return this.applyAndReload({"gauge.recommendedSettings.options": "Ignore"});
+                        }
                     }
                 });
         }
@@ -44,7 +51,8 @@ export class ConfigProvider extends Disposable {
     }
 
     private verifyRecommendedConfig(): boolean {
-        if (!workspace.getConfiguration().get("gauge.showRecommendedSettings")) return true;
+        let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
+        if (config.globalValue === "Ignore Always") return true;
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
                 let configVal = workspace.getConfiguration().inspect(key);
