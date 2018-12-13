@@ -9,7 +9,7 @@ import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
-import { getGaugeCommand, getProjectRootFromSpecPath } from '../util';
+import { getGaugeCommand, getProjectRootFromSpecPath, getExecutionCommand, isMavenProject } from '../util';
 import cp = require('child_process');
 import path = require('path');
 
@@ -51,10 +51,11 @@ export class GaugeExecutor extends Disposable {
                 env.use_nested_specs = "false";
                 let args = this.getArgs(spec, config);
                 let chan = new OutputChannel(this.outputChannel,
-                    ['Running tool:', getGaugeCommand(), args.join(' ')].join(' '),
+                    ['Running tool:', getExecutionCommand(config.projectRoot), args.join(' ')].join(' '),
                     config.projectRoot);
                 this.preExecute.forEach((f) => f.call(null, env, path.relative(config.projectRoot, config.status)));
-                this.childProcess = cp.spawn(getGaugeCommand(), args, { cwd: config.projectRoot, env: env });
+                this.childProcess = cp.spawn(getExecutionCommand(config.projectRoot), args,
+                    { cwd: config.projectRoot, env: env });
                 this.childProcess.stdout.on('data', (chunk) => {
                     let lineText = chunk.toString();
                     chan.appendOutBuf(lineText);
@@ -143,7 +144,19 @@ export class GaugeExecutor extends Disposable {
         }
     }
 
+    private createMavenArgs(spec, config): Array<string> {
+        let args = ["-q", "gauge:execute"];
+        let defaultArgs = `-Dflags=--hide-suggestion,--simple-console`;
+        if (config.rerunFailed) return args.concat(`-Dflags=--failed`);
+        if (config.repeat) return args.concat(`-Dflags=--repeat`);
+        args = args.concat(defaultArgs);
+        if (config.inParallel) args = args.concat("-DinParallel=true");
+        if (spec) return args.concat(`-DspecDirs=${spec}`);
+        return args;
+    }
+
     private getArgs(spec, config): Array<string> {
+        if (isMavenProject(config.projectRoot)) return this.createMavenArgs(spec, config);
         if (config.rerunFailed) {
             return [GaugeCommands.Run, GaugeCommands.RerunFailed];
         }
