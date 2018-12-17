@@ -145,7 +145,7 @@ export class GaugeExecutor extends Disposable {
     }
 
     private createMavenArgs(spec, config): Array<string> {
-        let args = ["-q", "gauge:execute"];
+        let args = ["-q", "clean", "compile", "test-compile", "gauge:execute"];
         let defaultArgs = `-Dflags=--hide-suggestion,--simple-console`;
         if (config.rerunFailed) return args.concat(`-Dflags=--failed`);
         if (config.repeat) return args.concat(`-Dflags=--repeat`);
