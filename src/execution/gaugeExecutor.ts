@@ -1,15 +1,13 @@
 'use strict';
 
 import { ChildProcess } from 'child_process';
-import {
-    CancellationTokenSource, commands, Disposable, Position, StatusBarAlignment, Uri, window, workspace
-} from 'vscode';
+import { CancellationTokenSource, commands, Disposable, Position, StatusBarAlignment, Uri, window } from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
+import { getExecutionCommand, getProjectRootFromSpecPath, isMavenProject } from '../util';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
-import { getGaugeCommand, getProjectRootFromSpecPath, getExecutionCommand, isMavenProject } from '../util';
 import cp = require('child_process');
 import path = require('path');
 
@@ -49,6 +47,7 @@ export class GaugeExecutor extends Disposable {
             this.gaugeDebugger.addDebugEnv(config.projectRoot).then((env) => {
                 env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
                 env.use_nested_specs = "false";
+                env.SHOULD_BUILD_PROJECT = "true";
                 let args = this.getArgs(spec, config);
                 let chan = new OutputChannel(this.outputChannel,
                     ['Running tool:', getExecutionCommand(config.projectRoot), args.join(' ')].join(' '),
