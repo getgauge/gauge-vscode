@@ -1,5 +1,5 @@
 environment:
-  nodejs_version: "10"
+  nodejs_version: "11"
   GAUGE_PREFIX: C:\Program Files\Gauge\bin
   GAUGE_TELEMETRY_ENABLED: false
 
