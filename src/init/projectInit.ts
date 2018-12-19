@@ -10,10 +10,11 @@ import { Disposable, commands, window, Uri, workspace, Progress } from 'vscode';
 
 import AdmZip = require('adm-zip');
 
-import { VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL } from "../constants";
+import { VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL, MAVEN_COMMAND } from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
-import { getGaugeCommand } from '../util';
+import { getGaugeCommand, isMavenInstalled } from '../util';
+import { log } from 'util';
 
 export class ProjectInitializer extends Disposable {
     private isGaugeInstalled: boolean;
@@ -23,8 +24,18 @@ export class ProjectInitializer extends Disposable {
         { name: 'python', desc: "template for gauge-python projects", },
         { name: 'js', desc: "template for gauge-javascript projects", },
         { name: 'ruby', desc: "template for gauge-ruby projects", },
-        { name: 'dotnet', desc: "template for gauge-dotnet projects", }
+        { name: 'java', desc: "template for gauge-java projects", },
+        { name: 'java_maven', desc: "template for gauge-java projects with maven as build tool.", },
+        { name: 'java_maven_selenium', desc: "template for gauge-java selenium projects with maven as build tool.", }
     ];
+
+    private readonly _archtypes: any = {
+        java_maven: { archetypeArtifactId: 'gauge-archetype-java', archetypeGroupId: 'com.thoughtworks.gauge.maven' },
+        java_maven_selenium: {
+            archetypeArtifactId: 'gauge-archetype-selenium',
+            archetypeGroupId: 'com.thoughtworks.gauge.maven'
+        },
+    };
 
     constructor(isGaugeInstalled: boolean) {
         super(() => this.dispose());
@@ -41,16 +52,12 @@ export class ProjectInitializer extends Disposable {
     private async createProject() {
         const tmpl = await window.showQuickPick(this.getTemplatesList());
         if (!tmpl) return;
+        let folders = await this.getTargetFolder();
+        if (!folders) return;
         let options: any = { prompt: "Enter a name for your new project", placeHolder: "gauge-tests" };
+        if (tmpl.label.includes("java_maven")) return this.createMavenProject(tmpl.label, folders[0].fsPath);
         const name = await window.showInputBox(options);
         if (!name) return;
-        options = {
-            canSelectFolders: true,
-            openLabel: "Select a folder to create the project in",
-            canSelectMany: false
-        };
-        const folders = await window.showOpenDialog(options);
-        if (!folders) return;
         const projectFolderUri = Uri.file(path.join(folders[0].fsPath, name));
         if (fs.existsSync(projectFolderUri.fsPath)) {
             return this.handleError(
@@ -58,6 +65,67 @@ export class ProjectInitializer extends Disposable {
         }
         fs.mkdirSync(projectFolderUri.fsPath);
         return this.createProjectInDir(tmpl, projectFolderUri);
+    }
+
+    private async getTargetFolder() {
+        let options = {
+            canSelectFolders: true,
+            openLabel: "Select a folder to create the project in",
+            canSelectMany: false
+        };
+        const folders = await window.showOpenDialog(options);
+        return folders;
+    }
+
+    private async createMavenProject(tmpl: string, targetDir: string) {
+        try {
+            if (!isMavenInstalled()) throw new Error("Executable mvn not found.");
+            let info = await this.captureMavenProjectInfo();
+            if (!info) return;
+            return await this.createProjectFromArchType(tmpl, info, targetDir);
+        } catch (error) {
+            throw new Error(`Failed to create gauge maven project.\n${error}`);
+        }
+
+    }
+
+    private async createProjectFromArchType(tmpl: string, info: any, targetDir: string) {
+        return window.withProgress({ location: 10 }, async (p: Progress<{}>) => {
+            return new Promise(async (res, rej) => {
+                let ph = new ProgressHandler(p, res, rej);
+                let archtype = this._archtypes[tmpl];
+                let args = ['-q', '-B', 'archetype:generate', `-DarchetypeArtifactId=${archtype.archetypeArtifactId}`,
+                    `-DarchetypeGroupId=${archtype.archetypeGroupId}`];
+                args.push(`-DgroupId=${info.groupID}`);
+                args.push(`-DartifactId=${info.artifactID}`);
+                args.push(`-Dversion=${info.version}`);
+                ph.report("Creating project from maven archtyp...");
+                let proc = spawn(MAVEN_COMMAND, args, { cwd: targetDir, env: process.env });
+                proc.addListener('err', async (err) => {
+                    await this.handleError(ph, "Failed to create template. " + err.message, targetDir);
+                });
+                proc.addListener('close', async () => await ph.end(Uri.file(path.join(targetDir, info.artifactID))));
+            });
+        });
+    }
+
+    private async captureMavenProjectInfo() {
+        let groupID = await window.showInputBox({
+            prompt: "Enter a value for property groupID",
+            placeHolder: "com.thoughtworks.gauge.maven"
+        });
+        if (!groupID) return;
+        let artifactID = await window.showInputBox({
+            prompt: "Enter a value for property artifactID",
+            placeHolder: "gauge-tests"
+        });
+        if (!artifactID) return;
+        let version = await window.showInputBox({
+            prompt: "Enter a value for property version",
+            placeHolder: "1.0-SNAPSHOT"
+        });
+        if (!version) return;
+        return { groupID: groupID, artifactID: artifactID, version: version };
     }
 
     private async createProjectInDir(template: FileListItem, projectFolder: Uri) {

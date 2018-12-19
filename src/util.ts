@@ -3,13 +3,13 @@
 import * as path from 'path';
 import { WorkspaceFolder, TextDocument, TextEditor } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
-import { GAUGE_MANIFEST_FILE, GaugeCommands } from './constants';
+import { GAUGE_MANIFEST_FILE, GaugeCommands, MAVEN_POM, MAVEN_COMMAND } from './constants';
 import { spawnSync } from 'child_process';
 
 let gaugeCommand;
 export function isGaugeProject(folder: WorkspaceFolder | string): boolean {
     const basePath = (typeof folder === 'string' ? folder : folder.uri.fsPath);
-    const filePath = path.join( basePath, GAUGE_MANIFEST_FILE);
+    const filePath = path.join(basePath, GAUGE_MANIFEST_FILE);
     if (existsSync(filePath)) {
         try {
             const content = readFileSync(filePath);
@@ -29,9 +29,13 @@ export function isDotnetProject(projectRoot) {
 
 }
 
+export function isMavenProject(projectRoot) {
+    return existsSync(path.join(projectRoot, MAVEN_POM));
+}
+
 export function getProjectRootFromSpecPath(specFilePath: string): string {
     let projectRoot = path.parse(specFilePath);
-    while ( !isGaugeProject(projectRoot.dir)) {
+    while (!isGaugeProject(projectRoot.dir)) {
         projectRoot = path.parse(projectRoot.dir);
     }
     return projectRoot.dir;
@@ -41,8 +45,13 @@ export function hasActiveGaugeDocument(activeTextEditor: TextEditor) {
     return activeTextEditor && isGaugeDocument(activeTextEditor.document);
 }
 
-function isGaugeDocument(document: TextDocument ) {
+function isGaugeDocument(document: TextDocument) {
     return document.languageId === "gauge";
+}
+
+export function getExecutionCommand(projectRoot): string {
+    if (isMavenProject(projectRoot)) return "mvn";
+    return getGaugeCommand();
 }
 
 export function getGaugeCommand(): string {
@@ -50,4 +59,8 @@ export function getGaugeCommand(): string {
     gaugeCommand = GaugeCommands.Gauge;
     if (spawnSync(gaugeCommand).error) gaugeCommand = GaugeCommands.GaugeCmd;
     return gaugeCommand;
+}
+
+export function isMavenInstalled(): boolean {
+    return !spawnSync(MAVEN_COMMAND).error;
 }

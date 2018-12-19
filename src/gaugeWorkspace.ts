@@ -2,17 +2,20 @@
 
 import * as path from 'path';
 import {
-    CancellationTokenSource, Disposable, OutputChannel, WorkspaceConfiguration, WorkspaceFolder,
-    WorkspaceFoldersChangeEvent, commands, window, workspace, Uri, TextEditor
+    CancellationTokenSource, commands, Disposable, OutputChannel, window, workspace,
+    WorkspaceConfiguration, WorkspaceFolder, WorkspaceFoldersChangeEvent
 } from "vscode";
-import { DynamicFeature, LanguageClient, RevealOutputChannelOn, LanguageClientOptions } from "vscode-languageclient";
+import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn } from "vscode-languageclient";
 import { GaugeCommandContext, setCommandContext } from "./constants";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-import { isGaugeProject, getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument } from './util';
+import {
+    getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject,
+    isMavenProject
+} from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -128,12 +131,11 @@ export class GaugeWorkspace extends Disposable {
     private startServerFor(folder: WorkspaceFolder | string) {
         let folderPath = typeof folder === 'string' ? folder : folder.uri.fsPath;
         if (!isGaugeProject(folderPath)) return;
+        this.handleMavenProject(folderPath);
         let serverOptions = {
             command: getGaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + folderPath],
-            options: {
-                env: process.env
-            }
+            options: { env: process.env }
         };
 
         this._launchConfig = workspace.getConfiguration(GAUGE_LAUNCH_CONFIG);
@@ -158,6 +160,12 @@ export class GaugeWorkspace extends Disposable {
         this._clients.set(folderPath, languageClient);
         languageClient.start();
         languageClient.onReady().then(() => { this.setLanguageId(languageClient, folderPath); });
+    }
+
+    private handleMavenProject(folderPath: string) {
+        if (isMavenProject(folderPath)) {
+            process.env.SHOULD_BUILD_PROJECT = "false";
+        }
     }
 
     private registerDynamicFeatures(languageClient: LanguageClient) {
