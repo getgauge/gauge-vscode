@@ -36,6 +36,8 @@ export class ConfigProvider extends Disposable {
                         if (config.globalValue !== "Ignore") {
                             return this.applyAndReload({"gauge.recommendedSettings.options": "Ignore"});
                         }
+                    } else {
+                        return this.applyAndReload({"gauge.recommendedSettings.options": "Not Selected"});
                     }
                 });
         }

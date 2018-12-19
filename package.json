@@ -266,8 +266,9 @@
         },
         "gauge.recommendedSettings.options": {
           "type": "string",
-          "default": "Apply & Reload",
+          "default": "Not Selected",
           "enum": [
+            "Not Selected",
             "Apply & Reload",
             "Ignore",
             "Ignore Always"
