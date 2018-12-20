@@ -266,12 +266,11 @@
         },
         "gauge.recommendedSettings.options": {
           "type": "string",
-          "default": "Not Selected",
+          "default": "Remind me later",
           "enum": [
-            "Not Selected",
             "Apply & Reload",
-            "Ignore",
-            "Ignore Always"
+            "Remind me later",
+            "Ignore"
           ],
           "description": "Gauge recommended settings are shown/ignored based on the given value."
         }

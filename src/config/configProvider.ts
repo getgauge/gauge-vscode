@@ -23,21 +23,19 @@ export class ConfigProvider extends Disposable {
         if (!this.verifyRecommendedConfig()) {
             window.showInformationMessage("Gauge [recommends](https://docs.gauge.org/using.html#id31) " +
                 "some settings for best experience with Visual Studio Code.",
-                "Apply & Reload", "Ignore", "Ignore Always")
+                "Apply & Reload", "Remind me later", "Ignore")
                 .then((option) => {
                     if (option === "Apply & Reload") {
                         let settings = {...this.recommendedSettings,
                             ...{"gauge.recommendedSettings.options": "Apply & Reload"}};
                         return this.applyAndReload(settings);
-                    } else if (option === "Ignore Always") {
-                        return this.applyAndReload({"gauge.recommendedSettings.options": "Ignore Always"});
                     } else if (option === "Ignore") {
+                        return this.applyAndReload({"gauge.recommendedSettings.options": "Ignore"});
+                    } else if (option === "Remind me later") {
                         let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
-                        if (config.globalValue !== "Ignore") {
-                            return this.applyAndReload({"gauge.recommendedSettings.options": "Ignore"});
+                        if (config.globalValue !== "Remind me later") {
+                            return this.applyAndReload({"gauge.recommendedSettings.options": "Remind me later"});
                         }
-                    } else {
-                        return this.applyAndReload({"gauge.recommendedSettings.options": "Not Selected"});
                     }
                 });
         }
@@ -54,7 +52,7 @@ export class ConfigProvider extends Disposable {
 
     private verifyRecommendedConfig(): boolean {
         let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
-        if (config.globalValue === "Ignore Always") return true;
+        if (config.globalValue === "Ignore") return true;
         for (const key in this.recommendedSettings) {
             if (this.recommendedSettings.hasOwnProperty(key)) {
                 let configVal = workspace.getConfiguration().inspect(key);
