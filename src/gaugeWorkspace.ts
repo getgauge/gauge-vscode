@@ -13,8 +13,7 @@ import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import {
-    getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject,
-    isMavenProject
+    getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject, isProjectLanguage,
 } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
@@ -131,7 +130,7 @@ export class GaugeWorkspace extends Disposable {
     private startServerFor(folder: WorkspaceFolder | string) {
         let folderPath = typeof folder === 'string' ? folder : folder.uri.fsPath;
         if (!isGaugeProject(folderPath)) return;
-        this.handleMavenProject(folderPath);
+        if (isProjectLanguage(folderPath, "java")) process.env.SHOULD_BUILD_PROJECT = "false";
         let serverOptions = {
             command: getGaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + folderPath],
@@ -160,12 +159,6 @@ export class GaugeWorkspace extends Disposable {
         this._clients.set(folderPath, languageClient);
         languageClient.start();
         languageClient.onReady().then(() => { this.setLanguageId(languageClient, folderPath); });
-    }
-
-    private handleMavenProject(folderPath: string) {
-        if (isMavenProject(folderPath)) {
-            process.env.SHOULD_BUILD_PROJECT = "false";
-        }
     }
 
     private registerDynamicFeatures(languageClient: LanguageClient) {

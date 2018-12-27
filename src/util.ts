@@ -22,10 +22,10 @@ export function isGaugeProject(folder: WorkspaceFolder | string): boolean {
     return false;
 }
 
-export function isDotnetProject(projectRoot) {
+export function isProjectLanguage(projectRoot, language) {
     const filePath = path.join(projectRoot, GAUGE_MANIFEST_FILE);
     let mainfest = JSON.parse(readFileSync(filePath, 'utf-8'));
-    return mainfest.Language === 'dotnet';
+    return mainfest.Language === language;
 
 }
 
