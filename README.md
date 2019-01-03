@@ -62,12 +62,22 @@ Execute the Command `Gauge: Create new Gauge Project` and select the appropriate
 <img src="https://github.com/getgauge/gauge-vscode/raw/master/images/runSpec.jpg" alt="Run Specs/Scenarios preview" style="width: 600px;"/>
 
 ### Using command palette
-	* Run All Specification
-	* Run Specification
-	* Run Scenarios
-	* Run Scenario At Cursor
-	* Repeat Last Run
+[Launch the command palette](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line)
+
+	* Gauge: Create a new Gauge Project
+	* Gauge: Create a new Specification
+	* Gauge: Find Step References
+	* Gauge: Optimize VS Code Configuration for Gauge
+	* Gauge: Run All Specification
+	* Gauge: Run Specification
+	* Gauge: Run Scenarios
+	* Gauge: Run Scenario At Cursor
+	* Gauge: Repeat Last Run
 	* Gauge: Re-Run Failed Scenario(s)
+	* Gauge: Show Last Run Report
+	* Gauge: Stop current gauge execution
+	* Gauge: Report Issue
+	* Test: Focus on Gauge Specs View
 
 ## Debug specifications and scenarios
 
