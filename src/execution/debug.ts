@@ -64,6 +64,15 @@ export class GaugeDebugger {
                     justMyCode: true
                 };
             }
+            case "java": {
+                return {
+                    name: GAUGE_DEBUGGER_NAME,
+                    type: "java",
+                    request: REQUEST_TYPE,
+                    hostName: "127.0.0.1",
+                    port: this.debugPort
+                };
+            }
         }
     }
 
@@ -77,6 +86,7 @@ export class GaugeDebugger {
             env.DEBUGGING = true;
             return getPort({ port: DEBUG_PORT }).then((port) => {
                 if (isProjectLanguage(projectRoot, 'dotnet')) env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
+                if (isProjectLanguage(projectRoot, 'java')) env.GAUGE_DEBUG_OPTS = port;
                 env.DEBUG_PORT = port;
                 this.debugPort = port;
                 return env;
