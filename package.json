@@ -273,6 +273,11 @@
             "Ignore"
           ],
           "description": "Gauge recommended settings are shown/ignored based on the given value."
+        },
+        "gauge.enableJavaSupport": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, gauge-java LSP features will work."
         }
       }
     },

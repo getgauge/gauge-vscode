@@ -1,7 +1,7 @@
 'use strict';
 
 import { debug, window, workspace } from 'vscode';
-import { isProjectLanguage } from '../util';
+import { isProjectLanguage, isJavaLSPSupported } from '../util';
 import getPort = require('get-port');
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
@@ -86,7 +86,7 @@ export class GaugeDebugger {
             env.DEBUGGING = true;
             return getPort({ port: DEBUG_PORT }).then((port) => {
                 if (isProjectLanguage(projectRoot, 'dotnet')) env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
-                if (isProjectLanguage(projectRoot, 'java')) env.GAUGE_DEBUG_OPTS = port;
+                if (isJavaLSPSupported() && isProjectLanguage(projectRoot, 'java')) env.GAUGE_DEBUG_OPTS = port;
                 env.DEBUG_PORT = port;
                 this.debugPort = port;
                 return env;

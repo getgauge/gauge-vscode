@@ -13,7 +13,7 @@ import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import {
-    getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject, isProjectLanguage,
+    getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject, isProjectLanguage, isJavaLSPSupported,
 } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';

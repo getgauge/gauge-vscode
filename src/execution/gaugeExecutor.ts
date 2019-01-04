@@ -5,7 +5,7 @@ import { CancellationTokenSource, commands, Disposable, Position, StatusBarAlign
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
-import { getExecutionCommand, getProjectRootFromSpecPath, isMavenProject } from '../util';
+import { getExecutionCommand, getProjectRootFromSpecPath, isMavenProject, isJavaLSPSupported } from '../util';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
 import cp = require('child_process');
@@ -155,7 +155,7 @@ export class GaugeExecutor extends Disposable {
     }
 
     private getArgs(spec, config): Array<string> {
-        if (isMavenProject(config.projectRoot)) return this.createMavenArgs(spec, config);
+        if (isJavaLSPSupported() && isMavenProject(config.projectRoot)) return this.createMavenArgs(spec, config);
         if (config.rerunFailed) {
             return [GaugeCommands.Run, GaugeCommands.RerunFailed];
         }
