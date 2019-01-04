@@ -97,8 +97,10 @@ export class GaugeDebugger {
     }
 
     public startDebugger(): void {
-        debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri),
-        this.setDebuggerConf());
+        setTimeout(() => {
+            debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri),
+                this.setDebuggerConf());
+        }, 100);
     }
 
     public stopDebugger(): void {
