@@ -21,6 +21,13 @@ export class ConfigProvider extends Disposable {
             () => this.applyAndReload(this.recommendedSettings));
 
         if (!this.verifyRecommendedConfig()) {
+            let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
+            if (config.globalValue === "Apply & Reload") {
+                let settings = {...this.recommendedSettings,
+                    ...{"gauge.recommendedSettings.options": "Apply & Reload"}};
+                this.applyAndReload(settings);
+                return;
+            }
             window.showInformationMessage("Gauge [recommends](https://docs.gauge.org/using.html#id31) " +
                 "some settings for best experience with Visual Studio Code.",
                 "Apply & Reload", "Remind me later", "Ignore")

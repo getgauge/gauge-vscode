@@ -62,12 +62,22 @@ Execute the Command `Gauge: Create new Gauge Project` and select the appropriate
 <img src="https://github.com/getgauge/gauge-vscode/raw/master/images/runSpec.jpg" alt="Run Specs/Scenarios preview" style="width: 600px;"/>
 
 ### Using command palette
-	* Run All Specification
-	* Run Specification
-	* Run Scenarios
-	* Run Scenario At Cursor
-	* Repeat Last Run
+[Launch the command palette](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line)
+
+	* Gauge: Create a new Gauge Project
+	* Gauge: Create a new Specification
+	* Gauge: Find Step References
+	* Gauge: Optimize VS Code Configuration for Gauge
+	* Gauge: Run All Specification
+	* Gauge: Run Specification
+	* Gauge: Run Scenarios
+	* Gauge: Run Scenario At Cursor
+	* Gauge: Repeat Last Run
 	* Gauge: Re-Run Failed Scenario(s)
+	* Gauge: Show Last Run Report
+	* Gauge: Stop current gauge execution
+	* Gauge: Report Issue
+	* Test: Focus on Gauge Specs View
 
 ## Debug specifications and scenarios
 
@@ -109,12 +119,14 @@ To override default configurations in [VSCode settings](https://code.visualstudi
 
 	$ npm run build
 
-This will create `gauge-<version>.vsix` file which can be installed via VScode's [Install from VSIX](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix).
+This will create `gauge-<version>.vsix` file which can be installed via VScode's [Install from VSIX](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix). 
+> Note: Manually delete the Gauge extension folder from [VSCode extensions folder](https://vscode-docs.readthedocs.io/en/stable/extensions/install-extension/) for a successful uninstallation of VSCode extension
 
 # Install nightly versions
 
 Nightly version of vscode is available in bintray. To install a nightly version,
-- [Uninstall](https://code.visualstudio.com/docs/editor/extension-gallery#_manage-extensions) existing version of gauge extension
+- [Uninstall](https://code.visualstudio.com/docs/editor/extension-gallery#_manage-extensions) existing version of gauge extension. 
+> Note: Manually delete the Gauge extension folder from [VSCode extensions folder](https://vscode-docs.readthedocs.io/en/stable/extensions/install-extension/) for a successful uninstallation of VSCode extension
 - Download the latest [nightly version of gauge extension](https://bintray.com/gauge/gauge-vscode/Nightly/_latestVersion) from bintray
 - [Install](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix) gauge extension from source
 

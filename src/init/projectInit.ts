@@ -113,21 +113,13 @@ export class ProjectInitializer extends Disposable {
     }
 
     private async captureMavenProjectInfo() {
-        let groupID = await window.showInputBox({
-            prompt: "Enter a value for property groupID",
-            placeHolder: "com.thoughtworks.gauge.maven"
-        });
-        if (!groupID) return;
+        let groupID = "example";
         let artifactID = await window.showInputBox({
-            prompt: "Enter a value for property artifactID",
+            prompt: "Enter name for your new project",
             placeHolder: "gauge-tests"
         });
         if (!artifactID) return;
-        let version = await window.showInputBox({
-            prompt: "Enter a value for property version",
-            placeHolder: "1.0-SNAPSHOT"
-        });
-        if (!version) return;
+        let version = "1.0-SNAPSHOT";
         return { groupID: groupID, artifactID: artifactID, version: version };
     }
 
