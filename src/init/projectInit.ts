@@ -145,7 +145,9 @@ export class ProjectInitializer extends Disposable {
     }
 
     private getTemplatesList(): Array<FileListItem> {
-        const templates =   isJavaLSPSupported() ? this._templates.concat(this._experimentalTemplates) : this._templates;
+        const templates =   isJavaLSPSupported() ?
+            this._templates.concat(this._experimentalTemplates) :
+            this._templates;
         return templates.map((tmpl) => new FileListItem(tmpl.name, tmpl.desc, tmpl.name + ".zip"));
     }
 

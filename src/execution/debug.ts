@@ -1,7 +1,7 @@
 'use strict';
 
 import { debug, window, workspace } from 'vscode';
-import { isProjectLanguage, isJavaLSPSupported } from '../util';
+import { isProjectLanguage } from '../util';
 import getPort = require('get-port');
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
