@@ -1,7 +1,7 @@
 'use strict';
 
 import * as path from 'path';
-import { WorkspaceFolder, TextDocument, TextEditor } from 'vscode';
+import { WorkspaceFolder, TextDocument, TextEditor, workspace, } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
 import { GAUGE_MANIFEST_FILE, GaugeCommands, MAVEN_POM, MAVEN_COMMAND } from './constants';
 import { spawnSync } from 'child_process';
@@ -63,4 +63,15 @@ export function getGaugeCommand(): string {
 
 export function isMavenInstalled(): boolean {
     return !spawnSync(MAVEN_COMMAND).error;
+}
+
+export function isJavaLSPSupported(): boolean {
+    let { workspaceValue, globalValue, defaultValue } = workspace.getConfiguration().inspect("gauge.enableJavaSupport");
+    if (workspaceValue !== undefined) {
+        return Boolean(workspaceValue);
+    } else if (globalValue !== undefined) {
+        return Boolean(globalValue);
+    } else {
+        return defaultValue;
+    }
 }
