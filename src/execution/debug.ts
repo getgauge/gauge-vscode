@@ -86,7 +86,7 @@ export class GaugeDebugger {
             env.DEBUGGING = true;
             return getPort({ port: DEBUG_PORT }).then((port) => {
                 if (isProjectLanguage(projectRoot, 'dotnet')) env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
-                if (isJavaLSPSupported() && isProjectLanguage(projectRoot, 'java')) env.GAUGE_DEBUG_OPTS = port;
+                if (isProjectLanguage(projectRoot, 'java')) env.GAUGE_DEBUG_OPTS = port;
                 env.DEBUG_PORT = port;
                 this.debugPort = port;
                 return env;

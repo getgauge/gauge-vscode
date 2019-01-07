@@ -50,7 +50,7 @@ function isGaugeDocument(document: TextDocument) {
 }
 
 export function getExecutionCommand(projectRoot): string {
-    if (isJavaLSPSupported() && isMavenProject(projectRoot)) return "mvn";
+    if (isMavenProject(projectRoot)) return "mvn";
     return getGaugeCommand();
 }
 
