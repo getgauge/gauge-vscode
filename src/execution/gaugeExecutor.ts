@@ -150,7 +150,7 @@ export class GaugeExecutor extends Disposable {
         if (config.repeat) return args.concat(`-Dflags=--repeat`);
         args = args.concat(defaultArgs);
         if (config.inParallel) args = args.concat("-DinParallel=true");
-        if (spec) return args.concat(`-DspecDirs=${spec}`);
+        if (spec) return args.concat(`-DspecsDir=${path.relative(config.projectRoot, spec)}`);
         return args;
     }
 
