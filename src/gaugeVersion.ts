@@ -7,12 +7,14 @@ import { getGaugeCommand } from './util';
 export class GaugeVersionInfo {
     public version: string;
     public commitHash: string;
-    public plugins: Array<Object>;
+    public plugins: Array<GaugePluginVersionInfo>;
 
-    public constructor(v: string, commitHash: string, plugins: Array<Object>) {
+    public constructor(v: string, commitHash: string, plugins: Array<{ name: string, version: string }>) {
         this.version = v;
         this.commitHash = commitHash;
-        this.plugins = plugins;
+        this.plugins = plugins.map(
+            (plugin) => new GaugePluginVersionInfo(plugin.name, plugin.version)
+        );
     }
 
     public isGreaterOrEqual(version: string): boolean {
@@ -27,14 +29,31 @@ export class GaugeVersionInfo {
         let v = `Gauge version: ${this.version}`;
         let cm = this.commitHash && `Commit Hash: ${this.commitHash}` || '';
         let plugins = this.plugins
-            .map((p: any) => p.name + ' (' + p.version + ')')
+            .map((p: any) => p.toString())
             .join('\n');
         plugins = `Plugins\n-------\n${plugins}`;
         return `${v}\n${cm}\n\n${plugins}`;
     }
 }
 
-export function getGaugeVersionInfo() {
+class GaugePluginVersionInfo {
+    name: String;
+    version: String;
+    constructor(name, version) {
+        this.name = name;
+        this.version = version;
+    }
+
+    hasName(name: String) {
+        return this.name.toLowerCase() === name.toLowerCase();
+    }
+
+    toString() {
+        return `${this.name} (${this.version})`;
+    }
+}
+
+export function getGaugeVersionInfo(): GaugeVersionInfo {
     let gv = spawnSync(getGaugeCommand(), [GaugeCommands.Version, GaugeCommands.MachineReadable]);
     if (gv.error) {
         return null;

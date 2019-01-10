@@ -15,6 +15,7 @@ import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import {
     getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject, isProjectLanguage,
 } from './util';
+import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -35,7 +36,10 @@ export class GaugeWorkspace extends Disposable {
     constructor(private state: GaugeState) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
-        workspace.workspaceFolders.forEach((folder) => this.startServerFor(folder));
+        workspace.workspaceFolders.forEach((folder) => {
+            new GaugeJavaProjectConfig(folder.uri.fsPath).generate();
+            this.startServerFor(folder);
+         });
         if (hasActiveGaugeDocument(window.activeTextEditor))
             this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
 
