@@ -97,6 +97,8 @@ View execution reports inside VS Code
 
 ## Snippets for specification, scenarios and tables
 
+To invoke a snippet type any of the following snippet keywords and Ctrl+space
+
 * `spec` - for specification
 * `sce` - for scenario
 * `table:1` - table with one column
