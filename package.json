@@ -323,6 +323,7 @@
     "opn": "^5.4.0",
     "vscode-jsonrpc": "^4.0.0",
     "vscode-languageclient": "^5.1.1",
-    "vscode-languageserver-protocol": "^3.13.0"
+    "vscode-languageserver-protocol": "^3.13.0",
+    "xmlbuilder": "^10.1.1"
   }
 }
