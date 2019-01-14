@@ -50,6 +50,7 @@ export enum GaugeCommands {
     Repeat = '--repeat',
     HideSuggestion = '--hide-suggestion',
     Init = 'init',
+    Install = "install",
 }
 
 export enum GaugeCommandContext {

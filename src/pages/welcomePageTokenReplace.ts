@@ -1,7 +1,7 @@
 'use strict';
 
 import { spawnSync } from "child_process";
-import { getGaugeVersionInfo } from '../gaugeVersion';
+import { getGaugeCLIHandler } from '../gaugeCLI';
 
 export class WelcomePageTokenReplace {
     getLinuxDistribution(): string {
@@ -42,7 +42,7 @@ export class WelcomePageTokenReplace {
     }
 
     replaceText(text: string, supress: Boolean, activated: Boolean, root: string): string {
-        let replace = [{key : /{{showGaugeInstall}}/g, value : !getGaugeVersionInfo() ?  "" : "hidden"},
+        let replace = [{key : /{{showGaugeInstall}}/g, value : !getGaugeCLIHandler() ?  "" : "hidden"},
                         {key : /{{installCommand}}/g, value : encodeURI('command:gauge.executeIn.terminal?' +
                                 JSON.stringify([this.getInstallCommandBasedOnOS().command]))},
                         {key : /{{name}}/g, value : this.getInstallCommandBasedOnOS().name},

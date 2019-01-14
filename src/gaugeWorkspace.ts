@@ -13,9 +13,10 @@ import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-import {
-    getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject, isProjectLanguage,
-} from './util';
+
+import { getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument } from './util';
+import { getGaugeProject, GaugeProject } from './gaugeProject';
+import { GaugeCLI } from './gaugeCLI';
 import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
 import GaugeConfig from './config/gaugeConfig';
 
@@ -35,19 +36,19 @@ export class GaugeWorkspace extends Disposable {
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
 
-    constructor(private state: GaugeState) {
+    constructor(private state: GaugeState, private cli: GaugeCLI) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
         workspace.workspaceFolders.forEach((folder) => {
             this.startServerFor(folder);
-         });
+        });
         if (hasActiveGaugeDocument(window.activeTextEditor))
             this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
 
         setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
 
-        workspace.onDidChangeWorkspaceFolders((event) => {
-            if (event.added) this.onFolderAddition(event);
+        workspace.onDidChangeWorkspaceFolders(async (event) => {
+            if (event.added) await this.onFolderAddition(event);
             if (event.removed) this.onFolderDeletion(event);
             setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
         });
@@ -114,10 +115,10 @@ export class GaugeWorkspace extends Disposable {
         });
     }
 
-    private onFolderAddition(event: WorkspaceFoldersChangeEvent) {
+    private async onFolderAddition(event: WorkspaceFoldersChangeEvent) {
         for (let folder of event.added) {
             if (!this._clients.has(folder.uri.fsPath)) {
-                this.startServerFor(folder);
+                await this.startServerFor(folder);
             }
         }
     }
@@ -132,14 +133,18 @@ export class GaugeWorkspace extends Disposable {
         this._specNodeProvider.changeClient(this.getDefaultFolder());
     }
 
-    private startServerFor(folder: WorkspaceFolder | string) {
-        let folderPath = typeof folder === 'string' ? folder : folder.uri.fsPath;
-        if (!isGaugeProject(folderPath)) return;
-        new GaugeJavaProjectConfig(folderPath, new GaugeConfig(platform())).generate();
-        if (isProjectLanguage(folderPath, "java")) process.env.SHOULD_BUILD_PROJECT = "false";
+    private async startServerFor(folder: WorkspaceFolder | string): Promise<any> {
+        let project = getGaugeProject(folder);
+        if (!project.isGaugeProject()) return;
+        if (project.isProjectLanguage("java")) {
+            new GaugeJavaProjectConfig(project.root(), new GaugeConfig(platform())).generate();
+            process.env.SHOULD_BUILD_PROJECT = "false";
+        }
+        await this.installRunnerFor(project);
+
         let serverOptions = {
             command: getGaugeCommand(),
-            args: ["daemon", "--lsp", "--dir=" + folderPath],
+            args: ["daemon", "--lsp", "--dir=" + project.root()],
             options: { env: process.env }
         };
 
@@ -153,18 +158,35 @@ export class GaugeWorkspace extends Disposable {
             serverOptions.options.env.gauge_lsp_reference_codelens = 'false';
         }
         let clientOptions: LanguageClientOptions = {
-            documentSelector: [{ scheme: 'file', language: 'gauge', pattern: `${folderPath}/**/*` }],
+            documentSelector: [{ scheme: 'file', language: 'gauge', pattern: `${project.root()}/**/*` }],
             diagnosticCollectionName: 'gauge',
             outputChannel: this._outputChannel,
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
         if (typeof folder !== 'string') clientOptions.workspaceFolder = folder;
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
-
         this.registerDynamicFeatures(languageClient);
-        this._clients.set(folderPath, languageClient);
+        this._clients.set(project.root(), languageClient);
         languageClient.start();
-        languageClient.onReady().then(() => { this.setLanguageId(languageClient, folderPath); });
+        return languageClient.onReady().then(() => { this.setLanguageId(languageClient, project.root()); });
+    }
+
+    private async installRunnerFor(project: GaugeProject): Promise<any> {
+        const language = project.language();
+        if (this.cli.isPluginInstalled(language)) return;
+        try {
+            let message = `The project ${path.basename(project.root())} requires gauge ${language} to be installed. ` +
+                "Do you like to install?";
+            // Need to find a way to block showWarningMessage call
+            let action = await window.showWarningMessage(message, "Yes", "No");
+            if (action === "Yes") {
+                return this.cli.install(language, project.root());
+            }
+            return Promise.resolve("User selected No");
+        } catch (error) {
+            return window.showErrorMessage(`Failed to install plugin ${language}.` +
+                'Refer [this](https://docs.gauge.org/latest/installation.html#language-plugins) to install manually');
+        }
     }
 
     private registerDynamicFeatures(languageClient: LanguageClient) {
