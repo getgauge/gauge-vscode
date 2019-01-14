@@ -25,10 +25,14 @@ export function isGaugeProject(folder: WorkspaceFolder | string): boolean {
 }
 
 export function isProjectLanguage(projectRoot, language) {
-    const filePath = path.join(projectRoot, GAUGE_MANIFEST_FILE);
-    let mainfest = JSON.parse(readFileSync(filePath, 'utf-8'));
+    let mainfest = getManifest(projectRoot);
     return mainfest.Language === language;
 
+}
+
+function getManifest(projectRoot: any) {
+    const filePath = path.join(projectRoot, GAUGE_MANIFEST_FILE);
+    return JSON.parse(readFileSync(filePath, 'utf-8'));
 }
 
 export function isMavenProject(projectRoot) {
