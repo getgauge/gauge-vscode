@@ -321,6 +321,7 @@
     "fs-extra": "^7.0.1",
     "get-port": "^4.0.0",
     "opn": "^5.4.0",
+    "ps-tree": "^1.2.0",
     "vscode-jsonrpc": "^4.0.0",
     "vscode-languageclient": "^5.1.1",
     "vscode-languageserver-protocol": "^3.13.0",
