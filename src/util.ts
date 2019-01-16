@@ -3,10 +3,12 @@
 import * as path from 'path';
 import { WorkspaceFolder, TextDocument, TextEditor, workspace, } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
-import { GAUGE_MANIFEST_FILE, GaugeCommands, MAVEN_POM, MAVEN_COMMAND } from './constants';
+import { GAUGE_MANIFEST_FILE, GaugeCommands, MAVEN_POM, MAVEN_COMMAND_WINDOWS, MAVEN_COMMAND } from './constants';
 import { spawnSync } from 'child_process';
 
 let gaugeCommand;
+let mavenCommand;
+
 export function isGaugeProject(folder: WorkspaceFolder | string): boolean {
     const basePath = (typeof folder === 'string' ? folder : folder.uri.fsPath);
     const filePath = path.join(basePath, GAUGE_MANIFEST_FILE);
@@ -50,7 +52,7 @@ function isGaugeDocument(document: TextDocument) {
 }
 
 export function getExecutionCommand(projectRoot): string {
-    if (isMavenProject(projectRoot)) return "mvn";
+    if (isMavenProject(projectRoot)) return getMavenCommand();
     return getGaugeCommand();
 }
 
@@ -61,8 +63,15 @@ export function getGaugeCommand(): string {
     return gaugeCommand;
 }
 
+export function getMavenCommand(): string {
+    if (mavenCommand) return mavenCommand;
+    mavenCommand = MAVEN_COMMAND;
+    if (spawnSync(mavenCommand).error) mavenCommand = MAVEN_COMMAND_WINDOWS;
+    return mavenCommand;
+}
+
 export function isMavenInstalled(): boolean {
-    return !spawnSync(MAVEN_COMMAND).error;
+    return !spawnSync(getMavenCommand()).error;
 }
 
 export function isJavaLSPSupported(): boolean {
