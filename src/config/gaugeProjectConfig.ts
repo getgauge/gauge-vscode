@@ -1,6 +1,5 @@
 import * as path from 'path';
-import * as glob from 'glob';
-import { writeFileSync } from 'fs';
+import { writeFileSync, readdirSync } from 'fs';
 import { homedir } from 'os';
 import { exec } from 'child_process';
 import * as xmlbuilder from 'xmlbuilder';
@@ -52,7 +51,7 @@ export class GaugeJavaProjectConfig {
     private createDotClassPathFile(cpFilePath: string, javaVersion: string) {
         let { plugins } = getGaugeVersionInfo();
         let javaPluginInfo = plugins.find((plugin) => plugin.hasName('java'));
-        let jars = glob.sync(`${javaPluginInfo.version}/libs/*.jar`, { cwd: javaPluginPath })
+        let jars = readdirSync( path.join(javaPluginPath, `${javaPluginInfo.version}/libs/`))
             .filter((jar) => jar.match(/gauge|assertj-core/));
         let classPathForJars = jars
             .map((jar) => this.cpEntry('lib', path.join(javaPluginPath, jar)));
