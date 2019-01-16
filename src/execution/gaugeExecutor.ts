@@ -58,23 +58,23 @@ export class GaugeExecutor extends Disposable {
                 this.childProcess = cp.spawn(getExecutionCommand(config.projectRoot), args,
                     { cwd: config.projectRoot, env: env });
                 this.childProcess.stdout.on('data', (chunk) => {
-                    let lineText = chunk.toString();
-                    chan.appendOutBuf(lineText);
-                    if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
-                        if (lineText.indexOf("\n") >= 0) {
-                            lineText = lineText.split("\n")[0];
+                    let text = chunk.toString();
+                    chan.appendOutBuf(text);
+                    let lineTexts = text.split("\n");
+                    lineTexts.forEach((lineText) => {
+                        if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
+                            let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
+                            this.gaugeWorkspace.setReportPath(reportPath);
                         }
-                        let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
-                        this.gaugeWorkspace.setReportPath(reportPath);
-                    }
-                    if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
-                        this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-                        this.gaugeDebugger.startDebugger();
-                    }
-                    if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
-                        window.showErrorMessage("No debugger attached. Stopping the execution");
-                        this.cancel();
-                    }
+                        if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
+                            this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
+                            this.gaugeDebugger.startDebugger();
+                        }
+                        if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
+                            window.showErrorMessage("No debugger attached. Stopping the execution");
+                            this.cancel();
+                        }
+                    });
                 });
                 this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
                 this.childProcess.on('exit', (code) => {
