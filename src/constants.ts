@@ -82,5 +82,5 @@ export const NEW_FILE = 'New File';
 export const GAUGE_TEMPLATE_URL = 'https://downloads.gauge.org/templates';
 export const GAUGE_MANIFEST_FILE = 'manifest.json';
 export const MAVEN_POM = "pom.xml";
-export const MAVEN = "mvn";
-export const MAVEN_COMMAND = "mvn.cmd";
+export const MAVEN_COMMAND = "mvn";
+export const MAVEN_COMMAND_WINDOWS = "mvn.cmd";

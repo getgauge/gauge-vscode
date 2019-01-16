@@ -3,7 +3,7 @@
 import * as path from 'path';
 import { WorkspaceFolder, TextDocument, TextEditor, workspace, } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
-import { GAUGE_MANIFEST_FILE, GaugeCommands, MAVEN_POM, MAVEN_COMMAND, MAVEN } from './constants';
+import { GAUGE_MANIFEST_FILE, GaugeCommands, MAVEN_POM, MAVEN_COMMAND_WINDOWS, MAVEN_COMMAND } from './constants';
 import { spawnSync } from 'child_process';
 
 let gaugeCommand;
@@ -65,8 +65,8 @@ export function getGaugeCommand(): string {
 
 export function getMavenCommand(): string {
     if (mavenCommand) return mavenCommand;
-    mavenCommand = MAVEN;
-    if (spawnSync(mavenCommand).error) mavenCommand = MAVEN_COMMAND;
+    mavenCommand = MAVEN_COMMAND;
+    if (spawnSync(mavenCommand).error) mavenCommand = MAVEN_COMMAND_WINDOWS;
     return mavenCommand;
 }
 

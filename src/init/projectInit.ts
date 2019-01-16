@@ -10,7 +10,10 @@ import { Disposable, commands, window, Uri, workspace, Progress } from 'vscode';
 
 import AdmZip = require('adm-zip');
 
-import { VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL, MAVEN_COMMAND } from "../constants";
+import {
+    VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL,
+    MAVEN_COMMAND_WINDOWS
+} from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
 import { getGaugeCommand, isMavenInstalled, isJavaLSPSupported } from '../util';
@@ -103,7 +106,7 @@ export class ProjectInitializer extends Disposable {
                 args.push(`-DartifactId=${info.artifactID}`);
                 args.push(`-Dversion=${info.version}`);
                 ph.report("Creating project from maven archtyp...");
-                let proc = spawn(MAVEN_COMMAND, args, { cwd: targetDir, env: process.env });
+                let proc = spawn(MAVEN_COMMAND_WINDOWS, args, { cwd: targetDir, env: process.env });
                 proc.addListener('err', async (err) => {
                     await this.handleError(ph, "Failed to create template. " + err.message, targetDir);
                 });
@@ -145,7 +148,7 @@ export class ProjectInitializer extends Disposable {
     }
 
     private getTemplatesList(): Array<FileListItem> {
-        const templates =   isJavaLSPSupported() ?
+        const templates = isJavaLSPSupported() ?
             this._templates.concat(this._experimentalTemplates) :
             this._templates;
         return templates.map((tmpl) => new FileListItem(tmpl.name, tmpl.desc, tmpl.name + ".zip"));
