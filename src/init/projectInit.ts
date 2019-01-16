@@ -17,7 +17,6 @@ import {
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
 import { getGaugeCommand, isMavenInstalled, isJavaLSPSupported } from '../util';
-import { log } from 'util';
 
 export class ProjectInitializer extends Disposable {
     private isGaugeInstalled: boolean;

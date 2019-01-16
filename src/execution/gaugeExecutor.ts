@@ -8,6 +8,7 @@ import { GaugeWorkspace } from '../gaugeWorkspace';
 import { getExecutionCommand, getProjectRootFromSpecPath, isMavenProject } from '../util';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
+import psTree = require('ps-tree');
 import cp = require('child_process');
 import path = require('path');
 
@@ -19,6 +20,7 @@ const NO_DEBUGGER_ATTACHED = "No debugger attached";
 
 export class GaugeExecutor extends Disposable {
     private executing: boolean;
+    private aborted: boolean;
     private outputChannel = window.createOutputChannel(outputChannelName);
     private childProcess: ChildProcess;
     private preExecute: Function[] = [];
@@ -56,38 +58,48 @@ export class GaugeExecutor extends Disposable {
                 this.childProcess = cp.spawn(getExecutionCommand(config.projectRoot), args,
                     { cwd: config.projectRoot, env: env });
                 this.childProcess.stdout.on('data', (chunk) => {
-                    let text = chunk.toString();
-                    chan.appendOutBuf(text);
-                    let lineTexts = text.split("\n");
-                    lineTexts.forEach((lineText) => {
-                        if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
-                            let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
-                            this.gaugeWorkspace.setReportPath(reportPath);
+                    let lineText = chunk.toString();
+                    chan.appendOutBuf(lineText);
+                    if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
+                        if (lineText.indexOf("\n") >= 0) {
+                            lineText = lineText.split("\n")[0];
                         }
-                        if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
-                            this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-                            this.gaugeDebugger.startDebugger();
-                        }
-                        if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
-                            window.showErrorMessage("No debugger attached. Stopping the execution");
-                            this.cancel();
-                        }
-                    });
+                        let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
+                        this.gaugeWorkspace.setReportPath(reportPath);
+                    }
+                    if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
+                        this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
+                        this.gaugeDebugger.startDebugger();
+                    }
+                    if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
+                        window.showErrorMessage("No debugger attached. Stopping the execution");
+                        this.cancel();
+                    }
                 });
                 this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
-                this.childProcess.on('exit', (code, signal) => {
+                this.childProcess.on('exit', (code) => {
                     this.executing = false;
-                    this.postExecute.forEach((f) => f.call(null, config.projectRoot, signal !== null));
-                    chan.onFinish(resolve, code, signal !== null);
+                    this.postExecute.forEach((f) => f.call(null, config.projectRoot, this.aborted));
+                    chan.onFinish(resolve, code, this.aborted);
                 });
             });
         });
     }
 
+    private killRecursive(pid: number) {
+        psTree(pid, (error: Error, children: Array<any>) => {
+            if (!error && children.length) {
+                children.forEach((c: any) => { this.killRecursive(c.PID); });
+            }
+        });
+        this.aborted = true;
+        return process.kill(pid);
+    }
+
     public cancel() {
         if (this.childProcess && !this.childProcess.killed) {
             this.gaugeDebugger.stopDebugger();
-            this.childProcess.kill();
+            this.killRecursive(this.childProcess.pid);
         }
     }
 
@@ -292,7 +304,13 @@ export class GaugeExecutor extends Disposable {
             stopExecution.show();
         });
         this.onExecuted(() => stopExecution.hide());
-        this._disposables.push(commands.registerCommand(GaugeVSCodeCommands.StopExecution, () => { this.cancel(); }));
+        this._disposables.push(commands.registerCommand(GaugeVSCodeCommands.StopExecution, () => {
+            try {
+                this.cancel();
+            } catch (e) {
+                window.showErrorMessage("Failed to Stop Run: " + e.message);
+            }
+        }));
     }
 
     private registerExecutionStatus() {
