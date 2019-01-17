@@ -37,7 +37,6 @@ export class GaugeWorkspace extends Disposable {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
         workspace.workspaceFolders.forEach((folder) => {
-            new GaugeJavaProjectConfig(folder.uri.fsPath).generate();
             this.startServerFor(folder);
          });
         if (hasActiveGaugeDocument(window.activeTextEditor))
@@ -134,6 +133,7 @@ export class GaugeWorkspace extends Disposable {
     private startServerFor(folder: WorkspaceFolder | string) {
         let folderPath = typeof folder === 'string' ? folder : folder.uri.fsPath;
         if (!isGaugeProject(folderPath)) return;
+        new GaugeJavaProjectConfig(folderPath).generate();
         if (isProjectLanguage(folderPath, "java")) process.env.SHOULD_BUILD_PROJECT = "false";
         let serverOptions = {
             command: getGaugeCommand(),
