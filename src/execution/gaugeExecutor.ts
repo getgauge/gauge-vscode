@@ -1,7 +1,10 @@
 'use strict';
 
 import { ChildProcess } from 'child_process';
-import { CancellationTokenSource, commands, Disposable, Position, StatusBarAlignment, Uri, window } from 'vscode';
+import {
+    CancellationTokenSource, commands, Disposable, Position,
+    StatusBarAlignment, Uri, window, DebugSession
+} from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
@@ -20,7 +23,7 @@ const NO_DEBUGGER_ATTACHED = "No debugger attached";
 
 export class GaugeExecutor extends Disposable {
     private executing: boolean;
-    private aborted: boolean;
+    private aborted: boolean = false;
     private outputChannel = window.createOutputChannel(outputChannelName);
     private childProcess: ChildProcess;
     private preExecute: Function[] = [];
@@ -46,6 +49,7 @@ export class GaugeExecutor extends Disposable {
             }
             this.executing = true;
             this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
+            this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(); });
             this.gaugeDebugger.addDebugEnv(config.projectRoot).then((env) => {
                 env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
                 env.use_nested_specs = "false";
@@ -55,6 +59,7 @@ export class GaugeExecutor extends Disposable {
                     ['Running tool:', getExecutionCommand(config.projectRoot), args.join(' ')].join(' '),
                     config.projectRoot);
                 this.preExecute.forEach((f) => f.call(null, env, path.relative(config.projectRoot, config.status)));
+                this.aborted = false;
                 this.childProcess = cp.spawn(getExecutionCommand(config.projectRoot), args,
                     { cwd: config.projectRoot, env: env });
                 this.childProcess.stdout.on('data', (chunk) => {
@@ -87,13 +92,17 @@ export class GaugeExecutor extends Disposable {
     }
 
     private killRecursive(pid: number) {
-        psTree(pid, (error: Error, children: Array<any>) => {
-            if (!error && children.length) {
-                children.forEach((c: any) => { this.killRecursive(c.PID); });
-            }
-        });
-        this.aborted = true;
-        return process.kill(pid);
+        try {
+            psTree(pid, (error: Error, children: Array<any>) => {
+                if (!error && children.length) {
+                    children.forEach((c: any) => { process.kill(c.PID); });
+                }
+            });
+            this.aborted = true;
+            return process.kill(pid);
+        } catch (error) {
+            if (error.code !== 'ESRCH') throw error;
+        }
     }
 
     public cancel() {

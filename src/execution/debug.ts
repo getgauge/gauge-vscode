@@ -1,6 +1,6 @@
 'use strict';
 
-import { debug, window, workspace } from 'vscode';
+import { debug, window, workspace, DebugSession } from 'vscode';
 import { isProjectLanguage } from '../util';
 import getPort = require('get-port');
 
@@ -101,6 +101,12 @@ export class GaugeDebugger {
             debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri),
                 this.setDebuggerConf());
         }, 100);
+    }
+
+    public registerStopDebugger(callback) {
+        debug.onDidTerminateDebugSession((e: DebugSession) => {
+            callback(e);
+        });
     }
 
     public stopDebugger(): void {
