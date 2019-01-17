@@ -18,7 +18,6 @@
   ],
   "activationEvents": [
     "onCommand:gauge.createProject",
-    "onCommand:gauge.welcome",
     "onCommand:gauge.help.reportIssue",
     "workspaceContains:manifest.json",
     "onLanguage:gauge"
@@ -91,11 +90,6 @@
       {
         "command": "gauge.report.html",
         "title": "Show Last Run Report",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.welcome",
-        "title": "Welcome",
         "category": "Gauge"
       },
       {
@@ -224,12 +218,11 @@
       "type": "object",
       "title": "Gauge configuration",
       "properties": {
-        "gauge.welcome.showOn": {
+        "gauge.welcomeNotification.showOn": {
           "type": "string",
-          "default": "versionUpgrade",
+          "default": "newProjectLoad",
           "enum": [
             "newProjectLoad",
-            "versionUpgrade",
             "never"
           ],
           "description": "Shows gauge welcome page based on given value, defaulted to on upgrade."
@@ -238,11 +231,6 @@
           "type": "boolean",
           "default": true,
           "description": "When true, gauge specs explorer will be alive and loaded."
-        },
-        "gauge.welcomePage.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, gauge welcome page will be loaded."
         },
         "gauge.launch.enableDebugLogs": {
           "type": "boolean",

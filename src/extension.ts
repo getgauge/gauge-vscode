@@ -16,7 +16,7 @@ import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
 import { isGaugeProject, hasActiveGaugeDocument } from './util';
-import { showWelcomePage } from './pages/welcome';
+import { showWelcomeNotification } from './pages/welcome';
 
 const GAUGE_EXTENSION_ID = 'getgauge.gauge';
 const GAUGE_VSCODE_VERSION = 'gauge.version';
@@ -37,7 +37,7 @@ export function activate(context: ExtensionContext) {
     );
 
     if (!(hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
-    showWelcomePage(context, hasExtensionUpdated(context, currentExtensionVersion));
+    showWelcomeNotification(context);
     if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
 
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
