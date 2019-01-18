@@ -2,7 +2,6 @@
 
 import { TextDocumentContentProvider, Disposable, Uri, Event, ExtensionContext, EventEmitter, workspace } from "vscode";
 import { Page } from "./page";
-import { WelcomePage } from "./welcome";
 import { ReportPage } from "./report";
 
 export class PageProvider extends Disposable implements TextDocumentContentProvider {
@@ -14,9 +13,7 @@ export class PageProvider extends Disposable implements TextDocumentContentProvi
     constructor(context: ExtensionContext, isGaugeInstalled: boolean) {
         super(() => this.dispose());
         this._disposable = workspace.registerTextDocumentContentProvider('gauge', this);
-        this._pages = new Map<string, Page>([
-            ['welcome', new WelcomePage(context)]
-        ]);
+        this._pages = new Map<string, Page>();
         if (isGaugeInstalled) {
             this._pages.set('htmlreport', new ReportPage(context));
         }
