@@ -27,7 +27,7 @@ export function showWelcomeNotification(context: ExtensionContext) {
                 }
             });
     }
-    context.workspaceState.update(HAS_OPENED_BEFORE, false);
+    context.workspaceState.update(HAS_OPENED_BEFORE, true);
 }
 
 export function showInstallGaugeNotification() {
