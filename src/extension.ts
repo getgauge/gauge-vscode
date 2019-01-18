@@ -16,7 +16,7 @@ import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
 import { isGaugeProject, hasActiveGaugeDocument } from './util';
-import { showWelcomeNotification } from './welcomeNotifications';
+import { showWelcomeNotification, showInstallGaugeNotification } from './welcomeNotifications';
 
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 export let GAUGE_COMMAND;
@@ -34,7 +34,9 @@ export function activate(context: ExtensionContext) {
     );
 
     if (!(hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
-    if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
+    if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
+        return showInstallGaugeNotification();
+    }
     showWelcomeNotification(context);
 
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
