@@ -16,7 +16,8 @@ import {
 } from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
-import { getGaugeCommand, isMavenInstalled, isJavaLSPSupported } from '../util';
+import { getGaugeCommand, isMavenInstalled, isJavaLSPSupported, getMavenCommand } from '../util';
+import { log } from 'util';
 
 export class ProjectInitializer extends Disposable {
     private isGaugeInstalled: boolean;
@@ -105,8 +106,8 @@ export class ProjectInitializer extends Disposable {
                 args.push(`-DartifactId=${info.artifactID}`);
                 args.push(`-Dversion=${info.version}`);
                 ph.report("Creating project from maven archtyp...");
-                let proc = spawn(MAVEN_COMMAND_WINDOWS, args, { cwd: targetDir, env: process.env });
-                proc.addListener('err', async (err) => {
+                let proc = spawn(getMavenCommand(), args, { cwd: targetDir, env: process.env });
+                proc.addListener('error', async (err) => {
                     await this.handleError(ph, "Failed to create template. " + err.message, targetDir);
                 });
                 proc.addListener('close', async () => await ph.end(Uri.file(path.join(targetDir, info.artifactID))));
@@ -140,7 +141,7 @@ export class ProjectInitializer extends Disposable {
         let options = { cwd: projectFolder.fsPath, env: process.env };
         p.report("Initializing project...");
         let proc = spawn(getGaugeCommand(), args, options);
-        proc.addListener('err', async (err) => {
+        proc.addListener('error', async (err) => {
             this.handleError(p, "Failed to create template. " + err.message, projectFolder.fsPath);
         });
         proc.addListener('close', async () => await p.end(projectFolder));
