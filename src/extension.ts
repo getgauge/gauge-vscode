@@ -16,15 +16,12 @@ import { ReferenceProvider } from './gaugeReference';
 import { ProjectInitializer } from './init/projectInit';
 import { ConfigProvider } from './config/configProvider';
 import { isGaugeProject, hasActiveGaugeDocument } from './util';
-import { showWelcomePage } from './pages/welcome';
+import { showWelcomeNotification, showInstallGaugeNotification } from './welcomeNotifications';
 
-const GAUGE_EXTENSION_ID = 'getgauge.gauge';
-const GAUGE_VSCODE_VERSION = 'gauge.version';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 export let GAUGE_COMMAND;
 
 export function activate(context: ExtensionContext) {
-    let currentExtensionVersion = extensions.getExtension(GAUGE_EXTENSION_ID)!.packageJSON.version;
     let versionInfo = getGaugeVersionInfo();
     let folders = workspace.workspaceFolders;
     let pageProvider = new PageProvider(context, !!versionInfo);
@@ -37,8 +34,10 @@ export function activate(context: ExtensionContext) {
     );
 
     if (!(hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
-    showWelcomePage(context, hasExtensionUpdated(context, currentExtensionVersion));
-    if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) return;
+    if (!versionInfo || !versionInfo.isGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
+        return showInstallGaugeNotification();
+    }
+    showWelcomeNotification(context);
 
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
 
@@ -74,10 +73,4 @@ ${gaugeVersionInfo}
         () => { }, (err) => {
             window.showErrorMessage("Can't open issue URL. " + err);
         });
-}
-
-function hasExtensionUpdated(context: ExtensionContext, latestVersion: string): boolean {
-    const gaugeVsCodePreviousVersion = context.globalState.get<string>(GAUGE_VSCODE_VERSION);
-    context.globalState.update(GAUGE_VSCODE_VERSION, latestVersion);
-    return !gaugeVsCodePreviousVersion || gaugeVsCodePreviousVersion !== latestVersion;
 }
