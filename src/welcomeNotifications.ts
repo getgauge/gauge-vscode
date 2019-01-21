@@ -16,9 +16,8 @@ function shouldDisplayWelcomeNotification(isProjOpendBefore: boolean): boolean {
 
 export function showWelcomeNotification(context: ExtensionContext) {
     if (shouldDisplayWelcomeNotification(context.workspaceState.get(HAS_OPENED_BEFORE))) {
-        window.showInformationMessage(`Gauge is a free and open source test automation framework
-            that takes the pain out of acceptance testing`,
-            "Learn more", "Skip", "Do not show this again")
+        window.showInformationMessage(`Gauge plugin initialised.`,
+            "Learn more", "Do not show this again")
             .then((option) => {
                 if (option === "Learn more") {
                     commands.executeCommand('vscode.open', Uri.parse(GAUGE_DOCS_URI));
