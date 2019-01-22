@@ -54,7 +54,7 @@ export class GaugeJavaProjectConfig {
         let jars = readdirSync( path.join(javaPluginPath, `${javaPluginInfo.version}/libs/`))
             .filter((jar) => jar.match(/gauge|assertj-core/));
         let classPathForJars = jars
-            .map((jar) => this.cpEntry('lib', path.join(javaPluginPath, jar)));
+            .map((jar) => this.cpEntry('lib', path.join(javaPluginPath, `${javaPluginInfo.version}/libs/`, jar)));
         let classPathObj = {
             classpath: { classpathentry: [...this.getDefaultCPEntries(javaVersion), ...classPathForJars] }
         };
