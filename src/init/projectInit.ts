@@ -11,13 +11,10 @@ import { Disposable, commands, window, Uri, workspace, Progress } from 'vscode';
 import AdmZip = require('adm-zip');
 
 import {
-    VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL,
-    MAVEN_COMMAND_WINDOWS
-} from "../constants";
+    VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL} from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
-import { getGaugeCommand, isMavenInstalled, isJavaLSPSupported, getMavenCommand } from '../util';
-import { log } from 'util';
+import { getGaugeCommand, isMavenInstalled, getMavenCommand } from '../util';
 
 export class ProjectInitializer extends Disposable {
     private isGaugeInstalled: boolean;
@@ -26,10 +23,7 @@ export class ProjectInitializer extends Disposable {
     private readonly _templates: any = [
         { name: 'python', desc: "template for gauge-python projects", },
         { name: 'js', desc: "template for gauge-javascript projects", },
-        { name: 'ruby', desc: "template for gauge-ruby projects", }
-    ];
-
-    private readonly _experimentalTemplates: any = [
+        { name: 'ruby', desc: "template for gauge-ruby projects", },
         { name: 'java', desc: "template for gauge-java projects", },
         { name: 'java_maven', desc: "template for gauge-java projects with maven as build tool.", },
         { name: 'java_maven_selenium', desc: "template for gauge-java selenium projects with maven as build tool.", }
@@ -148,10 +142,7 @@ export class ProjectInitializer extends Disposable {
     }
 
     private getTemplatesList(): Array<FileListItem> {
-        const templates = isJavaLSPSupported() ?
-            this._templates.concat(this._experimentalTemplates) :
-            this._templates;
-        return templates.map((tmpl) => new FileListItem(tmpl.name, tmpl.desc, tmpl.name + ".zip"));
+        return this._templates.map((tmpl) => new FileListItem(tmpl.name, tmpl.desc, tmpl.name + ".zip"));
     }
 
     private async createFromTemplate(tmpl: FileListItem, destUri: Uri, p: ProgressHandler) {
