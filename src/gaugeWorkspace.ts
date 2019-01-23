@@ -7,7 +7,7 @@ import {
     WorkspaceConfiguration, WorkspaceFolder, WorkspaceFoldersChangeEvent
 } from "vscode";
 import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn } from "vscode-languageclient";
-import { GaugeCommandContext, setCommandContext } from "./constants";
+import { GaugeCommandContext, setCommandContext, GaugeRunners } from "./constants";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
@@ -136,8 +136,10 @@ export class GaugeWorkspace extends Disposable {
     private async startServerFor(folder: WorkspaceFolder | string): Promise<any> {
         let project = getGaugeProject(folder);
         if (!project.isGaugeProject()) return;
-        if (project.isProjectLanguage("java")) {
-            new GaugeJavaProjectConfig(project.root(), new GaugeConfig(platform())).generate();
+        if (project.isProjectLanguage(GaugeRunners.Java)) {
+            new GaugeJavaProjectConfig(project.root(),
+                this.cli.getPluginVersion(GaugeRunners.Java),
+                new GaugeConfig(platform())).generate();
             process.env.SHOULD_BUILD_PROJECT = "false";
         }
         await this.installRunnerFor(project);
@@ -182,7 +184,7 @@ export class GaugeWorkspace extends Disposable {
             if (action === "Yes") {
                 return this.cli.install(language, project.root());
             }
-            return Promise.resolve("User selected No");
+            return Promise.resolve();
         } catch (error) {
             return window.showErrorMessage(`Failed to install plugin ${language}.` +
                 'Refer [this](https://docs.gauge.org/latest/installation.html#language-plugins) to install manually');

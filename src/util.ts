@@ -77,14 +77,3 @@ export function getMavenCommand(): string {
 export function isMavenInstalled(): boolean {
     return !spawnSync(getMavenCommand()).error;
 }
-
-export function isJavaLSPSupported(): boolean {
-    let { workspaceValue, globalValue, defaultValue } = workspace.getConfiguration().inspect("gauge.enableJavaSupport");
-    if (workspaceValue !== undefined) {
-        return Boolean(workspaceValue);
-    } else if (globalValue !== undefined) {
-        return Boolean(globalValue);
-    } else {
-        return defaultValue;
-    }
-}

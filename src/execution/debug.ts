@@ -3,6 +3,7 @@
 import { debug, window, workspace, DebugSession } from 'vscode';
 import { isProjectLanguage } from '../util';
 import getPort = require('get-port');
+import { GaugeRunners } from '../constants';
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
 const REQUEST_TYPE = "attach";
@@ -85,8 +86,8 @@ export class GaugeDebugger {
         if (this.debug) {
             env.DEBUGGING = true;
             return getPort({ port: DEBUG_PORT }).then((port) => {
-                if (isProjectLanguage(projectRoot, 'dotnet')) env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
-                if (isProjectLanguage(projectRoot, 'java')) env.GAUGE_DEBUG_OPTS = port;
+                if (isProjectLanguage(projectRoot, GaugeRunners.Dotnet)) env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
+                if (isProjectLanguage(projectRoot, GaugeRunners.Java)) env.GAUGE_DEBUG_OPTS = port;
                 env.DEBUG_PORT = port;
                 this.debugPort = port;
                 return env;

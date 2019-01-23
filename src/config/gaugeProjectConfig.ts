@@ -4,13 +4,13 @@ import { homedir } from 'os';
 import { exec } from 'child_process';
 import * as xmlbuilder from 'xmlbuilder';
 import { isProjectLanguage, isMavenProject } from "../util";
-import { getGaugeVersionInfo } from '../gaugeVersion';
 import GaugeConfig from './gaugeConfig';
 const DEFAULT_JAVA_VERSION = '11';
+
 export class GaugeJavaProjectConfig {
     projectRoot: string;
     gaugeConfig: GaugeConfig;
-    constructor(projectRoot: string, gaugeConfig: GaugeConfig) {
+    constructor(projectRoot: string, private pluginVersion: string, gaugeConfig: GaugeConfig) {
         this.projectRoot = projectRoot;
         this.gaugeConfig = gaugeConfig;
     }
@@ -38,7 +38,7 @@ export class GaugeJavaProjectConfig {
             exec('java -version', (err, __, out) => {
                 const dotCPFilePath = path.join(this.projectRoot, '.classpath');
                 let javaVersion = out.replace(/.*?(\d+\.\d+\.\d+).*(\s+.*)+/, '$1');
-                if ( err !== null || !out ) {
+                if (err !== null || !out) {
                     return this.createDotClassPathFile(dotCPFilePath, DEFAULT_JAVA_VERSION);
                 }
                 if (javaVersion.match(/^\d\./)) {
@@ -51,13 +51,11 @@ export class GaugeJavaProjectConfig {
         }
     }
     private createDotClassPathFile(cpFilePath: string, javaVersion: string) {
-        let { plugins } = getGaugeVersionInfo();
-        let javaPluginInfo = plugins.find((plugin) => plugin.hasName('java'));
         let javaPluginPath = path.join(this.gaugeConfig.pluginsPath(), 'java');
-        let jars = readdirSync( path.join(javaPluginPath, `${javaPluginInfo.version}/libs/`))
+        let jars = readdirSync(path.join(javaPluginPath, `${this.pluginVersion}/libs/`))
             .filter((jar) => jar.match(/gauge|assertj-core/));
         let classPathForJars = jars
-            .map((jar) => this.cpEntry('lib', path.join(javaPluginPath, `${javaPluginInfo.version}/libs/`, jar)));
+            .map((jar) => this.cpEntry('lib', path.join(javaPluginPath, `${this.pluginVersion}/libs/`, jar)));
         let classPathObj = {
             classpath: { classpathentry: [...this.getDefaultCPEntries(javaVersion), ...classPathForJars] }
         };
@@ -92,7 +90,7 @@ export class GaugeJavaProjectConfig {
 
     private getDefaultCPEntries(javaVersion) {
         return this.defaultCLassPath(javaVersion)
-        .map((entry) => this.cpEntry(entry.kind, entry.path));
+            .map((entry) => this.cpEntry(entry.kind, entry.path));
     }
 
     private cpEntry(kind, path) {
