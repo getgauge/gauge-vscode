@@ -49,7 +49,8 @@ export class OutputChannel {
         this.errBuf.append(line);
     }
 
-    public onFinish(resolve: (value?: boolean | PromiseLike<boolean>) => void, code: number, aborted?: boolean) {
+    public onFinish(resolve: (value?: boolean | PromiseLike<boolean>) => void,
+                    code: number, successMessage: string, failureMessage: string, aborted?: boolean) {
         this.outBuf.done();
         this.errBuf.done();
 
@@ -60,9 +61,9 @@ export class OutputChannel {
         }
 
         if (code) {
-            this.chan.appendLine('Error: Tests failed.');
+            this.chan.appendLine(failureMessage);
         } else {
-            this.chan.appendLine('Success: Tests passed.');
+            this.chan.appendLine(successMessage);
         }
         resolve(code === 0);
     }

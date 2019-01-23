@@ -27,7 +27,6 @@ export function isGaugeProject(folder: WorkspaceFolder | string): boolean {
 export function isProjectLanguage(projectRoot, language) {
     let mainfest = getManifest(projectRoot);
     return mainfest.Language === language;
-
 }
 
 function getManifest(projectRoot: any) {
@@ -47,8 +46,10 @@ export function getProjectRootFromSpecPath(specFilePath: string): string {
     return projectRoot.dir;
 }
 
-export function hasActiveGaugeDocument(activeTextEditor: TextEditor) {
-    return activeTextEditor && isGaugeDocument(activeTextEditor.document);
+export function hasActiveGaugeDocument(activeTextEditor: TextEditor): Promise<any> {
+    return new Promise((resolve) => {
+        resolve(activeTextEditor && isGaugeDocument(activeTextEditor.document));
+    });
 }
 
 function isGaugeDocument(document: TextDocument) {
