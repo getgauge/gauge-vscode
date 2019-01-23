@@ -19,9 +19,8 @@ import { isGaugeProject, hasActiveGaugeDocument } from './util';
 import { showWelcomeNotification, showInstallGaugeNotification } from './welcomeNotifications';
 
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
-export let GAUGE_COMMAND;
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
     let cli = getGaugeCLIHandler();
     let folders = workspace.workspaceFolders;
     let pageProvider = new PageProvider(context, cli.isInstalled());
@@ -33,7 +32,7 @@ export function activate(context: ExtensionContext) {
         })
     );
 
-    if (!(hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
+    if (!(await hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
     if (!cli.isInstalled() || !cli.isVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
         return showInstallGaugeNotification();
     }

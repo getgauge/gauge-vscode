@@ -20,6 +20,8 @@ const extensions = [".spec", ".md"];
 const REPORT_PATH_PREFIX = "Successfully generated html-report to => ";
 const ATTACH_DEBUGGER_EVENT = "Runner Ready for Debugging";
 const NO_DEBUGGER_ATTACHED = "No debugger attached";
+const successMessage = "Success: Tests passed.";
+const failureMessage = "Error: Tests failed.";
 
 export class GaugeExecutor extends Disposable {
     private executing: boolean;
@@ -85,7 +87,7 @@ export class GaugeExecutor extends Disposable {
                 this.childProcess.on('exit', (code) => {
                     this.executing = false;
                     this.postExecute.forEach((f) => f.call(null, config.projectRoot, this.aborted));
-                    chan.onFinish(resolve, code, this.aborted);
+                    chan.onFinish(resolve, code, successMessage, failureMessage, this.aborted);
                 });
             });
         });

@@ -39,11 +39,13 @@ export class GaugeWorkspace extends Disposable {
     constructor(private state: GaugeState, private cli: GaugeCLI) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this);
-        workspace.workspaceFolders.forEach((folder) => {
-            this.startServerFor(folder);
+        workspace.workspaceFolders.forEach(async (folder) => {
+            await this.startServerFor(folder);
         });
-        if (hasActiveGaugeDocument(window.activeTextEditor))
-            this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
+
+        hasActiveGaugeDocument(window.activeTextEditor).then(async (s) => {
+            if (s) await this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
+        });
 
         setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
 
@@ -64,16 +66,16 @@ export class GaugeWorkspace extends Disposable {
     }
 
     private onEditorChange(): Disposable {
-        return window.onDidChangeActiveTextEditor((editor) => {
+        return window.onDidChangeActiveTextEditor(async (editor) => {
             if (hasActiveGaugeDocument(editor))
-                this.startServerForSpecFile(editor.document.uri.fsPath);
+                await this.startServerForSpecFile(editor.document.uri.fsPath);
         });
     }
 
-    private startServerForSpecFile(file: string) {
+    private async startServerForSpecFile(file: string) {
         let projectRoot = getProjectRootFromSpecPath(file);
         if (!this._clients.has(projectRoot))
-            this.startServerFor(projectRoot);
+            await this.startServerFor(projectRoot);
     }
 
     setReportPath(reportPath: string) {
@@ -135,15 +137,6 @@ export class GaugeWorkspace extends Disposable {
 
     private async startServerFor(folder: WorkspaceFolder | string): Promise<any> {
         let project = getGaugeProject(folder);
-        if (!project.isGaugeProject()) return;
-        if (project.isProjectLanguage(GaugeRunners.Java)) {
-            new GaugeJavaProjectConfig(project.root(),
-                this.cli.getPluginVersion(GaugeRunners.Java),
-                new GaugeConfig(platform())).generate();
-            process.env.SHOULD_BUILD_PROJECT = "false";
-        }
-        await this.installRunnerFor(project);
-
         let serverOptions = {
             command: getGaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + project.root()],
@@ -167,8 +160,15 @@ export class GaugeWorkspace extends Disposable {
         };
         if (typeof folder !== 'string') clientOptions.workspaceFolder = folder;
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
-        this.registerDynamicFeatures(languageClient);
         this._clients.set(project.root(), languageClient);
+        await this.installRunnerFor(project);
+        if (project.isProjectLanguage(GaugeRunners.Java)) {
+            new GaugeJavaProjectConfig(project.root(),
+                this.cli.getPluginVersion(GaugeRunners.Java),
+                new GaugeConfig(platform())).generate();
+            process.env.SHOULD_BUILD_PROJECT = "false";
+        }
+        this.registerDynamicFeatures(languageClient);
         languageClient.start();
         return languageClient.onReady().then(() => { this.setLanguageId(languageClient, project.root()); });
     }
@@ -176,19 +176,13 @@ export class GaugeWorkspace extends Disposable {
     private async installRunnerFor(project: GaugeProject): Promise<any> {
         const language = project.language();
         if (this.cli.isPluginInstalled(language)) return;
-        try {
-            let message = `The project ${path.basename(project.root())} requires gauge ${language} to be installed. ` +
-                "Do you like to install?";
-            // Need to find a way to block showWarningMessage call
-            let action = await window.showWarningMessage(message, "Yes", "No");
-            if (action === "Yes") {
-                return this.cli.install(language, project.root());
-            }
-            return Promise.resolve();
-        } catch (error) {
-            return window.showErrorMessage(`Failed to install plugin ${language}.` +
-                'Refer [this](https://docs.gauge.org/latest/installation.html#language-plugins) to install manually');
+        let message = `The project ${path.basename(project.root())} requires gauge ${language} to be installed. ` +
+            "Do you like to install?";
+        let action = await window.showErrorMessage(message, { modal: true }, "Yes", "No");
+        if (action === "Yes") {
+            return await this.cli.install(language);
         }
+        return Promise.resolve();
     }
 
     private registerDynamicFeatures(languageClient: LanguageClient) {
