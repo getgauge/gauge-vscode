@@ -62,10 +62,10 @@ export class GaugeExecutor extends Disposable {
                 this.aborted = false;
                 this.childProcess = cp.spawn(getExecutionCommand(config.projectRoot), args,
                     { cwd: config.projectRoot, env: env });
-                this.childProcess.stdout.on('data', (chunk) => {
-                    let text = chunk.toString();
-                    chan.appendOutBuf(text);
-                    let lineTexts = text.split("\n");
+
+                this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText) => {
+                    chan.appendOutBuf(lineText);
+                    let lineTexts = lineText.split("\n");
                     lineTexts.forEach((lineText) => {
                         if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
                             let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
@@ -80,7 +80,7 @@ export class GaugeExecutor extends Disposable {
                             this.cancel();
                         }
                     });
-                });
+                }));
                 this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
                 this.childProcess.on('exit', (code) => {
                     this.executing = false;
@@ -90,7 +90,19 @@ export class GaugeExecutor extends Disposable {
             });
         });
     }
-
+    private filterStdoutDataDumpsToTextLines(callback) {
+        let acc = '';
+        return (data) => {
+            let splitted = data.toString().split(/\r?\n/);
+            let lines = splitted.slice(0, splitted.length - 1);
+            if (lines.length > 0) {
+                lines[0] = `${acc}${lines[0]}`;
+                acc = '';
+            }
+            acc = `${acc}${splitted[splitted.length - 1]}`;
+            lines.forEach((line) => callback(`${line}\n`));
+        };
+    }
     private killRecursive(pid: number) {
         try {
             psTree(pid, (error: Error, children: Array<any>) => {
