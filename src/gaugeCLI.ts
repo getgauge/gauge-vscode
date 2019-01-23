@@ -6,13 +6,12 @@ import { GaugeCommands, VSCodeCommands } from './constants';
 import { getGaugeCommand } from './util';
 
 export class GaugeCLI {
-
     private _isInstalled: boolean;
     private readonly _version: string;
     private readonly _commitHash: string;
-    private readonly _plugins: Array<Object>;
+    private readonly _plugins: Array<any>;
 
-    public constructor(isInstalled: boolean, v: string, commitHash: string, plugins: Array<Object>) {
+    public constructor(isInstalled: boolean, v: string, commitHash: string, plugins: Array<any>) {
         this._isInstalled = isInstalled;
         this._version = v;
         this._commitHash = commitHash;
@@ -28,6 +27,10 @@ export class GaugeCLI {
     }
     public isVersionGreaterOrEqual(version: string): boolean {
         return this._version >= version;
+    }
+
+    public getPluginVersion(language: string): any {
+        return this._plugins.find((p) => p.name === language).version;
     }
 
     public getVersion(): string {
@@ -50,11 +53,6 @@ export class GaugeCLI {
         plugins = `Plugins\n-------\n${plugins}`;
         return `${v}\n${cm}\n\n${plugins}`;
     }
-}
-
-function sleepFor(sleepDuration) {
-    let now = new Date().getTime();
-    while (new Date().getTime() < now + sleepDuration) { /* do nothing */ }
 }
 
 export function getGaugeCLIHandler() {

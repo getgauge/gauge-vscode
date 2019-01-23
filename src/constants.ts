@@ -73,6 +73,11 @@ export enum GaugeRequests {
     SpecDirs = 'gauge/specDirs'
 }
 
+export enum GaugeRunners {
+    Java = "java",
+    Dotnet = "Dotnet"
+}
+
 export const LAST_REPORT_PATH = 'gauge.execution.report';
 export const WELCOME_PAGE_URI = "gauge://global/welcome";
 export const REPORT_URI = "gauge://workspace/htmlreport";
