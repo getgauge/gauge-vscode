@@ -32,7 +32,7 @@ export async function activate(context: ExtensionContext) {
         })
     );
 
-    if (!(await hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
+    if (!(hasActiveGaugeDocument(window.activeTextEditor)) && (!folders || !folders.some(isGaugeProject))) return;
     if (!cli.isInstalled() || !cli.isVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
         return showInstallGaugeNotification();
     }

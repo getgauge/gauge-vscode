@@ -46,14 +46,16 @@ export function getProjectRootFromSpecPath(specFilePath: string): string {
     return projectRoot.dir;
 }
 
-export function hasActiveGaugeDocument(activeTextEditor: TextEditor): Promise<any> {
+export function getActiveGaugeDocument(activeTextEditor: TextEditor): Promise<any> {
     return new Promise((resolve) => {
-        resolve(activeTextEditor && isGaugeDocument(activeTextEditor.document));
+        if (activeTextEditor && activeTextEditor.document.languageId === "gauge") {
+            resolve(activeTextEditor.document.uri.fsPath);
+        }
     });
 }
 
-function isGaugeDocument(document: TextDocument) {
-    return document.languageId === "gauge";
+export function hasActiveGaugeDocument(activeTextEditor: TextEditor): boolean {
+    return activeTextEditor && activeTextEditor.document.languageId === "gauge";
 }
 
 export function getExecutionCommand(projectRoot): string {
