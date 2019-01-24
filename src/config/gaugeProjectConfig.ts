@@ -3,8 +3,8 @@ import { writeFileSync, readdirSync } from 'fs';
 import { homedir } from 'os';
 import { exec } from 'child_process';
 import * as xmlbuilder from 'xmlbuilder';
-import { isProjectLanguage, isMavenProject } from "../util";
 import GaugeConfig from './gaugeConfig';
+
 const DEFAULT_JAVA_VERSION = '11';
 
 export class GaugeJavaProjectConfig {
@@ -34,22 +34,21 @@ export class GaugeJavaProjectConfig {
     }
 
     generate() {
-        if (isProjectLanguage(this.projectRoot, 'java') && !isMavenProject(this.projectRoot)) {
-            exec('java -version', (err, __, out) => {
-                const dotCPFilePath = path.join(this.projectRoot, '.classpath');
-                let javaVersion = out.replace(/.*?(\d+\.\d+\.\d+).*(\s+.*)+/, '$1');
-                if (err !== null || !out) {
-                    return this.createDotClassPathFile(dotCPFilePath, DEFAULT_JAVA_VERSION);
-                }
-                if (javaVersion.match(/^\d\./)) {
-                    this.createDotClassPathFile(dotCPFilePath, javaVersion.replace(/(\.\d+(\w+)?$)/, ''));
-                } else {
-                    this.createDotClassPathFile(dotCPFilePath, javaVersion.replace(/\.\d+/g, ''));
-                }
-            });
-            this.createDotProjectFile(path.join(this.projectRoot, '.project'));
-        }
+        exec('java -version', (err, __, out) => {
+            const dotCPFilePath = path.join(this.projectRoot, '.classpath');
+            let javaVersion = out.replace(/.*?(\d+\.\d+\.\d+).*(\s+.*)+/, '$1');
+            if (err !== null || !out) {
+                return this.createDotClassPathFile(dotCPFilePath, DEFAULT_JAVA_VERSION);
+            }
+            if (javaVersion.match(/^\d\./)) {
+                this.createDotClassPathFile(dotCPFilePath, javaVersion.replace(/(\.\d+(\w+)?$)/, ''));
+            } else {
+                this.createDotClassPathFile(dotCPFilePath, javaVersion.replace(/\.\d+/g, ''));
+            }
+        });
+        this.createDotProjectFile(path.join(this.projectRoot, '.project'));
     }
+
     private createDotClassPathFile(cpFilePath: string, javaVersion: string) {
         let javaPluginPath = path.join(this.gaugeConfig.pluginsPath(), 'java');
         let jars = readdirSync(path.join(javaPluginPath, `${this.pluginVersion}/libs/`))
