@@ -1,7 +1,7 @@
 'use strict';
 
 import * as path from 'path';
-import { WorkspaceFolder, TextDocument, TextEditor, workspace, } from 'vscode';
+import { WorkspaceFolder, TextEditor } from 'vscode';
 import { existsSync, readFileSync } from 'fs';
 import { GAUGE_MANIFEST_FILE, GaugeCommands, MAVEN_POM, MAVEN_COMMAND_WINDOWS, MAVEN_COMMAND } from './constants';
 import { spawnSync } from 'child_process';
