@@ -14,7 +14,7 @@ import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 
-import { getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument } from './util';
+import { getGaugeCommand, getProjectRootFromSpecPath, getActiveGaugeDocument } from './util';
 import { getGaugeProject, GaugeProject } from './gaugeProject';
 import { GaugeCLI } from './gaugeCLI';
 import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
@@ -43,8 +43,8 @@ export class GaugeWorkspace extends Disposable {
             await this.startServerFor(folder);
         });
 
-        hasActiveGaugeDocument(window.activeTextEditor).then(async (s) => {
-            if (s) await this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
+        getActiveGaugeDocument(window.activeTextEditor).then(async (p) => {
+            if (p) await this.startServerForSpecFile(p);
         });
 
         setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
@@ -67,8 +67,9 @@ export class GaugeWorkspace extends Disposable {
 
     private onEditorChange(): Disposable {
         return window.onDidChangeActiveTextEditor(async (editor) => {
-            if (hasActiveGaugeDocument(editor))
-                await this.startServerForSpecFile(editor.document.uri.fsPath);
+            getActiveGaugeDocument(window.activeTextEditor).then(async (p) => {
+                if (p) await this.startServerForSpecFile(p);
+            });
         });
     }
 
