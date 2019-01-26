@@ -18,7 +18,7 @@ export class SpecificationProvider extends Disposable {
         this.gaugeWorkspace = workspace;
         this._disposable = Disposable.from(
             commands.registerCommand(GaugeVSCodeCommands.CreateSpecification, () => {
-                if (this.gaugeWorkspace.getClients().size > 1) {
+                if (this.gaugeWorkspace.getClientsMap().size > 1) {
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
                         return this.createSpecificationIn(selection);
                     });
@@ -29,7 +29,7 @@ export class SpecificationProvider extends Disposable {
     }
 
     private createSpecificationIn(project: string): Thenable<any> {
-        let client = this.gaugeWorkspace.getClients().get(project);
+        let client = this.gaugeWorkspace.getClientsMap().get(project).client;
         let token = new CancellationTokenSource().token;
         return client.sendRequest(GaugeRequests.SpecDirs, token).then((specDirs: any) => {
             let p = "Choose the folder in which the specification should be created";

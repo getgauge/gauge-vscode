@@ -1,24 +1,24 @@
 'use strict';
 
-import * as path from 'path';
 import { platform } from 'os';
+import * as path from 'path';
 import {
-    CancellationTokenSource, commands, Disposable, OutputChannel, window, workspace,
-    WorkspaceConfiguration, WorkspaceFolder, WorkspaceFoldersChangeEvent
+    CancellationTokenSource, commands, Disposable, OutputChannel, Uri,
+    window, workspace, WorkspaceConfiguration, WorkspaceFoldersChangeEvent
 } from "vscode";
 import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn } from "vscode-languageclient";
-import { GaugeCommandContext, setCommandContext, GaugeRunners } from "./constants";
+import GaugeConfig from './config/gaugeConfig';
+import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
+import { GaugeCommandContext, GaugeRunners, setCommandContext } from "./constants";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
+import { GaugeCLI } from './gaugeCLI';
+import { GaugeClients as GaugeProjectClientMap } from './gaugeClients';
+import { GaugeProject, getGaugeProject } from './gaugeProject';
 import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-
-import { getGaugeCommand, getProjectRootFromSpecPath, getActiveGaugeDocument } from './util';
-import { getGaugeProject, GaugeProject } from './gaugeProject';
-import { GaugeCLI } from './gaugeCLI';
-import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
-import GaugeConfig from './config/gaugeConfig';
+import { getActiveGaugeDocument } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -28,7 +28,7 @@ const REFERENCE_CONFIG = 'reference';
 export class GaugeWorkspace extends Disposable {
     private readonly _fileProvider: SpecificationProvider;
     private _executor: GaugeExecutor;
-    private _clients: Map<string, LanguageClient> = new Map();
+    private _clientsMap: GaugeProjectClientMap = new GaugeProjectClientMap();
     private _clientLanguageMap: Map<string, string> = new Map();
     private _outputChannel: OutputChannel = window.createOutputChannel('gauge');
     private _launchConfig: WorkspaceConfiguration;
@@ -38,21 +38,24 @@ export class GaugeWorkspace extends Disposable {
 
     constructor(private state: GaugeState, private cli: GaugeCLI) {
         super(() => this.dispose());
-        this._executor = new GaugeExecutor(this);
-        workspace.workspaceFolders.forEach(async (folder) => {
-            await this.startServerFor(folder);
-        });
+        this._executor = new GaugeExecutor(this, cli);
+
+        if (workspace.workspaceFolders) {
+            workspace.workspaceFolders.forEach(async (folder) => {
+                await this.startServerFor(folder.uri.fsPath);
+            });
+        }
 
         getActiveGaugeDocument(window.activeTextEditor).then(async (p) => {
             if (p) await this.startServerForSpecFile(p);
         });
 
-        setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
+        setCommandContext(GaugeCommandContext.MultiProject, this._clientsMap.size > 1);
 
         workspace.onDidChangeWorkspaceFolders(async (event) => {
             if (event.added) await this.onFolderAddition(event);
             if (event.removed) this.onFolderDeletion(event);
-            setCommandContext(GaugeCommandContext.MultiProject, this._clients.size > 1);
+            setCommandContext(GaugeCommandContext.MultiProject, this._clientsMap.size > 1);
         });
         this._fileProvider = new SpecificationProvider(this);
         this._specNodeProvider = new SpecNodeProvider(this);
@@ -74,8 +77,8 @@ export class GaugeWorkspace extends Disposable {
     }
 
     private async startServerForSpecFile(file: string) {
-        let projectRoot = getProjectRootFromSpecPath(file);
-        if (!this._clients.has(projectRoot))
+        let projectRoot = getGaugeProject(file).root();
+        if (!this._clientsMap.has(projectRoot))
             await this.startServerFor(projectRoot);
     }
 
@@ -91,8 +94,8 @@ export class GaugeWorkspace extends Disposable {
         return this.state.getReportThemePath();
     }
 
-    getClients(): Map<string, LanguageClient> {
-        return this._clients;
+    getClientsMap(): GaugeProjectClientMap {
+        return this._clientsMap;
     }
 
     getClientLanguageMap(): Map<string, string> {
@@ -101,13 +104,13 @@ export class GaugeWorkspace extends Disposable {
 
     getDefaultFolder() {
         let projects: any = [];
-        this._clients.forEach((v, k) => projects.push(k));
+        this._clientsMap.forEach((v, k) => projects.push(k));
         return projects.sort((a: any, b: any) => a > b)[0];
     }
 
     showProjectOptions(onChange: Function) {
         let projectItems = [];
-        this._clients.forEach((v, k) => projectItems.push({ label: path.basename(k), description: k }));
+        this._clientsMap.forEach((v, k) => projectItems.push({ label: path.basename(k), description: k }));
         let options = { canPickMany: false, placeHolder: "Choose a project" };
         return window.showQuickPick(projectItems, options).then((selected: any) => {
             if (selected) {
@@ -120,26 +123,27 @@ export class GaugeWorkspace extends Disposable {
 
     private async onFolderAddition(event: WorkspaceFoldersChangeEvent) {
         for (let folder of event.added) {
-            if (!this._clients.has(folder.uri.fsPath)) {
-                await this.startServerFor(folder);
+            if (!this._clientsMap.has(folder.uri.fsPath)) {
+                await this.startServerFor(folder.uri.fsPath);
             }
         }
     }
 
     private onFolderDeletion(event: WorkspaceFoldersChangeEvent) {
         for (let folder of event.removed) {
-            if (!this._clients.has(folder.uri.fsPath)) return;
-            let client = this._clients.get(folder.uri.fsPath);
-            this._clients.delete(folder.uri.fsPath);
+            if (!this._clientsMap.has(folder.uri.fsPath)) return;
+            let client = this._clientsMap.get(folder.uri.fsPath).client;
+            this._clientsMap.delete(folder.uri.fsPath);
             client.stop();
         }
         this._specNodeProvider.changeClient(this.getDefaultFolder());
     }
 
-    private async startServerFor(folder: WorkspaceFolder | string): Promise<any> {
+    private async startServerFor(folder: string): Promise<any> {
         let project = getGaugeProject(folder);
+        if (!project.isGaugeProject() && this._clientsMap.has(project.root())) return;
         let serverOptions = {
-            command: getGaugeCommand(),
+            command: this.cli.command(),
             args: ["daemon", "--lsp", "--dir=" + project.root()],
             options: { env: process.env }
         };
@@ -159,9 +163,9 @@ export class GaugeWorkspace extends Disposable {
             outputChannel: this._outputChannel,
             revealOutputChannelOn: RevealOutputChannelOn.Never,
         };
-        if (typeof folder !== 'string') clientOptions.workspaceFolder = folder;
+        clientOptions.workspaceFolder = workspace.getWorkspaceFolder(Uri.file(folder));
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
-        this._clients.set(project.root(), languageClient);
+        this._clientsMap.set(project.root(), { project: project, client: languageClient });
         await this.installRunnerFor(project);
         if (project.isProjectLanguage(GaugeRunners.Java)) {
             new GaugeJavaProjectConfig(project.root(),
@@ -219,8 +223,8 @@ export class GaugeWorkspace extends Disposable {
 
     dispose(): Thenable<void> {
         let promises: Thenable<void>[] = [];
-        for (let client of this._clients.values()) {
-            promises.push(client.stop());
+        for (let cp of this._clientsMap.values()) {
+            promises.push(cp.client.stop());
         }
         return Promise.all(promises).then((f) => {
             this._disposable.dispose();

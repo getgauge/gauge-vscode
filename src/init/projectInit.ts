@@ -14,10 +14,9 @@ import {
     VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL} from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
-import { getGaugeCommand, isMavenInstalled, getMavenCommand } from '../util';
+import { GaugeCLI } from '../gaugeCLI';
 
 export class ProjectInitializer extends Disposable {
-    private isGaugeInstalled: boolean;
     private readonly _disposable: Disposable;
 
     private readonly _templates: any = [
@@ -36,10 +35,11 @@ export class ProjectInitializer extends Disposable {
             archetypeGroupId: 'com.thoughtworks.gauge.maven'
         },
     };
+    private readonly cli: GaugeCLI;
 
-    constructor(isGaugeInstalled: boolean) {
+    constructor(cli: GaugeCLI) {
         super(() => this.dispose());
-        this.isGaugeInstalled = isGaugeInstalled;
+        this.cli = cli;
         this._disposable = commands.registerCommand(GaugeVSCodeCommands.CreateProject, async () => {
             await this.createProject();
         });
@@ -79,7 +79,7 @@ export class ProjectInitializer extends Disposable {
 
     private async createMavenProject(tmpl: string, targetDir: string) {
         try {
-            if (!isMavenInstalled()) throw new Error("Executable mvn not found.");
+            if (!this.cli.isMavenInstalled()) throw new Error("Executable mvn not found.");
             let info = await this.captureMavenProjectInfo();
             if (!info) return;
             return await this.createProjectFromArchType(tmpl, info, targetDir);
@@ -100,7 +100,7 @@ export class ProjectInitializer extends Disposable {
                 args.push(`-DartifactId=${info.artifactID}`);
                 args.push(`-Dversion=${info.version}`);
                 ph.report("Creating project from maven archtyp...");
-                let proc = spawn(getMavenCommand(), args, { cwd: targetDir, env: process.env });
+                let proc = spawn(this.cli.mavenCommand(), args, { cwd: targetDir, env: process.env });
                 proc.addListener('error', async (err) => {
                     await this.handleError(ph, "Failed to create template. " + err.message, targetDir);
                 });
@@ -124,7 +124,7 @@ export class ProjectInitializer extends Disposable {
         return window.withProgress({ location: 10 }, async (p: Progress<{}>) => {
             return new Promise(async (res, rej) => {
                 let ph = new ProgressHandler(p, res, rej);
-                if (this.isGaugeInstalled) await this.createFromCommandLine(template, projectFolder, ph);
+                if (this.cli.isInstalled()) await this.createFromCommandLine(template, projectFolder, ph);
                 else await this.createFromTemplate(template, projectFolder, ph);
             });
         });
@@ -134,7 +134,7 @@ export class ProjectInitializer extends Disposable {
         let args = [GaugeCommands.Init, template.label];
         let options = { cwd: projectFolder.fsPath, env: process.env };
         p.report("Initializing project...");
-        let proc = spawn(getGaugeCommand(), args, options);
+        let proc = spawn(this.cli.command(), args, options);
         proc.addListener('error', async (err) => {
             this.handleError(p, "Failed to create template. " + err.message, projectFolder.fsPath);
         });

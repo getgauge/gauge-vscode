@@ -9,14 +9,15 @@ import clipboardy = require("clipboardy");
 import { GaugeVSCodeCommands, GaugeRequests, NEW_FILE, COPY_TO_CLIPBOARD } from "../constants";
 import { FileListItem } from "../types/fileListItem";
 import { WorkspaceEditor } from "../refactor/workspaceEditor";
-import { getProjectRootFromSpecPath } from "../util";
+import { getGaugeProject } from "../gaugeProject";
+import { GaugeClients } from "../gaugeClients";
 
 export class GenerateStubCommandProvider implements Disposable {
-    private readonly _clients: Map<string, LanguageClient>;
+    private readonly _clientsMap: GaugeClients;
     private readonly _disposable: Disposable;
 
-    constructor(clients: Map<string, LanguageClient>) {
-        this._clients = clients;
+    constructor(clients: GaugeClients) {
+        this._clientsMap = clients;
         this._disposable = Disposable.from(
             commands.registerCommand(GaugeVSCodeCommands.GenerateStepStub, (code: string) => {
                 return this.generateStepStub(code);
@@ -26,11 +27,11 @@ export class GenerateStubCommandProvider implements Disposable {
         );
     }
     private generateConceptStub(conceptInfo: any) {
-        let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
-        let languageClient = this._clients.get(cwd);
+        let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+        let languageClient = this._clientsMap.get(project.root()).client;
         let t = new CancellationTokenSource().token;
         languageClient.sendRequest(GaugeRequests.Files, { concept: true }, t).then((files: string[]) => {
-            window.showQuickPick(this.getFileLists(files, cwd, false)).then((selected) => {
+            window.showQuickPick(this.getFileLists(files, project.root(), false)).then((selected) => {
                 if (!selected) return;
                 conceptInfo.conceptFile = selected.value;
                 conceptInfo.dir = path.dirname(window.activeTextEditor.document.uri.fsPath);
@@ -41,18 +42,17 @@ export class GenerateStubCommandProvider implements Disposable {
     }
 
     private generateStepStub(code: string) {
-        let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
-        let languageClient = this._clients.get(cwd);
+        let pc = this._clientsMap.get(window.activeTextEditor.document.uri.fsPath);
         let token = new CancellationTokenSource().token;
-        languageClient.sendRequest(GaugeRequests.Files, token).then((files: string[]) => {
-            window.showQuickPick(this.getFileLists(files, cwd)).then((selected: FileListItem) => {
+        pc.client.sendRequest(GaugeRequests.Files, token).then((files: string[]) => {
+            window.showQuickPick(this.getFileLists(files, pc.project.root())).then((selected: FileListItem) => {
                 if (!selected) return;
                 if (selected.isCopyToClipBoard()) {
                     clipboardy.writeSync(code);
                     window.showInformationMessage("Step Implementation copied to clipboard");
                 } else {
                     let params = { implementationFilePath: selected.value, codes: [code] };
-                    this.generateInFile(GaugeRequests.AddStub, params, languageClient);
+                    this.generateInFile(GaugeRequests.AddStub, params, pc.client);
                 }
             }, this.handleError);
         }, this.handleError);

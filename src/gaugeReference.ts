@@ -5,11 +5,11 @@ import { GaugeVSCodeCommands, VSCodeCommands } from "./constants";
 import {
     LanguageClient, TextDocumentIdentifier, Location as LSLocation, Position as LSPosition
 } from 'vscode-languageclient';
-import { getProjectRootFromSpecPath } from "./util";
+import { GaugeClients } from "./gaugeClients";
 
 export class ReferenceProvider extends Disposable {
     private _disposable: Disposable;
-    constructor(private clients: Map<string, LanguageClient>) {
+    constructor(private clients: GaugeClients) {
         super(() => this.dispose());
 
         this._disposable = Disposable.from(
@@ -20,23 +20,24 @@ export class ReferenceProvider extends Disposable {
         );
     }
 
-    private showStepReferences(clients: Map<string, LanguageClient>):
-    (uri: string, position: LSPosition, stepValue: string) => Thenable<any> {
-    return (uri: string, position: LSPosition, stepValue: string) => {
-        let languageClient = clients.get(getProjectRootFromSpecPath(Uri.parse(uri).fsPath));
-        return languageClient.sendRequest("gauge/stepReferences", stepValue, new CancellationTokenSource().token).then(
-            (locations: LSLocation[]) => {
-                return this.showReferences(locations, uri, languageClient, position);
-            });
+    private showStepReferences(clients: GaugeClients):
+        (uri: string, position: LSPosition, stepValue: string) => Thenable<any> {
+        return (uri: string, position: LSPosition, stepValue: string) => {
+            let languageClient = clients.get(Uri.parse(uri).fsPath).client;
+            return languageClient.sendRequest("gauge/stepReferences", stepValue, new CancellationTokenSource().token)
+                .then(
+                    (locations: LSLocation[]) => {
+                        return this.showReferences(locations, uri, languageClient, position);
+                    });
         };
     }
 
-    private showStepReferencesAtCursor(clients: Map<string, LanguageClient>): () => Thenable<any> {
+    private showStepReferencesAtCursor(clients: GaugeClients): () => Thenable<any> {
         return (): Thenable<any> => {
             let position = window.activeTextEditor.selection.active;
             let documentId = TextDocumentIdentifier.create(window.activeTextEditor.document.uri.toString());
             let activeEditor = window.activeTextEditor.document.uri;
-            let languageClient = clients.get(getProjectRootFromSpecPath(activeEditor.fsPath));
+            let languageClient = clients.get(activeEditor.fsPath).client;
             let params = { textDocument: documentId, position };
             return languageClient.sendRequest("gauge/stepValueAt", params, new CancellationTokenSource().token).then(
                 (stepValue: string) => {

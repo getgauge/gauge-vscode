@@ -1,8 +1,9 @@
 'use strict';
 
 import { existsSync, readFileSync } from 'fs';
-import { GAUGE_MANIFEST_FILE } from './constants';
-import { join } from 'path';
+import { GAUGE_MANIFEST_FILE, MAVEN_POM } from './constants';
+import { join, relative, isAbsolute, parse } from 'path';
+import { GaugeCLI } from './gaugeCLI';
 
 export class GaugeProject {
     private readonly _projectRoot: string;
@@ -19,12 +20,25 @@ export class GaugeProject {
         }
     }
 
+    public getExecutionCommand(cli: GaugeCLI): string {
+        if (this.isMavenProject()) return 'mvn';
+        return cli.command();
+    }
+
+    public isMavenProject() {
+        return existsSync(join(this.root(), MAVEN_POM));
+    }
+
     public isGaugeProject(): boolean {
         return this._isGaugeProject;
     }
 
     public language(): string {
         return this._language;
+    }
+
+    public hasFile(file: string) {
+        return file.startsWith(this.root());
     }
 
     public isProjectLanguage(language: string): any {
@@ -35,25 +49,39 @@ export class GaugeProject {
         return this._projectRoot;
     }
 
-    public versionString(): string {
-        return `Project Path: ${this._projectRoot}
-Language: ${this._language}
-Plugins:${this._plugins.join(', ')}`;
+    public toString(): string {
+        return `Project Path: ${this._projectRoot}\n` +
+            `Language: ${this._language}\n` +
+            `Plugins:${this._plugins.join(', ')}`;
+    }
+
+    public equals(o: Object): boolean {
+        if (o == null) return false;
+        if (!(o instanceof GaugeProject)) return false;
+        if (o === this) return true;
+        return this.root() === (o as GaugeProject).root();
     }
 
 }
 
-export function getGaugeProject(dir: any) {
-    const basePath = (typeof dir === 'string' ? dir : dir.uri.fsPath);
-    const filePath = join(basePath, GAUGE_MANIFEST_FILE);
+function createProject(dir: string) {
+    const filePath = join(dir, GAUGE_MANIFEST_FILE);
     if (existsSync(filePath)) {
         try {
             const content = readFileSync(filePath);
             const data = JSON.parse(content.toString());
-            return new GaugeProject(basePath, data);
+            return new GaugeProject(dir, data);
         } catch (e) {
-            return new GaugeProject(basePath, null);
+            return new GaugeProject(dir, null);
         }
     }
-    return new GaugeProject(basePath, null);
+    return new GaugeProject(dir, null);
+}
+
+export function getGaugeProject(filePath: string): GaugeProject {
+    let project = createProject(filePath);
+    while (!project.isGaugeProject()) {
+        project = createProject(parse(project.root()).dir);
+    }
+    return project;
 }
