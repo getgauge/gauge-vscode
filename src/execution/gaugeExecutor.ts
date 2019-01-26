@@ -53,7 +53,8 @@ export class GaugeExecutor extends Disposable {
             }
             try {
                 this.executing = true;
-                this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
+                this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(),
+                    this.gaugeWorkspace.getClientsMap(), config);
                 this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(); });
                 this.gaugeDebugger.addDebugEnv().then((env) => {
                     env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
@@ -81,7 +82,10 @@ export class GaugeExecutor extends Disposable {
                             }
                             if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
                                 this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-                                this.gaugeDebugger.startDebugger();
+                                this.gaugeDebugger.startDebugger().catch((reason) => {
+                                    window.showErrorMessage(reason);
+                                    this.cancel();
+                                });
                             }
                             if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
                                 window.showErrorMessage("No debugger attached. Stopping the execution");

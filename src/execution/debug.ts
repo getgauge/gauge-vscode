@@ -4,6 +4,7 @@ import { debug, DebugSession, window, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
 import { ExecutionConfig } from './executionConfig';
 import getPort = require('get-port');
+import { GaugeClients } from '../gaugeClients';
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
 const REQUEST_TYPE = "attach";
@@ -17,14 +18,17 @@ export class GaugeDebugger {
     private debug: boolean;
     private dotnetProcessID: number;
     private config: ExecutionConfig;
+    private clientsMap: GaugeClients;
 
-    constructor(clientLanguageMap: Map<string, string>, config: ExecutionConfig) {
+    constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients,
+        config: ExecutionConfig) {
         this.languageId = clientLanguageMap.get(config.getProject().root());
+        this.clientsMap = clientsMap;
         this.config = config;
         this.debug = config.getDebug();
     }
 
-    private setDebuggerConf(): any {
+    private getDebuggerConf(): any {
         switch (this.languageId) {
             case "python": {
                 return {
@@ -99,11 +103,17 @@ export class GaugeDebugger {
         }
     }
 
-    public startDebugger(): void {
-        setTimeout(() => {
-            debug.startDebugging(workspace.getWorkspaceFolder(window.activeTextEditor.document.uri),
-                this.setDebuggerConf());
-        }, 100);
+    public startDebugger(): Promise<any> {
+        return new Promise((res, rej) => {
+            setTimeout(() => {
+                let folder = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri);
+                let root = this.clientsMap.get(window.activeTextEditor.document.uri.fsPath).project.root();
+                if (!folder) {
+                    rej(`The debugger dones not work for a stand alone file.Please open the folder ${root}.`);
+                }
+                debug.startDebugging(folder, this.getDebuggerConf()).then(res, rej);
+            }, 100);
+        });
     }
 
     public registerStopDebugger(callback) {
