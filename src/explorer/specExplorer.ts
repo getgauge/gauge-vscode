@@ -9,7 +9,8 @@ import {
     TextDocumentShowOptions, TextEditor, Disposable
 } from 'vscode';
 import { GaugeWorkspace } from '../gaugeWorkspace';
-import { getProjectRootFromSpecPath } from '../util';
+import { getGaugeProject } from '../gaugeProject';
+import { ExecutionConfig } from '../execution/executionConfig';
 
 const extensions = [".spec", ".md"];
 
@@ -54,20 +55,16 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
                     return this.gaugeWorkspace.getGaugeExecutor().runSpecification(this.activeFolder);
                 }),
                 commands.registerCommand(GaugeVSCodeCommands.ExecuteScenario, (scn: Scenario) => {
-                    if (scn) return this.gaugeWorkspace.getGaugeExecutor().execute(scn.executionIdentifier, {
-                        inParallel: false,
-                        status: scn.executionIdentifier,
-                        projectRoot: workspace.getWorkspaceFolder(Uri.file(scn.file)).uri.fsPath
-                    });
+                    if (scn) return this.gaugeWorkspace.getGaugeExecutor().execute(scn.executionIdentifier,
+                        new ExecutionConfig().setStatus(scn.executionIdentifier)
+                            .setProject(getGaugeProject(scn.file)));
                     return this.gaugeWorkspace.getGaugeExecutor().runScenario(true);
                 }),
                 commands.registerCommand(GaugeVSCodeCommands.ExecuteSpec, (spec: Spec) => {
                     if (spec) {
-                        return this.gaugeWorkspace.getGaugeExecutor().execute(spec.file, {
-                            inParallel: false,
-                            status: spec.file,
-                            projectRoot: workspace.getWorkspaceFolder(Uri.file(spec.file)).uri.fsPath
-                        });
+                        return this.gaugeWorkspace.getGaugeExecutor().execute(spec.file,
+                            new ExecutionConfig().setStatus(spec.file)
+                                .setProject(getGaugeProject(spec.file)));
                     }
                     return this.gaugeWorkspace.getGaugeExecutor().runSpecification();
                 }),
@@ -126,7 +123,7 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
 
     private shouldRefresh(fileUri: vscode.Uri): boolean {
         return extensions.includes(path.extname(fileUri.fsPath)) &&
-            getProjectRootFromSpecPath(fileUri.fsPath) === this.activeFolder;
+            getGaugeProject(fileUri.fsPath).root() === this.activeFolder;
     }
 
     changeClient(projectPath: string) {
@@ -139,7 +136,7 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
     private activateTreeDataProvider(projectPath: string) {
         if (!projectPath) return;
         const workspacePath = Uri.file(projectPath).fsPath;
-        const client = this.gaugeWorkspace.getClients().get(workspacePath);
+        const client = this.gaugeWorkspace.getClientsMap().get(workspacePath).client;
         if (!client) return;
         client.onReady().then(() => {
             this._languageClient = client;

@@ -1,6 +1,6 @@
 'use strict';
 
-import { ChildProcess } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import {
     CancellationTokenSource, commands, Disposable, Position,
     StatusBarAlignment, Uri, window, DebugSession
@@ -8,12 +8,14 @@ import {
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
-import { getExecutionCommand, getProjectRootFromSpecPath, isMavenProject } from '../util';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
+import { getGaugeProject } from '../gaugeProject';
+import { ExecutionConfig } from './executionConfig';
+import { GaugeCLI } from '../gaugeCLI';
+import { join, relative, extname } from 'path';
+
 import psTree = require('ps-tree');
-import cp = require('child_process');
-import path = require('path');
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -34,7 +36,7 @@ export class GaugeExecutor extends Disposable {
     private _disposables: Disposable[] = [];
     private gaugeDebugger: GaugeDebugger;
 
-    constructor(private gaugeWorkspace: GaugeWorkspace) {
+    constructor(private gaugeWorkspace: GaugeWorkspace, private cli: GaugeCLI) {
         super(() => this.dispose());
 
         this._reportThemePath = gaugeWorkspace.getReportThemePath();
@@ -43,53 +45,60 @@ export class GaugeExecutor extends Disposable {
         this.registerCommands();
     }
 
-    public execute(spec: string, config: any): Thenable<any> {
+    public execute(spec: string, config: ExecutionConfig): Thenable<any> {
         return new Promise((resolve, reject) => {
             if (this.executing) {
                 reject(new Error('A Specification or Scenario is still running!'));
                 return;
             }
-            this.executing = true;
-            this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
-            this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(); });
-            this.gaugeDebugger.addDebugEnv(config.projectRoot).then((env) => {
-                env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
-                env.use_nested_specs = "false";
-                env.SHOULD_BUILD_PROJECT = "true";
-                let args = this.getArgs(spec, config);
-                let chan = new OutputChannel(this.outputChannel,
-                    ['Running tool:', getExecutionCommand(config.projectRoot), args.join(' ')].join(' '),
-                    config.projectRoot);
-                this.preExecute.forEach((f) => f.call(null, env, path.relative(config.projectRoot, config.status)));
-                this.aborted = false;
-                this.childProcess = cp.spawn(getExecutionCommand(config.projectRoot), args,
-                    { cwd: config.projectRoot, env: env });
-
-                this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText) => {
-                    chan.appendOutBuf(lineText);
-                    let lineTexts = lineText.split("\n");
-                    lineTexts.forEach((lineText) => {
-                        if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
-                            let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
-                            this.gaugeWorkspace.setReportPath(reportPath);
-                        }
-                        if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
-                            this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-                            this.gaugeDebugger.startDebugger();
-                        }
-                        if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
-                            window.showErrorMessage("No debugger attached. Stopping the execution");
-                            this.cancel();
-                        }
+            try {
+                this.executing = true;
+                this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(), config);
+                this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(); });
+                this.gaugeDebugger.addDebugEnv().then((env) => {
+                    env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
+                    env.use_nested_specs = "false";
+                    env.SHOULD_BUILD_PROJECT = "true";
+                    let cmd = config.getProject().getExecutionCommand(this.cli);
+                    let args = this.getArgs(spec, config);
+                    let chan = new OutputChannel(this.outputChannel,
+                        ['Running tool:', cmd, args.join(' ')].join(' '),
+                        config.getProject().root());
+                    this.preExecute.forEach((f) => {
+                        f.call(null, env, relative(config.getProject().root(), config.getStatus()));
                     });
-                }));
-                this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
-                this.childProcess.on('exit', (code) => {
-                    this.executing = false;
-                    this.postExecute.forEach((f) => f.call(null, config.projectRoot, this.aborted));
-                    chan.onFinish(resolve, code, successMessage, failureMessage, this.aborted);
+                    this.aborted = false;
+                    this.childProcess = spawn(cmd, args,
+                        { cwd: config.getProject().root(), env: env });
+
+                    this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText: string) => {
+                        chan.appendOutBuf(lineText);
+                        let lineTexts = lineText.split("\n");
+                        lineTexts.forEach((lineText) => {
+                            if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
+                                let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
+                                this.gaugeWorkspace.setReportPath(reportPath);
+                            }
+                            if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
+                                this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
+                                this.gaugeDebugger.startDebugger();
+                            }
+                            if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
+                                window.showErrorMessage("No debugger attached. Stopping the execution");
+                                this.cancel();
+                            }
+                        });
+                    }));
+                    this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
+                    this.childProcess.on('exit', (code) => {
+                        this.executing = false;
+                        this.postExecute.forEach((f) => f.call(null, config.getProject().root(), this.aborted));
+                        chan.onFinish(resolve, code, successMessage, failureMessage, this.aborted);
+                    });
                 });
-            });
+            } catch (error) {
+                console.log(error);
+            }
         });
     }
     private filterStdoutDataDumpsToTextLines(callback) {
@@ -142,32 +151,32 @@ export class GaugeExecutor extends Disposable {
 
     public runSpecification(projectRoot?: string): Thenable<any> {
         if (projectRoot) {
-            return this.execute(null,
-                { inParallel: false, status: path.join(projectRoot, "All specs"), projectRoot: projectRoot });
+            const config = new ExecutionConfig().setStatus(join(projectRoot, "All specs"))
+                .setProject(getGaugeProject(projectRoot));
+            return this.execute(null, config);
         }
         let activeTextEditor = window.activeTextEditor;
         if (activeTextEditor) {
             let doc = activeTextEditor.document;
-            if (!extensions.includes(path.extname(doc.fileName))) {
+            if (!extensions.includes(extname(doc.fileName))) {
                 return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
             }
-            return this.execute(doc.fileName, {
-                inParallel: false,
-                status: doc.fileName,
-                projectRoot: getProjectRootFromSpecPath(doc.uri.fsPath)
-            });
+            return this.execute(doc.fileName, new ExecutionConfig()
+                .setStatus(doc.fileName)
+                .setProject(getGaugeProject(doc.uri.fsPath))
+            );
         } else {
             return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
         }
     }
 
     public runScenario(atCursor: boolean): Thenable<any> {
-        let clients = this.gaugeWorkspace.getClients();
+        let clientsMap = this.gaugeWorkspace.getClientsMap();
         let activeTextEditor = window.activeTextEditor;
         if (activeTextEditor) {
             let spec = activeTextEditor.document.fileName;
-            let lc = clients.get(getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath));
-            if (!extensions.includes(path.extname(spec))) {
+            let lc = clientsMap.get(window.activeTextEditor.document.uri.fsPath).client;
+            if (!extensions.includes(extname(spec))) {
                 return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
             }
             return this.getAllScenarios(lc, atCursor).then((scenarios: any): Thenable<any> => {
@@ -191,19 +200,19 @@ export class GaugeExecutor extends Disposable {
         if (config.repeat) return args.concat(`-Dflags=--repeat`);
         args = args.concat(defaultArgs);
         if (config.inParallel) args = args.concat("-DinParallel=true");
-        if (spec) return args.concat(`-DspecsDir=${path.relative(config.projectRoot, spec)}`);
+        if (spec) return args.concat(`-DspecsDir=${relative(config.projectRoot, spec)}`);
         return args;
     }
 
-    private getArgs(spec, config): Array<string> {
-        if (isMavenProject(config.projectRoot)) return this.createMavenArgs(spec, config);
-        if (config.rerunFailed) {
+    private getArgs(spec: string, config: ExecutionConfig): Array<string> {
+        if (config.getProject().isMavenProject()) return this.createMavenArgs(spec, config);
+        if (config.getFailed()) {
             return [GaugeCommands.Run, GaugeCommands.RerunFailed];
         }
-        if (config.repeat) {
+        if (config.getRepeat()) {
             return [GaugeCommands.Run, GaugeCommands.Repeat];
         }
-        if (config.inParallel) {
+        if (config.getParallel()) {
             if (spec) {
                 return [GaugeCommands.Run, GaugeCommands.Parallel, spec, GaugeCommands.HideSuggestion];
             }
@@ -238,12 +247,11 @@ export class GaugeExecutor extends Disposable {
             if (selected) {
                 let sce = scenarios.find((sce) => selected.label === sce.heading);
                 let path = sce.executionIdentifier.substring(0, sce.executionIdentifier.lastIndexOf(":"));
-                let pr = getProjectRootFromSpecPath(Uri.file(path).fsPath);
-                return this.execute(sce.executionIdentifier, {
-                    inParallel: false,
-                    status: sce.executionIdentifier,
-                    projectRoot: pr
-                });
+                let pr = getGaugeProject(Uri.file(path).fsPath);
+                return this.execute(sce.executionIdentifier, new ExecutionConfig()
+                    .setStatus(sce.executionIdentifier)
+                    .setProject(pr)
+                );
             }
         }, (reason: any) => {
             return Promise.reject(reason);
@@ -255,47 +263,43 @@ export class GaugeExecutor extends Disposable {
             return this.executeOptedScenario(scenarios);
         }
         let path = scenarios.executionIdentifier.substring(0, scenarios.executionIdentifier.lastIndexOf(":"));
-        let pr = getProjectRootFromSpecPath(Uri.file(path).fsPath);
-        return this.execute(scenarios.executionIdentifier, {
-            inParallel: false,
-            status: scenarios.executionIdentifier,
-            projectRoot: pr
-        });
+        let pr = getGaugeProject(Uri.file(path).fsPath);
+        return this.execute(scenarios.executionIdentifier, new ExecutionConfig()
+            .setStatus(scenarios.executionIdentifier)
+            .setProject(pr)
+        );
     }
 
     private registerCommands() {
         this._disposables.push(Disposable.from(
             commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
-                let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
-                return this.execute(spec, { inParallel: false, status: spec, projectRoot: cwd });
+                let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+                return this.execute(spec, new ExecutionConfig().setStatus(spec).setProject(project));
             }),
             commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => {
-                let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
-                return this.execute(spec, { inParallel: true, status: spec, projectRoot: cwd });
+                let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+                return this.execute(spec, new ExecutionConfig().setParallel().setStatus(spec).setProject(project));
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.Debug, (spec) => {
-                let cwd = getProjectRootFromSpecPath(window.activeTextEditor.document.uri.fsPath);
-                return this.execute(spec, { inParallel: false, status: spec, projectRoot: cwd, debug: true });
+                let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+                return this.execute(spec, new ExecutionConfig().setStatus(spec).setDebug().setProject(project));
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.ExecuteFailed, () => {
-                if (this.gaugeWorkspace.getClients().size > 1)
+                if (this.gaugeWorkspace.getClientsMap().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
-                        return this.execute(null, {
-                            rerunFailed: true,
-                            status: path.join(selection, "failed scenarios"), projectRoot: selection
-                        });
+                        return this.execute(null, new ExecutionConfig().setFailed()
+                            .setStatus(join(selection, "failed scenarios")).setProject(getGaugeProject(selection)));
                     });
-                return this.execute(null, {
-                    rerunFailed: true,
-                    status: path.join(this.gaugeWorkspace.getDefaultFolder(), "failed scenarios"),
-                    projectRoot: this.gaugeWorkspace.getDefaultFolder()
-                });
+                let defaultProject = getGaugeProject(this.gaugeWorkspace.getDefaultFolder());
+                return this.execute(null, new ExecutionConfig().setFailed()
+                    .setStatus(join(defaultProject.root(), "failed scenarios"))
+                    .setProject(defaultProject));
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.ExecuteAllSpecs, () => {
-                if (this.gaugeWorkspace.getClients().size > 1)
+                if (this.gaugeWorkspace.getClientsMap().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
                         return this.runSpecification(selection);
                     });
@@ -306,18 +310,15 @@ export class GaugeExecutor extends Disposable {
                 return this.runScenario(false);
             }),
             commands.registerCommand(GaugeVSCodeCommands.RepeatExecution, () => {
-                if (this.gaugeWorkspace.getClients().size > 1)
+                if (this.gaugeWorkspace.getClientsMap().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
-                        return this.execute(null, {
-                            repeat: true, status: path.join(selection, "previous run"),
-                            projectRoot: selection
-                        });
+                        return this.execute(null, new ExecutionConfig().setRepeat()
+                            .setStatus(join(selection, "previous run")).setProject(getGaugeProject(selection)));
                     });
-                return this.execute(null,
-                    {
-                        repeat: true, status: path.join(this.gaugeWorkspace.getDefaultFolder(), "previous run"),
-                        projectRoot: this.gaugeWorkspace.getDefaultFolder()
-                    });
+                let defaultProject = getGaugeProject(this.gaugeWorkspace.getDefaultFolder());
+                return this.execute(null, new ExecutionConfig().setRepeat()
+                    .setStatus(join(defaultProject.root(), "previous run"))
+                    .setProject(defaultProject));
             })
         ));
     }
@@ -355,8 +356,8 @@ export class GaugeExecutor extends Disposable {
                 executionStatus.hide();
             } else {
                 root = projectRoot;
-                let languageClient = this.gaugeWorkspace.getClients().get(Uri.file(projectRoot).fsPath);
-                return languageClient.sendRequest("gauge/executionStatus", {},
+                let client = this.gaugeWorkspace.getClientsMap().get(Uri.file(projectRoot).fsPath).client;
+                return client.sendRequest("gauge/executionStatus", {},
                     new CancellationTokenSource().token).then(
                         (val: any) => {
                             let status = '#999999';

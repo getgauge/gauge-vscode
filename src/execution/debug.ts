@@ -1,9 +1,9 @@
 'use strict';
 
-import { debug, window, workspace, DebugSession } from 'vscode';
-import { isProjectLanguage } from '../util';
-import getPort = require('get-port');
+import { debug, DebugSession, window, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
+import { ExecutionConfig } from './executionConfig';
+import getPort = require('get-port');
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
 const REQUEST_TYPE = "attach";
@@ -16,11 +16,12 @@ export class GaugeDebugger {
     private projectRoot: string;
     private debug: boolean;
     private dotnetProcessID: number;
+    private config: ExecutionConfig;
 
-    constructor(clientLanguageMap: Map<string, string>, config: any) {
-        this.languageId = clientLanguageMap.get(config.projectRoot);
-        this.projectRoot = config.projectRoot;
-        this.debug = config.debug;
+    constructor(clientLanguageMap: Map<string, string>, config: ExecutionConfig) {
+        this.languageId = clientLanguageMap.get(config.getProject().root());
+        this.config = config;
+        this.debug = config.getDebug();
     }
 
     private setDebuggerConf(): any {
@@ -81,13 +82,14 @@ export class GaugeDebugger {
         this.dotnetProcessID = pid;
     }
 
-    public addDebugEnv(projectRoot: string): Thenable<any> {
+    public addDebugEnv(): Thenable<any> {
         let env = Object.create(process.env);
         if (this.debug) {
             env.DEBUGGING = true;
             return getPort({ port: DEBUG_PORT }).then((port) => {
-                if (isProjectLanguage(projectRoot, GaugeRunners.Dotnet)) env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
-                if (isProjectLanguage(projectRoot, GaugeRunners.Java)) env.GAUGE_DEBUG_OPTS = port;
+                if (this.config.getProject().isProjectLanguage(GaugeRunners.Dotnet))
+                    env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
+                if (this.config.getProject().isProjectLanguage(GaugeRunners.Java)) env.GAUGE_DEBUG_OPTS = port;
                 env.DEBUG_PORT = port;
                 this.debugPort = port;
                 return env;
