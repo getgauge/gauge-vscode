@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { CLI } from '../src/cli';
 
-suite('GaugeCLI', () => {
+suite('CLI', () => {
     test('.isPluginInstalled should tell a gauge plugin is installed or not', () => {
         let info = {
             version: "1.2.3",

@@ -2,7 +2,7 @@
 
 import { existsSync, readFileSync } from 'fs';
 import { GAUGE_MANIFEST_FILE, MAVEN_POM } from './constants';
-import { join, parse } from 'path';
+import { join, parse, relative, isAbsolute } from 'path';
 import { CLI } from './cli';
 
 export class GaugeProject {
@@ -21,7 +21,7 @@ export class GaugeProject {
     }
 
     public getExecutionCommand(cli: CLI): string {
-        if (this.isMavenProject()) return 'mvn';
+        if (this.isMavenProject()) return cli.mavenCommand();
         return cli.gaugeCommand();
     }
 
@@ -38,7 +38,9 @@ export class GaugeProject {
     }
 
     public hasFile(file: string) {
-        return file.startsWith(this.root());
+        if (this.root() === file) return true;
+        const rel = relative(this.root(), file);
+        return !rel.startsWith('..') && !isAbsolute(rel);
     }
 
     public isProjectLanguage(language: string): any {
