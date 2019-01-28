@@ -13,12 +13,10 @@ import { GaugeCommandContext, GaugeRunners, setCommandContext } from "./constant
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
-import { GaugeCLI } from './gaugeCLI';
+import { getGaugeProject, GaugeProject } from './gaugeProject';
+import { CLI } from './cli';
+import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
 import { GaugeClients as GaugeProjectClientMap } from './gaugeClients';
-import { GaugeProject, getGaugeProject } from './gaugeProject';
-import { GaugeState } from "./gaugeState";
-import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
-import { getActiveGaugeDocument } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -36,7 +34,7 @@ export class GaugeWorkspace extends Disposable {
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
 
-    constructor(private state: GaugeState, private cli: GaugeCLI) {
+    constructor(private state: GaugeState, private cli: CLI) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this, cli);
 
@@ -143,7 +141,7 @@ export class GaugeWorkspace extends Disposable {
         let project = getGaugeProject(folder);
         if (!project.isGaugeProject() && this._clientsMap.has(project.root())) return;
         let serverOptions = {
-            command: this.cli.command(),
+            command: this.cli.gaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + project.root()],
             options: { env: process.env }
         };
@@ -171,6 +169,7 @@ export class GaugeWorkspace extends Disposable {
             new GaugeJavaProjectConfig(project.root(),
                 this.cli.getPluginVersion(GaugeRunners.Java),
                 new GaugeConfig(platform())).generate();
+
             process.env.SHOULD_BUILD_PROJECT = "false";
         }
         this.registerDynamicFeatures(languageClient);
@@ -185,7 +184,7 @@ export class GaugeWorkspace extends Disposable {
             "Do you like to install?";
         let action = await window.showErrorMessage(message, { modal: true }, "Yes", "No");
         if (action === "Yes") {
-            return await this.cli.install(language);
+            return await this.cli.installGaugeRunner(language);
         }
         return Promise.resolve();
     }

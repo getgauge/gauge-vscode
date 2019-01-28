@@ -21,7 +21,7 @@ export class GaugeDebugger {
     private clientsMap: GaugeClients;
 
     constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients,
-        config: ExecutionConfig) {
+                config: ExecutionConfig) {
         this.languageId = clientLanguageMap.get(config.getProject().root());
         this.clientsMap = clientsMap;
         this.config = config;

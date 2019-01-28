@@ -12,7 +12,7 @@ import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
 import { getGaugeProject } from '../gaugeProject';
 import { ExecutionConfig } from './executionConfig';
-import { GaugeCLI } from '../gaugeCLI';
+import { CLI } from '../cli';
 import { join, relative, extname } from 'path';
 
 import psTree = require('ps-tree');
@@ -36,7 +36,7 @@ export class GaugeExecutor extends Disposable {
     private _disposables: Disposable[] = [];
     private gaugeDebugger: GaugeDebugger;
 
-    constructor(private gaugeWorkspace: GaugeWorkspace, private cli: GaugeCLI) {
+    constructor(private gaugeWorkspace: GaugeWorkspace, private cli: CLI) {
         super(() => this.dispose());
 
         this._reportThemePath = gaugeWorkspace.getReportThemePath();
