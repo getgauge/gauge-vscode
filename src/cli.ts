@@ -91,7 +91,19 @@ export function getCLI() {
     return new CLI(gaugeCommand, true, JSON.parse(gv.stdout.toString()), mvnCommand);
 }
 
+function doesCommandExists(command: string) {
+    return !spawnSync(command).error;
+}
+
 function getCommand(command: string): string {
-    if (platform() === 'win32') command = `${command}.cmd`;
+    if (platform() === 'win32') {
+        let validExecExt = ["", ".bat", ".exe", ".cmd"];
+        for (const ext of validExecExt) {
+            let executable = `${command}${ext}`;
+            if (doesCommandExists(executable)) {
+                return executable;
+            }
+        }
+    }
     return command;
 }
