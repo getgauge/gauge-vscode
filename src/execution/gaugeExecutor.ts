@@ -63,8 +63,8 @@ export class GaugeExecutor extends Disposable {
                     let cmd = config.getProject().getExecutionCommand(this.cli);
                     let args = this.getArgs(spec, config);
                     let chan = new OutputChannel(this.outputChannel,
-                        ['Running tool:', cmd, args.join(' ')].join(' '),
-                        config.getProject().root());
+                            ['Running tool:', cmd, args.join(' ')].join(' '),
+                            config.getProject().root());
                     this.preExecute.forEach((f) => {
                         f.call(null, env, relative(config.getProject().root(), config.getStatus()));
                     });
@@ -197,14 +197,14 @@ export class GaugeExecutor extends Disposable {
         }
     }
 
-    private createMavenArgs(spec, config): Array<string> {
+    private createMavenArgs(spec, config: ExecutionConfig): Array<string> {
         let args = ["-q", "clean", "compile", "test-compile", "gauge:execute"];
         let defaultArgs = `-Dflags=--hide-suggestion,--simple-console`;
-        if (config.rerunFailed) return args.concat(`-Dflags=--failed`);
-        if (config.repeat) return args.concat(`-Dflags=--repeat`);
+        if (config.getFailed()) return args.concat(`-Dflags=--failed`);
+        if (config.getRepeat()) return args.concat(`-Dflags=--repeat`);
         args = args.concat(defaultArgs);
-        if (config.inParallel) args = args.concat("-DinParallel=true");
-        if (spec) return args.concat(`-DspecsDir=${relative(config.projectRoot, spec)}`);
+        if (config.getParallel()) args = args.concat("-DinParallel=true");
+        if (spec) return args.concat(`-DspecsDir=${relative(config.getProject().root(), spec)}`);
         return args;
     }
 
