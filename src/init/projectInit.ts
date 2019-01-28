@@ -14,7 +14,7 @@ import {
     VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL} from "../constants";
 import { FileListItem } from '../types/fileListItem';
 import { execSync, spawn } from 'child_process';
-import { GaugeCLI } from '../gaugeCLI';
+import { CLI } from '../cli';
 
 export class ProjectInitializer extends Disposable {
     private readonly _disposable: Disposable;
@@ -35,9 +35,9 @@ export class ProjectInitializer extends Disposable {
             archetypeGroupId: 'com.thoughtworks.gauge.maven'
         },
     };
-    private readonly cli: GaugeCLI;
+    private readonly cli: CLI;
 
-    constructor(cli: GaugeCLI) {
+    constructor(cli: CLI) {
         super(() => this.dispose());
         this.cli = cli;
         this._disposable = commands.registerCommand(GaugeVSCodeCommands.CreateProject, async () => {
@@ -124,7 +124,7 @@ export class ProjectInitializer extends Disposable {
         return window.withProgress({ location: 10 }, async (p: Progress<{}>) => {
             return new Promise(async (res, rej) => {
                 let ph = new ProgressHandler(p, res, rej);
-                if (this.cli.isInstalled()) await this.createFromCommandLine(template, projectFolder, ph);
+                if (this.cli.isGaugeInstalled()) await this.createFromCommandLine(template, projectFolder, ph);
                 else await this.createFromTemplate(template, projectFolder, ph);
             });
         });
@@ -134,7 +134,7 @@ export class ProjectInitializer extends Disposable {
         let args = [GaugeCommands.Init, template.label];
         let options = { cwd: projectFolder.fsPath, env: process.env };
         p.report("Initializing project...");
-        let proc = spawn(this.cli.command(), args, options);
+        let proc = spawn(this.cli.gaugeCommand(), args, options);
         proc.addListener('error', async (err) => {
             this.handleError(p, "Failed to create template. " + err.message, projectFolder.fsPath);
         });

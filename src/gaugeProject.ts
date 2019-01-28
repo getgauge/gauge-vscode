@@ -2,8 +2,8 @@
 
 import { existsSync, readFileSync } from 'fs';
 import { GAUGE_MANIFEST_FILE, MAVEN_POM } from './constants';
-import { join, relative, isAbsolute, parse } from 'path';
-import { GaugeCLI } from './gaugeCLI';
+import { join, parse } from 'path';
+import { CLI } from './cli';
 
 export class GaugeProject {
     private readonly _projectRoot: string;
@@ -20,9 +20,9 @@ export class GaugeProject {
         }
     }
 
-    public getExecutionCommand(cli: GaugeCLI): string {
+    public getExecutionCommand(cli: CLI): string {
         if (this.isMavenProject()) return 'mvn';
-        return cli.command();
+        return cli.gaugeCommand();
     }
 
     public isMavenProject() {

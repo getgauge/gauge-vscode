@@ -7,7 +7,7 @@ import {
 
 import opn = require('opn');
 import { GaugeVSCodeCommands } from './constants';
-import { getGaugeCLIHandler, GaugeCLI } from './gaugeCLI';
+import { getCLI, CLI } from './cli';
 import { PageProvider } from './pages/provider';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { GaugeWorkspace } from './gaugeWorkspace';
@@ -22,9 +22,9 @@ import { getGaugeProject } from './gaugeProject';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 
 export async function activate(context: ExtensionContext) {
-    let cli = getGaugeCLIHandler();
+    let cli = getCLI();
     let folders = workspace.workspaceFolders;
-    let pageProvider = new PageProvider(context, cli.isInstalled());
+    let pageProvider = new PageProvider(context, cli.isGaugeInstalled());
     context.subscriptions.push(
         new ProjectInitializer(cli),
         pageProvider,
@@ -34,7 +34,7 @@ export async function activate(context: ExtensionContext) {
     );
     let hasGaugeProject = folders && folders.some((f) => getGaugeProject(f.uri.fsPath).isGaugeProject());
     if (!hasActiveGaugeDocument(window.activeTextEditor) && !hasGaugeProject) return;
-    if (!cli.isInstalled() || !cli.isVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
+    if (!cli.isGaugeInstalled() || !cli.isGaugeVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
         return showInstallGaugeNotification();
     }
     showWelcomeNotification(context);
@@ -53,11 +53,11 @@ export async function activate(context: ExtensionContext) {
     );
 }
 
-function reportIssue(cli: GaugeCLI) {
+function reportIssue(cli: CLI) {
     let extVersion = extensions.getExtension("getgauge.gauge").packageJSON.version;
     let gaugeVersionInfo = "";
-    if (cli.isInstalled()) {
-        gaugeVersionInfo = cli.versionString();
+    if (cli.isGaugeInstalled()) {
+        gaugeVersionInfo = cli.gaugeVersionString();
     } else {
         gaugeVersionInfo = "Gauge executable not found!!";
     }
