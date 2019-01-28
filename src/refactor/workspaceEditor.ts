@@ -5,8 +5,7 @@ import {
     TextDocumentShowOptions, Position, Range
 } from "vscode";
 import { dirname } from 'path';
-import { mkdirpSync } from 'fs-extra';
-import { existsSync, writeFileSync } from 'fs';
+import { mkdirpSync, existsSync, writeFileSync } from 'fs-extra';
 export class WorkspaceEditor {
     private readonly _edit: WorkspaceEdit;
 
