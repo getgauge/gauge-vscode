@@ -2,11 +2,14 @@ import * as assert from 'assert';
 import { homedir } from 'os';
 import { join } from 'path';
 import GaugeConfig from '../../src/config/gaugeConfig';
-
+let appDataEnv;
 suite('GaugeConfig', () => {
+    setup( () => {
+        appDataEnv = process.env.APPDATA;
+    });
     teardown( () => {
         delete process.env.GAUGE_HOME;
-        delete process.env.APPDATA;
+        process.env.APPDATA = appDataEnv;
     });
 
     test('should calculate plugins path for window platform', (done) => {
