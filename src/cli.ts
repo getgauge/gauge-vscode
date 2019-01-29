@@ -4,7 +4,7 @@ import { spawnSync, spawn } from 'child_process';
 import { window } from 'vscode';
 import { GaugeCommands, MAVEN_COMMAND } from './constants';
 import { OutputChannel } from './execution/outputChannel';
-import { platform } from 'os';
+import { getCommand } from './util';
 
 export class CLI {
     private _isGaugeInstalled: boolean;
@@ -21,6 +21,16 @@ export class CLI {
         this._gaugeVersion = manifest.version;
         this._gaugeCommitHash = manifest.commitHash;
         this._gaugePlugins = manifest.plugins;
+    }
+
+    public static instance(): CLI {
+        const gaugeCommand = getCommand(GaugeCommands.Gauge);
+        let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
+        let mvnCommand = getCommand(MAVEN_COMMAND);
+        let mv = spawnSync(mvnCommand, [GaugeCommands.Version]);
+        mvnCommand = !mv.error ? mvnCommand : '';
+        if (gv.error) return new CLI(gaugeCommand, false, {}, mvnCommand);
+        return new CLI(gaugeCommand, true, JSON.parse(gv.stdout.toString()), mvnCommand);
     }
 
     public isPluginInstalled(pluginName: string): boolean {
@@ -79,31 +89,4 @@ export class CLI {
         plugins = `Plugins\n-------\n${plugins}`;
         return `${v}\n${cm}\n\n${plugins}`;
     }
-}
-
-export function getCLI() {
-    const gaugeCommand = getCommand(GaugeCommands.Gauge);
-    let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
-    let mvnCommand = getCommand(MAVEN_COMMAND);
-    let mv = spawnSync(mvnCommand, [GaugeCommands.Version]);
-    mvnCommand = !mv.error ? mvnCommand : '';
-    if (gv.error) return new CLI(gaugeCommand, false, {}, mvnCommand);
-    return new CLI(gaugeCommand, true, JSON.parse(gv.stdout.toString()), mvnCommand);
-}
-
-function doesCommandExists(command: string) {
-    return !spawnSync(command).error;
-}
-
-function getCommand(command: string): string {
-    if (platform() === 'win32') {
-        let validExecExt = ["", ".bat", ".exe", ".cmd"];
-        for (const ext of validExecExt) {
-            let executable = `${command}${ext}`;
-            if (doesCommandExists(executable)) {
-                return executable;
-            }
-        }
-    }
-    return command;
 }
