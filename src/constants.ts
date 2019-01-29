@@ -74,7 +74,7 @@ export enum GaugeRequests {
 
 export enum GaugeRunners {
     Java = "java",
-    Dotnet = "Dotnet"
+    Dotnet = "dotnet"
 }
 
 export const LAST_REPORT_PATH = 'gauge.execution.report';

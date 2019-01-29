@@ -181,7 +181,7 @@ export class GaugeWorkspace extends Disposable {
         const language = project.language();
         if (this.cli.isPluginInstalled(language)) return;
         let message = `The project ${path.basename(project.root())} requires gauge ${language} to be installed. ` +
-            "Do you like to install?";
+            "Would you like to install it?";
         let action = await window.showErrorMessage(message, { modal: true }, "Yes", "No");
         if (action === "Yes") {
             return await this.cli.installGaugeRunner(language);
