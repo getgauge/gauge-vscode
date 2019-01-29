@@ -107,7 +107,13 @@ export class GaugeExecutor extends Disposable {
         try {
             psTree(pid, (error: Error, children: Array<any>) => {
                 if (!error && children.length) {
-                    children.forEach((c: any) => { process.kill(c.PID); });
+                    children.forEach((c: any) => {
+                        try {
+                            process.kill(c.PID);
+                        } catch (e) {
+                            if (e.code !== 'ESRCH') throw error;
+                        }
+                    });
                 }
             });
             this.aborted = true;
