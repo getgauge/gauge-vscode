@@ -7,16 +7,19 @@ import {
     window, workspace, WorkspaceConfiguration, WorkspaceFoldersChangeEvent
 } from "vscode";
 import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn } from "vscode-languageclient";
+import { CLI } from './cli';
 import GaugeConfig from './config/gaugeConfig';
 import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
 import { GaugeCommandContext, GaugeRunners, setCommandContext } from "./constants";
 import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
-import { getGaugeProject, GaugeProject } from './gaugeProject';
-import { CLI } from './cli';
-import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
 import { GaugeClients as GaugeProjectClientMap } from './gaugeClients';
+import { GaugeState } from "./gaugeState";
+import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
+import { GaugeProject } from './project/gaugeProject';
+import { ProjectFactory } from './project/projectFactory';
+import { getActiveGaugeDocument } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -75,7 +78,7 @@ export class GaugeWorkspace extends Disposable {
     }
 
     private async startServerForSpecFile(file: string) {
-        let projectRoot = getGaugeProject(file).root();
+        let projectRoot = ProjectFactory.get(file).root();
         if (!this._clientsMap.has(projectRoot))
             await this.startServerFor(projectRoot);
     }
@@ -138,7 +141,7 @@ export class GaugeWorkspace extends Disposable {
     }
 
     private async startServerFor(folder: string): Promise<any> {
-        let project = getGaugeProject(folder);
+        let project = ProjectFactory.get(folder);
         if (!project.isGaugeProject() && this._clientsMap.has(project.root())) return;
         let serverOptions = {
             command: this.cli.gaugeCommand(),

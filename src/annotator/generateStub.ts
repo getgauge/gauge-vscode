@@ -1,16 +1,15 @@
 'use strict';
 
-import { LanguageClient } from "vscode-languageclient";
-import { commands, workspace, window, CancellationTokenSource, Disposable } from "vscode";
 import * as path from 'path';
+import { CancellationTokenSource, commands, Disposable, window } from "vscode";
+import { LanguageClient } from "vscode-languageclient";
+import { COPY_TO_CLIPBOARD, GaugeRequests, GaugeVSCodeCommands, NEW_FILE } from "../constants";
+import { GaugeClients } from "../gaugeClients";
+import { ProjectFactory } from "../project/projectFactory";
+import { WorkspaceEditor } from "../refactor/workspaceEditor";
+import { FileListItem } from "../types/fileListItem";
 
 import clipboardy = require("clipboardy");
-
-import { GaugeVSCodeCommands, GaugeRequests, NEW_FILE, COPY_TO_CLIPBOARD } from "../constants";
-import { FileListItem } from "../types/fileListItem";
-import { WorkspaceEditor } from "../refactor/workspaceEditor";
-import { getGaugeProject } from "../gaugeProject";
-import { GaugeClients } from "../gaugeClients";
 
 export class GenerateStubCommandProvider implements Disposable {
     private readonly _clientsMap: GaugeClients;
@@ -27,7 +26,7 @@ export class GenerateStubCommandProvider implements Disposable {
         );
     }
     private generateConceptStub(conceptInfo: any) {
-        let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+        let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
         let languageClient = this._clientsMap.get(project.root()).client;
         let t = new CancellationTokenSource().token;
         languageClient.sendRequest(GaugeRequests.Files, { concept: true }, t).then((files: string[]) => {

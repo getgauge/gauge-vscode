@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { GaugeClients } from '../src/gaugeClients';
-import { GaugeProject } from '../src/gaugeProject';
+import { GaugeProject } from '../src/project/gaugeProject';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { LanguageClient } from 'vscode-languageclient';

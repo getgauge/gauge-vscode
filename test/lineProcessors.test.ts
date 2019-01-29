@@ -27,7 +27,7 @@ suite('ReportEventProcessor', () => {
     });
 });
 
-suite.only('DebuggerAttachedEventProcessor', () => {
+suite('DebuggerAttachedEventProcessor', () => {
     suite('.process', () => {
         test('should process a given line text and set the process ID', () => {
             let executor: GaugeExecutor = mock(GaugeExecutor);
