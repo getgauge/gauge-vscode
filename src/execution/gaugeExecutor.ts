@@ -257,12 +257,11 @@ export class GaugeExecutor extends Disposable {
     }
 
     private registerLineTextProcessors(): void {
-        let processors = [
+        this.processors = [
             new ReportEventProcessor(this.gaugeWorkspace),
             new DebuggerAttachedEventProcessor(this),
             new DebuggerNotAttachedEventProcessor(this)
         ];
-        this.processors.concat(processors);
     }
 
     private registerCommands() {
