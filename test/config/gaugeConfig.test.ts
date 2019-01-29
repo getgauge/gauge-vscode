@@ -4,7 +4,7 @@ import { join } from 'path';
 import GaugeConfig from '../../src/config/gaugeConfig';
 
 suite('GaugeConfig', () => {
-    setup( () => {
+    teardown( () => {
         delete process.env.GAUGE_HOME;
         delete process.env.APPDATA;
     });
