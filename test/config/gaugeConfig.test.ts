@@ -6,12 +6,12 @@ import GaugeConfig from '../../src/config/gaugeConfig';
 suite('GaugeConfig', () => {
     setup( () => {
         delete process.env.GAUGE_HOME;
-        delete process.env.AppData;
+        delete process.env.APPDATA;
     });
 
     test('should calculate plugins path for window platform', (done) => {
         let appData = '/Users/userName/AppData/Roaming';
-        process.env.AppData = appData;
+        process.env.APPDATA = appData;
         const expectedPluginsPath = join(appData, 'Gauge', 'plugins');
 
         const actualPluginsPath = new GaugeConfig('win32').pluginsPath();
