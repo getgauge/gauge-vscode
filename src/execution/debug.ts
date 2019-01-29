@@ -20,8 +20,7 @@ export class GaugeDebugger {
     private config: ExecutionConfig;
     private clientsMap: GaugeClients;
 
-    constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients,
-                config: ExecutionConfig) {
+    constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients, config: ExecutionConfig) {
         this.languageId = clientLanguageMap.get(config.getProject().root());
         this.clientsMap = clientsMap;
         this.config = config;
@@ -90,6 +89,8 @@ export class GaugeDebugger {
         let env = Object.create(process.env);
         if (this.debug) {
             env.DEBUGGING = true;
+            env.use_nested_specs = "false";
+            env.SHOULD_BUILD_PROJECT = "true";
             return getPort({ port: DEBUG_PORT }).then((port) => {
                 if (this.config.getProject().isProjectLanguage(GaugeRunners.Dotnet))
                     env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
