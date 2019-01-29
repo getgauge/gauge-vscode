@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as path from 'path';
-import { Uri, commands, window, workspace } from 'vscode';
+import { commands, Uri, window, workspace } from 'vscode';
 import { GaugeVSCodeCommands, REPORT_URI } from '../../src/constants';
 
 let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 'sampleProject');

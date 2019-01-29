@@ -1,9 +1,7 @@
 'use strict';
 
-import { existsSync, readFileSync } from 'fs';
-import { GAUGE_MANIFEST_FILE, MAVEN_POM } from './constants';
-import { join, parse, relative, isAbsolute } from 'path';
-import { CLI } from './cli';
+import { isAbsolute, relative } from 'path';
+import { CLI } from '../cli';
 
 export class GaugeProject {
     private readonly _projectRoot: string;
@@ -21,12 +19,7 @@ export class GaugeProject {
     }
 
     public getExecutionCommand(cli: CLI): string {
-        if (this.isMavenProject()) return cli.mavenCommand();
         return cli.gaugeCommand();
-    }
-
-    public isMavenProject() {
-        return existsSync(join(this.root(), MAVEN_POM));
     }
 
     public isGaugeProject(): boolean {
@@ -64,26 +57,4 @@ export class GaugeProject {
         return this.root() === (o as GaugeProject).root();
     }
 
-}
-
-function createProject(dir: string) {
-    const filePath = join(dir, GAUGE_MANIFEST_FILE);
-    if (existsSync(filePath)) {
-        try {
-            const content = readFileSync(filePath);
-            const data = JSON.parse(content.toString());
-            return new GaugeProject(dir, data);
-        } catch (e) {
-            return new GaugeProject(dir, null);
-        }
-    }
-    return new GaugeProject(dir, null);
-}
-
-export function getGaugeProject(filePath: string): GaugeProject {
-    let project = createProject(filePath);
-    while (!project.isGaugeProject()) {
-        project = createProject(parse(project.root()).dir);
-    }
-    return project;
 }

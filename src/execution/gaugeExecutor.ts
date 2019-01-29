@@ -10,7 +10,6 @@ import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
-import { getGaugeProject } from '../gaugeProject';
 import { ExecutionConfig } from './executionConfig';
 import { CLI } from '../cli';
 import { join, relative, extname } from 'path';
@@ -19,6 +18,8 @@ import {
     LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor,
     ReportEventProcessor
 } from './lineProcessors';
+import { MavenProject } from '../project/mavenProject';
+import { ProjectFactory } from '../project/projectFactory';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -137,7 +138,7 @@ export class GaugeExecutor extends Disposable {
     public runSpecification(projectRoot?: string): Thenable<any> {
         if (projectRoot) {
             const config = new ExecutionConfig().setStatus(join(projectRoot, "All specs"))
-                .setProject(getGaugeProject(projectRoot));
+                .setProject(ProjectFactory.get(projectRoot));
             return this.execute(null, config);
         }
         let activeTextEditor = window.activeTextEditor;
@@ -148,7 +149,7 @@ export class GaugeExecutor extends Disposable {
             }
             return this.execute(doc.fileName, new ExecutionConfig()
                 .setStatus(doc.fileName)
-                .setProject(getGaugeProject(doc.uri.fsPath))
+                .setProject(ProjectFactory.get(doc.uri.fsPath))
             );
         } else {
             return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
@@ -190,7 +191,7 @@ export class GaugeExecutor extends Disposable {
     }
 
     private getArgs(spec: string, config: ExecutionConfig): Array<string> {
-        if (config.getProject().isMavenProject()) return this.createMavenArgs(spec, config);
+        if (config.getProject() instanceof MavenProject) return this.createMavenArgs(spec, config);
         if (config.getFailed()) {
             return [GaugeCommands.Run, GaugeCommands.RerunFailed];
         }
@@ -232,7 +233,7 @@ export class GaugeExecutor extends Disposable {
             if (selected) {
                 let sce = scenarios.find((sce) => selected.label === sce.heading);
                 let path = sce.executionIdentifier.substring(0, sce.executionIdentifier.lastIndexOf(":"));
-                let pr = getGaugeProject(Uri.file(path).fsPath);
+                let pr = ProjectFactory.get(Uri.file(path).fsPath);
                 return this.execute(sce.executionIdentifier, new ExecutionConfig()
                     .setStatus(sce.executionIdentifier)
                     .setProject(pr)
@@ -248,7 +249,7 @@ export class GaugeExecutor extends Disposable {
             return this.executeOptedScenario(scenarios);
         }
         let path = scenarios.executionIdentifier.substring(0, scenarios.executionIdentifier.lastIndexOf(":"));
-        let pr = getGaugeProject(Uri.file(path).fsPath);
+        let pr = ProjectFactory.get(Uri.file(path).fsPath);
         return this.execute(scenarios.executionIdentifier, new ExecutionConfig()
             .setStatus(scenarios.executionIdentifier)
             .setProject(pr)
@@ -267,16 +268,16 @@ export class GaugeExecutor extends Disposable {
     private registerCommands() {
         this._disposables.push(Disposable.from(
             commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
-                let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+                let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, new ExecutionConfig().setStatus(spec).setProject(project));
             }),
             commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => {
-                let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+                let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, new ExecutionConfig().setParallel().setStatus(spec).setProject(project));
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.Debug, (spec) => {
-                let project = getGaugeProject(window.activeTextEditor.document.uri.fsPath);
+                let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, new ExecutionConfig().setStatus(spec).setDebug().setProject(project));
             }),
 
@@ -284,9 +285,9 @@ export class GaugeExecutor extends Disposable {
                 if (this.gaugeWorkspace.getClientsMap().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
                         return this.execute(null, new ExecutionConfig().setFailed()
-                            .setStatus(join(selection, "failed scenarios")).setProject(getGaugeProject(selection)));
+                            .setStatus(join(selection, "failed scenarios")).setProject(ProjectFactory.get(selection)));
                     });
-                let defaultProject = getGaugeProject(this.gaugeWorkspace.getDefaultFolder());
+                let defaultProject = ProjectFactory.get(this.gaugeWorkspace.getDefaultFolder());
                 return this.execute(null, new ExecutionConfig().setFailed()
                     .setStatus(join(defaultProject.root(), "failed scenarios"))
                     .setProject(defaultProject));
@@ -307,9 +308,9 @@ export class GaugeExecutor extends Disposable {
                 if (this.gaugeWorkspace.getClientsMap().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
                         return this.execute(null, new ExecutionConfig().setRepeat()
-                            .setStatus(join(selection, "previous run")).setProject(getGaugeProject(selection)));
+                            .setStatus(join(selection, "previous run")).setProject(ProjectFactory.get(selection)));
                     });
-                let defaultProject = getGaugeProject(this.gaugeWorkspace.getDefaultFolder());
+                let defaultProject = ProjectFactory.get(this.gaugeWorkspace.getDefaultFolder());
                 return this.execute(null, new ExecutionConfig().setRepeat()
                     .setStatus(join(defaultProject.root(), "previous run"))
                     .setProject(defaultProject));

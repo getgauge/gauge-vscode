@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { GaugeProject } from '../src/gaugeProject';
+import { GaugeProject } from '../src/project/gaugeProject';
 
 suite('GaugeProject', () => {
     suite('.hasFile', () => {

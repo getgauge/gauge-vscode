@@ -1,4 +1,4 @@
-import { GaugeProject } from "../gaugeProject";
+import { GaugeProject } from "../project/gaugeProject";
 
 export class ExecutionConfig {
     public _inParallel: boolean = false;

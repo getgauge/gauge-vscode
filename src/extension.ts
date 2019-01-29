@@ -1,23 +1,20 @@
 'use strict';
 
-import {
-    workspace, ExtensionContext, extensions,
-    commands, window, version, languages
-} from 'vscode';
+import { commands, ExtensionContext, extensions, languages, version, window, workspace } from 'vscode';
+import { GenerateStubCommandProvider } from './annotator/generateStub';
+import { CLI } from './cli';
+import { ConfigProvider } from './config/configProvider';
+import { GaugeVSCodeCommands } from './constants';
+import { ReferenceProvider } from './gaugeReference';
+import { GaugeState } from './gaugeState';
+import { GaugeWorkspace } from './gaugeWorkspace';
+import { ProjectInitializer } from './init/projectInit';
+import { PageProvider } from './pages/provider';
+import { ProjectFactory } from './project/projectFactory';
+import { hasActiveGaugeDocument } from './util';
+import { showInstallGaugeNotification, showWelcomeNotification } from './welcomeNotifications';
 
 import opn = require('opn');
-import { GaugeVSCodeCommands } from './constants';
-import {  CLI } from './cli';
-import { PageProvider } from './pages/provider';
-import { GenerateStubCommandProvider } from './annotator/generateStub';
-import { GaugeWorkspace } from './gaugeWorkspace';
-import { GaugeState } from './gaugeState';
-import { ReferenceProvider } from './gaugeReference';
-import { ProjectInitializer } from './init/projectInit';
-import { ConfigProvider } from './config/configProvider';
-import { hasActiveGaugeDocument } from './util';
-import { showWelcomeNotification, showInstallGaugeNotification } from './welcomeNotifications';
-import { getGaugeProject } from './gaugeProject';
 
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 
@@ -32,7 +29,7 @@ export async function activate(context: ExtensionContext) {
             reportIssue(cli);
         })
     );
-    let hasGaugeProject = folders && folders.some((f) => getGaugeProject(f.uri.fsPath).isGaugeProject());
+    let hasGaugeProject = folders && folders.some((f) => ProjectFactory.get(f.uri.fsPath).isGaugeProject());
     if (!hasActiveGaugeDocument(window.activeTextEditor) && !hasGaugeProject) return;
     if (!cli.isGaugeInstalled() || !cli.isGaugeVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
         return showInstallGaugeNotification();
