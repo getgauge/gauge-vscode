@@ -14,14 +14,14 @@ import { getGaugeProject } from '../gaugeProject';
 import { ExecutionConfig } from './executionConfig';
 import { CLI } from '../cli';
 import { join, relative, extname } from 'path';
-
 import psTree = require('ps-tree');
+import {
+    LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor,
+    ReportEventProcessor
+} from './lineProcessors';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
-const REPORT_PATH_PREFIX = "Successfully generated html-report to => ";
-const ATTACH_DEBUGGER_EVENT = "Runner Ready for Debugging";
-const NO_DEBUGGER_ATTACHED = "No debugger attached";
 const successMessage = "Success: Tests passed.";
 const failureMessage = "Error: Tests failed.";
 
@@ -35,11 +35,13 @@ export class GaugeExecutor extends Disposable {
     private readonly _reportThemePath: string;
     private _disposables: Disposable[] = [];
     private gaugeDebugger: GaugeDebugger;
+    private processors: Array<LineTextProcessor> = new Array();
 
     constructor(private gaugeWorkspace: GaugeWorkspace, private cli: CLI) {
         super(() => this.dispose());
 
         this._reportThemePath = gaugeWorkspace.getReportThemePath();
+        this.registerLineTextProcessors();
         this.registerExecutionStatus();
         this.registerStopExecution();
         this.registerCommands();
@@ -58,39 +60,18 @@ export class GaugeExecutor extends Disposable {
                 this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(); });
                 this.gaugeDebugger.addDebugEnv().then((env) => {
                     env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
-                    env.use_nested_specs = "false";
-                    env.SHOULD_BUILD_PROJECT = "true";
                     let cmd = config.getProject().getExecutionCommand(this.cli);
                     let args = this.getArgs(spec, config);
-                    let chan = new OutputChannel(this.outputChannel,
-                            ['Running tool:', cmd, args.join(' ')].join(' '),
-                            config.getProject().root());
-                    this.preExecute.forEach((f) => {
-                        f.call(null, env, relative(config.getProject().root(), config.getStatus()));
-                    });
+                    let initialText = ['Running tool:', cmd, args.join(' ')].join(' ');
+                    let chan = new OutputChannel(this.outputChannel, initialText, config.getProject().root());
+                    const relPath = relative(config.getProject().root(), config.getStatus());
+                    this.preExecute.forEach((f) => { f.call(null, env, relPath); });
                     this.aborted = false;
-                    this.childProcess = spawn(cmd, args,
-                        { cwd: config.getProject().root(), env: env });
-
+                    this.childProcess = spawn(cmd, args, { cwd: config.getProject().root(), env: env });
                     this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText: string) => {
                         chan.appendOutBuf(lineText);
-                        let lineTexts = lineText.split("\n");
-                        lineTexts.forEach((lineText) => {
-                            if (lineText.indexOf(REPORT_PATH_PREFIX) >= 0) {
-                                let reportPath = lineText.replace(REPORT_PATH_PREFIX, "");
-                                this.gaugeWorkspace.setReportPath(reportPath);
-                            }
-                            if (env.DEBUGGING && lineText.indexOf(ATTACH_DEBUGGER_EVENT) >= 0) {
-                                this.gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-                                this.gaugeDebugger.startDebugger().catch((reason) => {
-                                    window.showErrorMessage(reason);
-                                    this.cancel();
-                                });
-                            }
-                            if (env.DEBUGGING && lineText.indexOf(NO_DEBUGGER_ATTACHED) >= 0) {
-                                window.showErrorMessage("No debugger attached. Stopping the execution");
-                                this.cancel();
-                            }
+                        lineText.split("\n").forEach((lineText) => {
+                            this.processors.forEach((p) => p.process(lineText, this.gaugeDebugger));
                         });
                     }));
                     this.childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
@@ -272,6 +253,15 @@ export class GaugeExecutor extends Disposable {
             .setStatus(scenarios.executionIdentifier)
             .setProject(pr)
         );
+    }
+
+    private registerLineTextProcessors(): void {
+        let processors = [
+            new ReportEventProcessor(this.gaugeWorkspace),
+            new DebuggerAttachedEventProcessor(this),
+            new DebuggerNotAttachedEventProcessor(this)
+        ];
+        this.processors.concat(processors);
     }
 
     private registerCommands() {
