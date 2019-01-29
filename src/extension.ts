@@ -7,7 +7,7 @@ import {
 
 import opn = require('opn');
 import { GaugeVSCodeCommands } from './constants';
-import { getCLI, CLI } from './cli';
+import {  CLI } from './cli';
 import { PageProvider } from './pages/provider';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { GaugeWorkspace } from './gaugeWorkspace';
@@ -22,7 +22,7 @@ import { getGaugeProject } from './gaugeProject';
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 
 export async function activate(context: ExtensionContext) {
-    let cli = getCLI();
+    let cli = CLI.instance();
     let folders = workspace.workspaceFolders;
     let pageProvider = new PageProvider(context, cli.isGaugeInstalled());
     context.subscriptions.push(
