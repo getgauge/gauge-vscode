@@ -92,8 +92,9 @@ export class GaugeDebugger {
             env.use_nested_specs = "false";
             env.SHOULD_BUILD_PROJECT = "true";
             return getPort({ port: DEBUG_PORT }).then((port) => {
-                if (this.config.getProject().isProjectLanguage(GaugeRunners.Dotnet))
+                if (this.config.getProject().isProjectLanguage(GaugeRunners.Dotnet)) {
                     env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
+                }
                 if (this.config.getProject().isProjectLanguage(GaugeRunners.Java)) env.GAUGE_DEBUG_OPTS = port;
                 env.DEBUG_PORT = port;
                 this.debugPort = port;
