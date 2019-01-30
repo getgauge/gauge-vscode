@@ -170,7 +170,7 @@ export class GaugeWorkspace extends Disposable {
         await this.installRunnerFor(project);
         if (project.isProjectLanguage(GaugeRunners.Java)) {
             new GaugeJavaProjectConfig(project.root(),
-                this.cli.getPluginVersion(GaugeRunners.Java),
+                this.cli.getGaugePluginVersion(GaugeRunners.Java),
                 new GaugeConfig(platform())).generate();
 
             process.env.SHOULD_BUILD_PROJECT = "false";

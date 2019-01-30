@@ -15,12 +15,3 @@ export function getActiveGaugeDocument(activeTextEditor: TextEditor): Promise<an
 export function hasActiveGaugeDocument(activeTextEditor: TextEditor): boolean {
     return activeTextEditor && activeTextEditor.document.languageId === "gauge";
 }
-
-export function getCommand(command: string): string {
-    if (platform() !== 'win32') return command;
-    let validExecExt = ["", ".bat", ".exe", ".cmd"];
-    for (const ext of validExecExt) {
-        let executable = `${command}${ext}`;
-        if (!spawnSync(executable).error) return executable;
-    }
-}

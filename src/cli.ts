@@ -4,7 +4,7 @@ import { spawnSync, spawn } from 'child_process';
 import { window } from 'vscode';
 import { GaugeCommands, MAVEN_COMMAND } from './constants';
 import { OutputChannel } from './execution/outputChannel';
-import { getCommand } from './util';
+import { platform } from 'os';
 
 export class CLI {
     private _isGaugeInstalled: boolean;
@@ -24,9 +24,9 @@ export class CLI {
     }
 
     public static instance(): CLI {
-        const gaugeCommand = getCommand(GaugeCommands.Gauge);
+        const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
         let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
-        let mvnCommand = getCommand(MAVEN_COMMAND);
+        let mvnCommand = this.getCommand(MAVEN_COMMAND);
         let mv = spawnSync(mvnCommand, [GaugeCommands.Version]);
         mvnCommand = !mv.error ? mvnCommand : '';
         if (gv.error) return new CLI(gaugeCommand, false, {}, mvnCommand);
@@ -88,5 +88,14 @@ export class CLI {
             .join('\n');
         plugins = `Plugins\n-------\n${plugins}`;
         return `${v}\n${cm}\n\n${plugins}`;
+    }
+
+    private static getCommand(command: string): string {
+        if (platform() !== 'win32') return command;
+        let validExecExt = ["", ".bat", ".exe", ".cmd"];
+        for (const ext of validExecExt) {
+            let executable = `${command}${ext}`;
+            if (!spawnSync(executable).error) return executable;
+        }
     }
 }
