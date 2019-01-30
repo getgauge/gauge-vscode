@@ -1,6 +1,7 @@
 'use strict';
 
 import * as path from 'path';
+import { platform } from 'os';
 import {
     CancellationTokenSource, commands, Disposable, OutputChannel, window, workspace,
     WorkspaceConfiguration, WorkspaceFolder, WorkspaceFoldersChangeEvent
@@ -16,6 +17,7 @@ import {
     getGaugeCommand, getProjectRootFromSpecPath, hasActiveGaugeDocument, isGaugeProject, isProjectLanguage,
 } from './util';
 import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
+import GaugeConfig from './config/gaugeConfig';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -133,7 +135,7 @@ export class GaugeWorkspace extends Disposable {
     private startServerFor(folder: WorkspaceFolder | string) {
         let folderPath = typeof folder === 'string' ? folder : folder.uri.fsPath;
         if (!isGaugeProject(folderPath)) return;
-        new GaugeJavaProjectConfig(folderPath).generate();
+        new GaugeJavaProjectConfig(folderPath, new GaugeConfig(platform())).generate();
         if (isProjectLanguage(folderPath, "java")) process.env.SHOULD_BUILD_PROJECT = "false";
         let serverOptions = {
             command: getGaugeCommand(),

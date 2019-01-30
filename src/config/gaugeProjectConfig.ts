@@ -5,12 +5,14 @@ import { exec } from 'child_process';
 import * as xmlbuilder from 'xmlbuilder';
 import { isProjectLanguage, isMavenProject } from "../util";
 import { getGaugeVersionInfo } from '../gaugeVersion';
-const javaPluginPath = path.join(homedir(), '.gauge', 'plugins', 'java');
+import GaugeConfig from './gaugeConfig';
 const DEFAULT_JAVA_VERSION = '11';
 export class GaugeJavaProjectConfig {
-    projectRoot: any;
-    constructor(projectRoot) {
+    projectRoot: string;
+    gaugeConfig: GaugeConfig;
+    constructor(projectRoot: string, gaugeConfig: GaugeConfig) {
         this.projectRoot = projectRoot;
+        this.gaugeConfig = gaugeConfig;
     }
 
     private defaultCLassPath(javaVersion: string) {
@@ -51,6 +53,7 @@ export class GaugeJavaProjectConfig {
     private createDotClassPathFile(cpFilePath: string, javaVersion: string) {
         let { plugins } = getGaugeVersionInfo();
         let javaPluginInfo = plugins.find((plugin) => plugin.hasName('java'));
+        let javaPluginPath = path.join(this.gaugeConfig.pluginsPath(), 'java');
         let jars = readdirSync( path.join(javaPluginPath, `${javaPluginInfo.version}/libs/`))
             .filter((jar) => jar.match(/gauge|assertj-core/));
         let classPathForJars = jars
