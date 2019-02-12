@@ -14,7 +14,7 @@ suite('Gauge References Tests', () => {
     test('should show references for step at cursor', async () => {
         await commands.executeCommand("workbench.action.focusFirstEditorGroup");
         await commands.executeCommand("cursorMove", { to: 'down', by: 'line', value: 18 });
-        let value = await commands.executeCommand('gauge.showReferences.atCursor');
+        let value = commands.executeCommand('gauge.showReferences.atCursor');
         assert.ok(value);
     }).timeout(10000);
 
