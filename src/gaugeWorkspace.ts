@@ -168,7 +168,7 @@ export class GaugeWorkspace extends Disposable {
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
         this._clientsMap.set(project.root(), { project: project, client: languageClient });
         await this.installRunnerFor(project);
-        if (project.isProjectLanguage(GaugeRunners.Java)) {
+        if (project.isProjectLanguage(GaugeRunners.Java) && this.cli.isPluginInstalled(GaugeRunners.Java)) {
             new GaugeJavaProjectConfig(project.root(),
                 this.cli.getGaugePluginVersion(GaugeRunners.Java),
                 new GaugeConfig(platform())).generate();
