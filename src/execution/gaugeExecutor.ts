@@ -149,7 +149,7 @@ export class GaugeExecutor extends Disposable {
             }
             return this.execute(doc.fileName, new ExecutionConfig()
                 .setStatus(doc.fileName)
-                .setProject(ProjectFactory.get(doc.uri.fsPath))
+                .setProject(ProjectFactory.getProjectByFilepath(doc.uri.fsPath))
             );
         } else {
             return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
@@ -233,7 +233,7 @@ export class GaugeExecutor extends Disposable {
             if (selected) {
                 let sce = scenarios.find((sce) => selected.label === sce.heading);
                 let path = sce.executionIdentifier.substring(0, sce.executionIdentifier.lastIndexOf(":"));
-                let pr = ProjectFactory.get(Uri.file(path).fsPath);
+                let pr = ProjectFactory.getProjectByFilepath(Uri.file(path).fsPath);
                 return this.execute(sce.executionIdentifier, new ExecutionConfig()
                     .setStatus(sce.executionIdentifier)
                     .setProject(pr)
@@ -249,7 +249,7 @@ export class GaugeExecutor extends Disposable {
             return this.executeOptedScenario(scenarios);
         }
         let path = scenarios.executionIdentifier.substring(0, scenarios.executionIdentifier.lastIndexOf(":"));
-        let pr = ProjectFactory.get(Uri.file(path).fsPath);
+        let pr = ProjectFactory.getProjectByFilepath(Uri.file(path).fsPath);
         return this.execute(scenarios.executionIdentifier, new ExecutionConfig()
             .setStatus(scenarios.executionIdentifier)
             .setProject(pr)
@@ -267,16 +267,16 @@ export class GaugeExecutor extends Disposable {
     private registerCommands() {
         this._disposables.push(Disposable.from(
             commands.registerCommand(GaugeVSCodeCommands.Execute, (spec) => {
-                let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
+                let project = ProjectFactory.getProjectByFilepath(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, new ExecutionConfig().setStatus(spec).setProject(project));
             }),
             commands.registerCommand(GaugeVSCodeCommands.ExecuteInParallel, (spec) => {
-                let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
+                let project = ProjectFactory.getProjectByFilepath(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, new ExecutionConfig().setParallel().setStatus(spec).setProject(project));
             }),
 
             commands.registerCommand(GaugeVSCodeCommands.Debug, (spec) => {
-                let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
+                let project = ProjectFactory.getProjectByFilepath(window.activeTextEditor.document.uri.fsPath);
                 return this.execute(spec, new ExecutionConfig().setStatus(spec).setDebug().setProject(project));
             }),
 
@@ -284,7 +284,8 @@ export class GaugeExecutor extends Disposable {
                 if (this.gaugeWorkspace.getClientsMap().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
                         return this.execute(null, new ExecutionConfig().setFailed()
-                            .setStatus(join(selection, "failed scenarios")).setProject(ProjectFactory.get(selection)));
+                            .setStatus(join(selection, "failed scenarios"))
+                            .setProject(ProjectFactory.getProjectByFilepath(selection)));
                     });
                 let defaultProject = ProjectFactory.get(this.gaugeWorkspace.getDefaultFolder());
                 return this.execute(null, new ExecutionConfig().setFailed()
@@ -307,7 +308,8 @@ export class GaugeExecutor extends Disposable {
                 if (this.gaugeWorkspace.getClientsMap().size > 1)
                     return this.gaugeWorkspace.showProjectOptions((selection: string) => {
                         return this.execute(null, new ExecutionConfig().setRepeat()
-                            .setStatus(join(selection, "previous run")).setProject(ProjectFactory.get(selection)));
+                            .setStatus(join(selection, "previous run"))
+                            .setProject(ProjectFactory.getProjectByFilepath(selection)));
                     });
                 let defaultProject = ProjectFactory.get(this.gaugeWorkspace.getDefaultFolder());
                 return this.execute(null, new ExecutionConfig().setRepeat()
