@@ -19,7 +19,7 @@ import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import { GaugeProject } from './project/gaugeProject';
 import { ProjectFactory } from './project/projectFactory';
-import { getActiveGaugeDocument } from './util';
+import { getActiveGaugeDocument, hasActiveGaugeDocument } from './util';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -47,9 +47,8 @@ export class GaugeWorkspace extends Disposable {
             });
         }
 
-        getActiveGaugeDocument(window.activeTextEditor).then(async (p) => {
-            if (p) await this.startServerForSpecFile(p);
-        });
+        if (hasActiveGaugeDocument(window.activeTextEditor))
+            this.startServerForSpecFile(window.activeTextEditor.document.uri.fsPath);
 
         setCommandContext(GaugeCommandContext.MultiProject, this._clientsMap.size > 1);
 
@@ -78,9 +77,8 @@ export class GaugeWorkspace extends Disposable {
     }
 
     private async startServerForSpecFile(file: string) {
-        let projectRoot = ProjectFactory.get(file).root();
-        if (!this._clientsMap.has(projectRoot))
-            await this.startServerFor(projectRoot);
+        let project = ProjectFactory.getGaugeRootFromFilePath(file);
+        await this.startServerFor(project);
     }
 
     setReportPath(reportPath: string) {

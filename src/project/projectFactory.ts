@@ -16,25 +16,28 @@ export class ProjectFactory {
             // Add other project types if required. example: GradleProject
         ];
 
-    public static get(filePath: string): GaugeProject {
-        let pr = this.getGaugeRootFromFilePath(filePath);
-        if (!pr) throw new Error(`${filePath} does not belong to a valid gauge project.`);
-        const content = readFileSync(join(pr, GAUGE_MANIFEST_FILE));
+    public static get(path: string): GaugeProject {
+        if (!path) throw new Error(`${path} does not belong to a valid gauge project.`);
+        const content = readFileSync(join(path, GAUGE_MANIFEST_FILE));
         const data = JSON.parse(content.toString());
         for (const builder of this.builders) {
-            if (builder.predicate(pr)) return builder.build(pr, data);
+            if (builder.predicate(path)) return builder.build(path, data);
         }
-        return new GaugeProject(pr, data);
+        return new GaugeProject(path, data);
     }
 
-    private static isGaugeProject(dir: string): boolean {
+    public static isGaugeProject(dir: string): boolean {
         return existsSync(join(dir, GAUGE_MANIFEST_FILE));
     }
 
-    private static getGaugeRootFromFilePath(filepath: string): string {
+    public static getGaugeRootFromFilePath(filepath: string): string {
         while (!this.isGaugeProject(filepath)) {
             filepath = parse(filepath).dir;
         }
         return filepath;
+    }
+    public static getProjectByFilepath(fsPath: string): GaugeProject {
+        let projectRoot = this.getGaugeRootFromFilePath(fsPath);
+        return this.get(projectRoot);
     }
 }

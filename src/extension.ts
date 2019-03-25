@@ -29,7 +29,7 @@ export async function activate(context: ExtensionContext) {
             reportIssue(cli);
         })
     );
-    let hasGaugeProject = folders && folders.some((f) => ProjectFactory.get(f.uri.fsPath).isGaugeProject());
+    let hasGaugeProject = folders && folders.some((f) => ProjectFactory.isGaugeProject(f.uri.fsPath));
     if (!hasActiveGaugeDocument(window.activeTextEditor) && !hasGaugeProject) return;
     if (!cli.isGaugeInstalled() || !cli.isGaugeVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
         return showInstallGaugeNotification();
