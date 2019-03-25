@@ -26,7 +26,7 @@ export class GenerateStubCommandProvider implements Disposable {
         );
     }
     private generateConceptStub(conceptInfo: any) {
-        let project = ProjectFactory.get(window.activeTextEditor.document.uri.fsPath);
+        let project = ProjectFactory.getProjectByFilepath(window.activeTextEditor.document.uri.fsPath);
         let languageClient = this._clientsMap.get(project.root()).client;
         let t = new CancellationTokenSource().token;
         languageClient.sendRequest(GaugeRequests.Files, { concept: true }, t).then((files: string[]) => {

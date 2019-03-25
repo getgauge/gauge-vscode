@@ -139,8 +139,9 @@ export class GaugeWorkspace extends Disposable {
     }
 
     private async startServerFor(folder: string): Promise<any> {
+        if (!ProjectFactory.isGaugeProject(folder)) return;
         let project = ProjectFactory.get(folder);
-        if (!project.isGaugeProject() && this._clientsMap.has(project.root())) return;
+        if (this._clientsMap.has(project.root())) return;
         let serverOptions = {
             command: this.cli.gaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + project.root()],
