@@ -11,7 +11,7 @@
   "version": "0.0.9",
   "publisher": "getgauge",
   "engines": {
-    "vscode": "^1.30.0"
+    "vscode": "^1.32.0"
   },
   "categories": [
     "Languages"
@@ -303,7 +303,7 @@
     "adm-zip": "^0.4.11",
     "clipboardy": "^1.2.3",
     "fs-extra": "^7.0.1",
-    "get-port": "^4.0.0",
+    "get-port": "^4.2.0",
     "opn": "^5.4.0",
     "ps-tree": "^1.2.0",
     "vscode-jsonrpc": "^4.0.0",
