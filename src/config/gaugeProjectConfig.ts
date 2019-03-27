@@ -1,6 +1,5 @@
 import * as path from 'path';
 import { writeFileSync, readdirSync } from 'fs';
-import { homedir } from 'os';
 import { exec } from 'child_process';
 import * as xmlbuilder from 'xmlbuilder';
 import GaugeConfig from './gaugeConfig';
@@ -36,7 +35,7 @@ export class GaugeJavaProjectConfig {
     generate() {
         exec('java -version', (err, __, out) => {
             const dotCPFilePath = path.join(this.projectRoot, '.classpath');
-            let javaVersion = out.replace(/.*?(\d+\.\d+\.\d+).*(\s+.*)+/, '$1');
+            let javaVersion = /.*?(\d+\.?\d*\.?\d*).*/.exec(out)![1];
             if (err !== null || !out) {
                 return this.createDotClassPathFile(dotCPFilePath, DEFAULT_JAVA_VERSION);
             }
