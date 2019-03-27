@@ -20,6 +20,7 @@ import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import { GaugeProject } from './project/gaugeProject';
 import { ProjectFactory } from './project/projectFactory';
 import { getActiveGaugeDocument, hasActiveGaugeDocument } from './util';
+import { MavenProject } from './project/mavenProject';
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -167,16 +168,20 @@ export class GaugeWorkspace extends Disposable {
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
         this._clientsMap.set(project.root(), { project: project, client: languageClient });
         await this.installRunnerFor(project);
-        if (project.isProjectLanguage(GaugeRunners.Java) && this.cli.isPluginInstalled(GaugeRunners.Java)) {
-            new GaugeJavaProjectConfig(project.root(),
-                this.cli.getGaugePluginVersion(GaugeRunners.Java),
-                new GaugeConfig(platform())).generate();
-
-            process.env.SHOULD_BUILD_PROJECT = "false";
-        }
+        this.generateJavaConfig(project);
         this.registerDynamicFeatures(languageClient);
         languageClient.start();
         return languageClient.onReady().then(() => { this.setLanguageId(languageClient, project.root()); });
+    }
+
+    private generateJavaConfig(project: GaugeProject) {
+        if (project.isProjectLanguage(GaugeRunners.Java)
+            && this.cli.isPluginInstalled(GaugeRunners.Java)
+            && !(project instanceof MavenProject)) {
+                new GaugeJavaProjectConfig(project.root(),
+                    this.cli.getGaugePluginVersion(GaugeRunners.Java), new GaugeConfig(platform())).generate();
+                process.env.SHOULD_BUILD_PROJECT = "false";
+        }
     }
 
     private async installRunnerFor(project: GaugeProject): Promise<any> {
