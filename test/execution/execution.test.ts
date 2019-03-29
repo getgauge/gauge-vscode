@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as path from 'path';
 import { commands, Uri, window, workspace } from 'vscode';
-import { GaugeVSCodeCommands, REPORT_URI } from '../../src/constants';
+import { GaugeVSCodeCommands } from '../../src/constants';
 
 let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 'sampleProject');
 
@@ -64,14 +64,6 @@ suite('Gauge Execution Tests', () => {
         setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
         assertStatus(status, false);
-    });
-
-    test('should open reports inline after execution', async () => {
-        assertStatus(await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs));
-        await commands.executeCommand(GaugeVSCodeCommands.ShowReport);
-        assert.ok(workspace.textDocuments.some((d) =>
-            !d.isClosed && d.uri.toString() === REPORT_URI),
-            "Expected one document to have last run report");
     });
 
     test('should reject execution when another is already in progress', async () => {
