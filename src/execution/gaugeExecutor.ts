@@ -16,10 +16,10 @@ import { join, relative, extname } from 'path';
 import psTree = require('ps-tree');
 import {
     LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor,
-    ReportEventProcessor
 } from './lineProcessors';
 import { MavenProject } from '../project/mavenProject';
 import { ProjectFactory } from '../project/projectFactory';
+import opn = require('opn');
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -33,7 +33,6 @@ export class GaugeExecutor extends Disposable {
     private childProcess: ChildProcess;
     private preExecute: Function[] = [];
     private postExecute: Function[] = [];
-    private readonly _reportThemePath: string;
     private _disposables: Disposable[] = [];
     private gaugeDebugger: GaugeDebugger;
     private processors: Array<LineTextProcessor> = new Array();
@@ -41,7 +40,6 @@ export class GaugeExecutor extends Disposable {
     constructor(private gaugeWorkspace: GaugeWorkspace, private cli: CLI) {
         super(() => this.dispose());
 
-        this._reportThemePath = gaugeWorkspace.getReportThemePath();
         this.registerLineTextProcessors();
         this.registerExecutionStatus();
         this.registerStopExecution();
@@ -60,7 +58,6 @@ export class GaugeExecutor extends Disposable {
                     this.gaugeWorkspace.getClientsMap(), config);
                 this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(); });
                 this.gaugeDebugger.addDebugEnv().then((env) => {
-                    env.GAUGE_HTML_REPORT_THEME_PATH = this._reportThemePath;
                     let cmd = config.getProject().getExecutionCommand(this.cli);
                     let args = this.getArgs(spec, config);
                     let initialText = ['Running tool:', cmd, args.join(' ')].join(' ');
@@ -258,7 +255,6 @@ export class GaugeExecutor extends Disposable {
 
     private registerLineTextProcessors(): void {
         this.processors = [
-            new ReportEventProcessor(this.gaugeWorkspace),
             new DebuggerAttachedEventProcessor(this),
             new DebuggerNotAttachedEventProcessor(this)
         ];
@@ -315,8 +311,20 @@ export class GaugeExecutor extends Disposable {
                 return this.execute(null, new ExecutionConfig().setRepeat()
                     .setStatus(join(defaultProject.root(), "previous run"))
                     .setProject(defaultProject));
+            }),
+            commands.registerCommand(GaugeVSCodeCommands.ShowReport, () => {
+                this.openReport();
             })
         ));
+    }
+
+    private openReport() {
+        let projectRoot = ProjectFactory.get(this.gaugeWorkspace.getDefaultFolder()).root();
+        let url = join(projectRoot, "/reports/html-report/index.html");
+        return opn(url).then(
+        () => { }, (err) => {
+            window.showErrorMessage("Can't open html report. " + err);
+        });
     }
 
     private registerStopExecution() {

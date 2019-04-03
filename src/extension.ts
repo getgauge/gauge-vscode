@@ -6,10 +6,8 @@ import { CLI } from './cli';
 import { ConfigProvider } from './config/configProvider';
 import { GaugeVSCodeCommands } from './constants';
 import { ReferenceProvider } from './gaugeReference';
-import { GaugeState } from './gaugeState';
 import { GaugeWorkspace } from './gaugeWorkspace';
 import { ProjectInitializer } from './init/projectInit';
-import { PageProvider } from './pages/provider';
 import { ProjectFactory } from './project/projectFactory';
 import { hasActiveGaugeDocument } from './util';
 import { showInstallGaugeNotification, showWelcomeNotification } from './welcomeNotifications';
@@ -21,10 +19,8 @@ const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 export async function activate(context: ExtensionContext) {
     let cli = CLI.instance();
     let folders = workspace.workspaceFolders;
-    let pageProvider = new PageProvider(context, cli.isGaugeInstalled());
     context.subscriptions.push(
         new ProjectInitializer(cli),
-        pageProvider,
         commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => {
             reportIssue(cli);
         })
@@ -37,10 +33,9 @@ export async function activate(context: ExtensionContext) {
     showWelcomeNotification(context);
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
 
-    let gaugeWorkspace = new GaugeWorkspace(new GaugeState(context), cli);
+    let gaugeWorkspace = new GaugeWorkspace(cli);
 
     let clientsMap = gaugeWorkspace.getClientsMap();
-    pageProvider.activated = true;
 
     context.subscriptions.push(
         gaugeWorkspace,

@@ -15,7 +15,6 @@ import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeClients as GaugeProjectClientMap } from './gaugeClients';
-import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import { GaugeProject } from './project/gaugeProject';
 import { ProjectFactory } from './project/projectFactory';
@@ -38,7 +37,7 @@ export class GaugeWorkspace extends Disposable {
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
 
-    constructor(private state: GaugeState, private cli: CLI) {
+    constructor(private cli: CLI) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this, cli);
 
@@ -82,16 +81,8 @@ export class GaugeWorkspace extends Disposable {
         await this.startServerFor(project);
     }
 
-    setReportPath(reportPath: string) {
-        this.state.setReportPath(reportPath.trim());
-    }
-
     getGaugeExecutor(): GaugeExecutor {
         return this._executor;
-    }
-
-    getReportThemePath(): string {
-        return this.state.getReportThemePath();
     }
 
     getClientsMap(): GaugeProjectClientMap {

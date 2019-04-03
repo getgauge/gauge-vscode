@@ -1,31 +1,9 @@
 
 import * as assert from 'assert';
 import { instance, mock, verify, anyString, when } from 'ts-mockito';
-import { ReportEventProcessor, DebuggerAttachedEventProcessor } from '../src/execution/lineProcessors';
-import { GaugeWorkspace } from '../src/gaugeWorkspace';
+import { DebuggerAttachedEventProcessor } from '../src/execution/lineProcessors';
 import { GaugeExecutor } from '../src/execution/gaugeExecutor';
 import { GaugeDebugger } from '../src/execution/debug';
-
-suite('ReportEventProcessor', () => {
-    suite('.process', () => {
-        test('should process a given line text and set report path', () => {
-            let workspace: GaugeWorkspace = mock(GaugeWorkspace);
-            let processor = new ReportEventProcessor(instance(workspace));
-            let lineText = "Successfully generated html-report to => path";
-            assert.ok(processor.canProcess(lineText));
-            processor.process(lineText);
-            verify(workspace.setReportPath("path")).called();
-        });
-
-        test('should not process if line text does not contain the prefix', () => {
-            let workspace: GaugeWorkspace = mock(GaugeWorkspace);
-            let processor = new ReportEventProcessor(instance(workspace));
-            let lineText = "some other stdout event";
-            processor.process(lineText);
-            verify(workspace.setReportPath(anyString())).never();
-        });
-    });
-});
 
 suite('DebuggerAttachedEventProcessor', () => {
     suite('.process', () => {
