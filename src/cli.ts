@@ -14,10 +14,9 @@ export class CLI {
     private readonly _gaugeCommand: string;
     private readonly _mvnCommand: string;
 
-    public constructor(cmd: string, isInstalled: boolean, manifest: any, mvnCommand: string) {
+    public constructor(cmd: string, manifest: any, mvnCommand: string) {
         this._gaugeCommand = cmd;
         this._mvnCommand = mvnCommand;
-        this._isGaugeInstalled = isInstalled;
         this._gaugeVersion = manifest.version;
         this._gaugeCommitHash = manifest.commitHash;
         this._gaugePlugins = manifest.plugins;
@@ -25,11 +24,10 @@ export class CLI {
 
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
-        let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
         let mvnCommand = this.getCommand(MAVEN_COMMAND);
-        mvnCommand = !mvnCommand ? '' : mvnCommand;
-        if (gv.error) return new CLI(gaugeCommand, false, {}, mvnCommand);
-        return new CLI(gaugeCommand, true, JSON.parse(gv.stdout.toString()), mvnCommand);
+        if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand);
+        let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
+        return new CLI(gaugeCommand, JSON.parse(gv.stdout.toString()), mvnCommand);
     }
 
     public isPluginInstalled(pluginName: string): boolean {
@@ -41,7 +39,7 @@ export class CLI {
     }
 
     public isGaugeInstalled(): boolean {
-        return this._isGaugeInstalled;
+        return !!this.gaugeCommand && this._gaugeCommand !== '';
     }
 
     public isGaugeVersionGreaterOrEqual(version: string): boolean {
@@ -72,7 +70,7 @@ export class CLI {
     }
 
     public isMavenInstalled(): boolean {
-        return this._mvnCommand !== '';
+        return !!this._mvnCommand && this._mvnCommand !== '';
     }
 
     public mavenCommand(): string {

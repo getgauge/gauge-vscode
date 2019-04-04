@@ -12,7 +12,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", true, info, 'mvn');
+        let cli = new CLI("gauge", info, 'mvn');
         assert.ok(cli.isPluginInstalled('java'));
         assert.notEqual(true, cli.isPluginInstalled('foo'));
     });
@@ -27,7 +27,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", true, info, 'mvn');
+        let cli = new CLI("gauge", info, 'mvn');
         assert.equal('1.0.0', cli.getGaugePluginVersion('java'));
     });
 
@@ -42,7 +42,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", true, info, 'mvn');
+        let cli = new CLI("gauge", info, 'mvn');
         assert.ok(cli.isPluginInstalled('java'));
         assert.notEqual(true, cli.isPluginInstalled('foo'));
     });
@@ -58,7 +58,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", true, info, 'mvn');
+        let cli = new CLI("gauge", info, 'mvn');
 
         let expected = `Gauge version: 1.2.3
 Commit Hash: 3db28e6
@@ -83,7 +83,7 @@ ruby (1.2.0)`;
             ]
         };
 
-        let cli = new CLI("gauge", true, info, 'mvn');
+        let cli = new CLI("gauge", info, 'mvn');
 
         let expected = `Gauge version: 1.2.3
 
@@ -110,7 +110,7 @@ ruby (1.2.0)`;
                 ]
             };
 
-            let cli = new CLI("gauge", true, info, 'mvn');
+            let cli = new CLI("gauge", info, 'mvn');
 
             assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.3'));
             assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.0'));
@@ -130,7 +130,7 @@ ruby (1.2.0)`;
                 { name: "ruby", version: "1.2.0" },
             ]
         };
-        let cli = new CLI("gauge", true, info, 'mvn');
+        let cli = new CLI("gauge", info, 'mvn');
 
         assert.ok(!cli.isGaugeVersionGreaterOrEqual('2.0.0'));
         assert.ok(!cli.isGaugeVersionGreaterOrEqual('2.1.3'));
