@@ -27,8 +27,7 @@ export class CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
         let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
         let mvnCommand = this.getCommand(MAVEN_COMMAND);
-        let mv = spawnSync(mvnCommand, [GaugeCommands.Version]);
-        mvnCommand = !mv.error ? mvnCommand : '';
+        mvnCommand = !mvnCommand ? '' : mvnCommand;
         if (gv.error) return new CLI(gaugeCommand, false, {}, mvnCommand);
         return new CLI(gaugeCommand, true, JSON.parse(gv.stdout.toString()), mvnCommand);
     }
