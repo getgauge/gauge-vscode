@@ -77,6 +77,7 @@ export enum GaugeRunners {
     Dotnet = "dotnet"
 }
 
+export const LAST_REPORT_PATH = 'gauge.execution.report';
 export const COPY_TO_CLIPBOARD = 'Copy To Clipboard';
 export const NEW_FILE = 'New File';
 export const GAUGE_TEMPLATE_URL = 'https://downloads.gauge.org/templates';
