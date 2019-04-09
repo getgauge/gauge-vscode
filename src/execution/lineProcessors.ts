@@ -22,6 +22,19 @@ abstract class BaseProcessor implements LineTextProcessor {
     abstract process(lineText: string, gaugeDebugger: GaugeDebugger): void;
 }
 
+export class ReportEventProcessor extends BaseProcessor {
+
+    constructor(private workspace: GaugeWorkspace) {
+       super("Successfully generated html-report to => ");
+   }
+
+    public process(lineText: string): void {
+       if (!this.canProcess(lineText)) return;
+       let reportPath = lineText.replace(this.eventPrefix, "");
+       this.workspace.setReportPath(reportPath);
+   }
+}
+
 export class DebuggerAttachedEventProcessor extends BaseProcessor {
 
     constructor(private executor: GaugeExecutor) {

@@ -3,7 +3,7 @@
 import { ChildProcess, spawn } from 'child_process';
 import {
     CancellationTokenSource, commands, Disposable, Position,
-    StatusBarAlignment, Uri, window, DebugSession
+    StatusBarAlignment, Uri, window, DebugSession, env
 } from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
 import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
@@ -15,11 +15,10 @@ import { CLI } from '../cli';
 import { join, relative, extname } from 'path';
 import psTree = require('ps-tree');
 import {
-    LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor,
+    LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor, ReportEventProcessor
 } from './lineProcessors';
 import { MavenProject } from '../project/mavenProject';
 import { ProjectFactory } from '../project/projectFactory';
-import opn = require('opn');
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -255,6 +254,7 @@ export class GaugeExecutor extends Disposable {
 
     private registerLineTextProcessors(): void {
         this.processors = [
+            new ReportEventProcessor(this.gaugeWorkspace),
             new DebuggerAttachedEventProcessor(this),
             new DebuggerNotAttachedEventProcessor(this)
         ];
@@ -319,9 +319,7 @@ export class GaugeExecutor extends Disposable {
     }
 
     private openReport() {
-        let projectRoot = ProjectFactory.get(this.gaugeWorkspace.getDefaultFolder()).root();
-        let url = join(projectRoot, "/reports/html-report/index.html");
-        return opn(url).then(
+        return env.openExternal(Uri.parse(this.gaugeWorkspace.getReportPath())).then(
         () => { }, (err) => {
             window.showErrorMessage("Can't open html report. " + err);
         });

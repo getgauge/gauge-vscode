@@ -1,6 +1,6 @@
 'use strict';
 
-import { commands, ExtensionContext, extensions, languages, version, window, workspace } from 'vscode';
+import { commands, ExtensionContext, extensions, languages, version, window, workspace, Uri, env} from 'vscode';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { CLI } from './cli';
 import { ConfigProvider } from './config/configProvider';
@@ -10,9 +10,8 @@ import { GaugeWorkspace } from './gaugeWorkspace';
 import { ProjectInitializer } from './init/projectInit';
 import { ProjectFactory } from './project/projectFactory';
 import { hasActiveGaugeDocument } from './util';
+import { GaugeState } from './gaugeState';
 import { showInstallGaugeNotification, showWelcomeNotification } from './welcomeNotifications';
-
-import opn = require('opn');
 
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 
@@ -33,7 +32,7 @@ export async function activate(context: ExtensionContext) {
     showWelcomeNotification(context);
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
 
-    let gaugeWorkspace = new GaugeWorkspace(cli);
+    let gaugeWorkspace = new GaugeWorkspace(new GaugeState(context), cli);
 
     let clientsMap = gaugeWorkspace.getClientsMap();
 
@@ -60,7 +59,8 @@ Gauge Extension Version: ${extVersion}
 ${gaugeVersionInfo}
 \`\`\``;
 
-    return opn(`https://github.com/getgauge/gauge-vscode/issues/new?body=${escape(issueTemplate)}`).then(
+    return env.openExternal(
+        Uri.parse(`https://github.com/getgauge/gauge-vscode/issues/new?body=${escape(issueTemplate)}`)).then(
         () => { }, (err) => {
             window.showErrorMessage("Can't open issue URL. " + err);
         });

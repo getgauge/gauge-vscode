@@ -20,6 +20,7 @@ import { GaugeProject } from './project/gaugeProject';
 import { ProjectFactory } from './project/projectFactory';
 import { getActiveGaugeDocument, hasActiveGaugeDocument } from './util';
 import { MavenProject } from './project/mavenProject';
+import { GaugeState } from "./gaugeState";
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -36,8 +37,8 @@ export class GaugeWorkspace extends Disposable {
     private _codeLensConfig: WorkspaceConfiguration;
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
-
-    constructor(private cli: CLI) {
+    private _reportPath: string;
+    constructor(private state: GaugeState, private cli: CLI) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this, cli);
 
@@ -79,6 +80,14 @@ export class GaugeWorkspace extends Disposable {
     private async startServerForSpecFile(file: string) {
         let project = ProjectFactory.getGaugeRootFromFilePath(file);
         await this.startServerFor(project);
+    }
+
+    setReportPath(reportPath: string) {
+        this.state.setReportPath(reportPath.trim());
+    }
+
+    getReportPath() {
+        return this.state.getReportPath();
     }
 
     getGaugeExecutor(): GaugeExecutor {
