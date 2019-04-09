@@ -37,7 +37,6 @@ export class GaugeWorkspace extends Disposable {
     private _codeLensConfig: WorkspaceConfiguration;
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
-    private _reportPath: string;
     constructor(private state: GaugeState, private cli: CLI) {
         super(() => this.dispose());
         this._executor = new GaugeExecutor(this, cli);
