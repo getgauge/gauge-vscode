@@ -18,11 +18,11 @@ suite('ReportEventProcessor', () => {
         });
 
         test('should not process if line text does not contain the prefix', () => {
-        let workspace: GaugeWorkspace = mock(GaugeWorkspace);
-        let processor = new ReportEventProcessor(instance(workspace));
-        let lineText = "some other stdout event";
-        processor.process(lineText);
-        verify(workspace.setReportPath(anyString())).never();
+            let workspace: GaugeWorkspace = mock(GaugeWorkspace);
+            let processor = new ReportEventProcessor(instance(workspace));
+            let lineText = "some other stdout event";
+            processor.process(lineText);
+            verify(workspace.setReportPath(anyString())).never();
         });
     });
 });
