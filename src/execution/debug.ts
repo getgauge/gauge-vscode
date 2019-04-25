@@ -110,7 +110,7 @@ export class GaugeDebugger {
             let folder = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri);
             let root = this.clientsMap.get(window.activeTextEditor.document.uri.fsPath).project.root();
             if (!folder) {
-                rej(`The debugger dones not work for a stand alone file.Please open the folder ${root}.`);
+                rej(`The debugger does not work for a stand alone file. Please open the folder ${root}.`);
             }
             debug.startDebugging(folder, this.getDebuggerConf()).then(res, rej);
         });
