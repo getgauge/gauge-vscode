@@ -107,14 +107,12 @@ export class GaugeDebugger {
 
     public startDebugger(): Promise<any> {
         return new Promise((res, rej) => {
-            setTimeout(() => {
-                let folder = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri);
-                let root = this.clientsMap.get(window.activeTextEditor.document.uri.fsPath).project.root();
-                if (!folder) {
-                    rej(`The debugger dones not work for a stand alone file.Please open the folder ${root}.`);
-                }
-                debug.startDebugging(folder, this.getDebuggerConf()).then(res, rej);
-            }, 100);
+            let folder = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri);
+            let root = this.clientsMap.get(window.activeTextEditor.document.uri.fsPath).project.root();
+            if (!folder) {
+                rej(`The debugger dones not work for a stand alone file.Please open the folder ${root}.`);
+            }
+            debug.startDebugging(folder, this.getDebuggerConf()).then(res, rej);
         });
     }
 
