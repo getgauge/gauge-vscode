@@ -105,15 +105,15 @@ export class GaugeDebugger {
         }
     }
 
-    public startDebugger(): Promise<any> {
-        return new Promise((res, rej) => {
-            let folder = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri);
-            let root = this.clientsMap.get(window.activeTextEditor.document.uri.fsPath).project.root();
-            if (!folder) {
-                rej(`The debugger does not work for a stand alone file. Please open the folder ${root}.`);
-            }
-            debug.startDebugging(folder, this.getDebuggerConf()).then(res, rej);
-        });
+    public startDebugger(): void {
+        let folder = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri);
+        let root = this.clientsMap.get(window.activeTextEditor.document.uri.fsPath).project.root();
+        if (!folder) {
+            throw new Error(`The debugger does not work for a stand alone file. Please open the folder ${root}.`);
+        }
+        setTimeout( () => {
+            debug.startDebugging(folder, this.getDebuggerConf());
+            }, 100);
     }
 
     public registerStopDebugger(callback) {

@@ -44,12 +44,12 @@ export class DebuggerAttachedEventProcessor extends BaseProcessor {
     public process(lineText: string, gaugeDebugger: GaugeDebugger): void {
         if (!this.canProcess(lineText)) return;
         gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-        setTimeout( () => {
-            gaugeDebugger.startDebugger().then(() => { }).catch((reason) => {
-                window.showErrorMessage(reason);
-                this.executor.cancel();
-            });
-        }, 100);
+        try {
+            gaugeDebugger.startDebugger();
+        } catch (reason) {
+            window.showErrorMessage(reason);
+            this.executor.cancel();
+        }
     }
 }
 

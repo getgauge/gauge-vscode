@@ -32,7 +32,6 @@ suite('DebuggerAttachedEventProcessor', () => {
         test('should process a given line text and set the process ID', () => {
             let executor: GaugeExecutor = mock(GaugeExecutor);
             let gaugeDebugger = mock(GaugeDebugger);
-            when(gaugeDebugger.startDebugger()).thenReturn(Promise.resolve());
             let processor = new DebuggerAttachedEventProcessor(instance(executor));
             let lineText = "Runner Ready for Debugging at Process ID 23456";
             assert.ok(processor.canProcess(lineText));
@@ -44,7 +43,6 @@ suite('DebuggerAttachedEventProcessor', () => {
         test('should process a given line text and start debugger', () => {
             let executor: GaugeExecutor = mock(GaugeExecutor);
             let gaugeDebugger = mock(GaugeDebugger);
-            when(gaugeDebugger.startDebugger()).thenReturn(Promise.resolve());
             let processor = new DebuggerAttachedEventProcessor(instance(executor));
             let lineText = "Runner Ready for Debugging";
             assert.ok(processor.canProcess(lineText));
