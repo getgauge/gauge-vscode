@@ -60,7 +60,7 @@ ${gaugeVersionInfo}
 \`\`\``;
 
     return env.openExternal(
-        Uri.parse(`https://github.com/getgauge/gauge-vscode/issues/new?body=${escape(issueTemplate)}`)).then(
+        Uri.parse(encodeURI(`https://github.com/getgauge/gauge-vscode/issues/new?body=${escape(issueTemplate)}`))).then(
         () => { }, (err) => {
             window.showErrorMessage("Can't open issue URL. " + err);
         });
