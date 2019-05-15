@@ -24,6 +24,7 @@ export class GaugeDebugger {
         this.languageId = clientLanguageMap.get(config.getProject().root());
         this.clientsMap = clientsMap;
         this.config = config;
+        this.projectRoot = this.config.getProject().root();
         this.debug = config.getDebug();
     }
 
