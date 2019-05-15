@@ -25,14 +25,14 @@ abstract class BaseProcessor implements LineTextProcessor {
 export class ReportEventProcessor extends BaseProcessor {
 
     constructor(private workspace: GaugeWorkspace) {
-       super("Successfully generated html-report to => ");
-   }
+        super("Successfully generated html-report to => ");
+    }
 
     public process(lineText: string): void {
-       if (!this.canProcess(lineText)) return;
-       let reportPath = lineText.replace(this.eventPrefix, "");
-       this.workspace.setReportPath(reportPath);
-   }
+        if (!this.canProcess(lineText)) return;
+        let reportPath = lineText.replace(this.eventPrefix, "");
+        this.workspace.setReportPath(reportPath);
+    }
 }
 
 export class DebuggerAttachedEventProcessor extends BaseProcessor {
@@ -44,12 +44,10 @@ export class DebuggerAttachedEventProcessor extends BaseProcessor {
     public process(lineText: string, gaugeDebugger: GaugeDebugger): void {
         if (!this.canProcess(lineText)) return;
         gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-        try {
-            gaugeDebugger.startDebugger();
-        } catch (reason) {
+        gaugeDebugger.startDebugger().catch((reason) => {
             window.showErrorMessage(reason);
-            this.executor.cancel();
-        }
+            this.executor.cancel(false);
+        });
     }
 }
 
@@ -62,6 +60,6 @@ export class DebuggerNotAttachedEventProcessor extends BaseProcessor {
     public process(lineText: string): void {
         if (!this.canProcess(lineText)) return;
         window.showErrorMessage("No debugger attached. Stopping the execution");
-        this.executor.cancel();
+        this.executor.cancel(false);
     }
 }

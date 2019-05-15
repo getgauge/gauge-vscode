@@ -55,7 +55,7 @@ export class GaugeExecutor extends Disposable {
                 this.executing = true;
                 this.gaugeDebugger = new GaugeDebugger(this.gaugeWorkspace.getClientLanguageMap(),
                     this.gaugeWorkspace.getClientsMap(), config);
-                this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(); });
+                this.gaugeDebugger.registerStopDebugger((e: DebugSession) => { this.cancel(false); });
                 this.gaugeDebugger.addDebugEnv().then((env) => {
                     let cmd = config.getProject().getExecutionCommand(this.cli);
                     let args = this.getArgs(spec, config);
@@ -96,7 +96,7 @@ export class GaugeExecutor extends Disposable {
             lines.forEach((line) => callback(`${line}\n`));
         };
     }
-    private killRecursive(pid: number) {
+    private killRecursive(pid: number, aborted: boolean) {
         try {
             psTree(pid, (error: Error, children: Array<any>) => {
                 if (!error && children.length) {
@@ -109,17 +109,17 @@ export class GaugeExecutor extends Disposable {
                     });
                 }
             });
-            this.aborted = true;
+            this.aborted = aborted;
             return process.kill(pid);
         } catch (error) {
             if (error.code !== 'ESRCH') throw error;
         }
     }
 
-    public cancel() {
+    public cancel(aborted: boolean) {
         if (this.childProcess && !this.childProcess.killed) {
             this.gaugeDebugger.stopDebugger();
-            this.killRecursive(this.childProcess.pid);
+            this.killRecursive(this.childProcess.pid, aborted);
         }
     }
 
@@ -338,7 +338,7 @@ export class GaugeExecutor extends Disposable {
         this.onExecuted(() => stopExecution.hide());
         this._disposables.push(commands.registerCommand(GaugeVSCodeCommands.StopExecution, () => {
             try {
-                this.cancel();
+                this.cancel(true);
             } catch (e) {
                 window.showErrorMessage("Failed to Stop Run: " + e.message);
             }
