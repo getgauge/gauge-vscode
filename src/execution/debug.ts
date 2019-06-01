@@ -1,14 +1,13 @@
 'use strict';
 
+import * as getPort from 'get-port';
 import { debug, DebugSession, window, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
-import { ExecutionConfig } from './executionConfig';
-import * as getPort from 'get-port';
 import { GaugeClients } from '../gaugeClients';
+import { ExecutionConfig } from './executionConfig';
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
 const REQUEST_TYPE = "attach";
-const DEBUG_PORT = 'debugPort';
 
 export class GaugeDebugger {
 
@@ -45,6 +44,17 @@ export class GaugeDebugger {
                     type: "node",
                     name: GAUGE_DEBUGGER_NAME,
                     request: REQUEST_TYPE,
+                    port: this.debugPort,
+                    protocol: "inspector"
+                };
+            }
+            case "typescript": {
+                return {
+                    type: "node",
+                    name: GAUGE_DEBUGGER_NAME,
+                    runtimeArgs: ["--nolazy", "-r", "ts-node/register"],
+                    request: REQUEST_TYPE,
+                    sourceMaps: true,
                     port: this.debugPort,
                     protocol: "inspector"
                 };
