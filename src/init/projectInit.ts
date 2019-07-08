@@ -21,7 +21,7 @@ export class ProjectInitializer extends Disposable {
 
     private readonly _templates: any = [
         { name: 'python', desc: "template for gauge-python projects", },
-        { name: 'js_simple', desc: "template for gauge-javascript projects", },
+        { name: 'js', desc: "template for gauge-javascript projects", },
         { name: 'ruby', desc: "template for gauge-ruby projects", },
         { name: 'java', desc: "template for gauge-java projects", },
         { name: 'java_maven', desc: "template for gauge-java projects with maven as build tool.", },
