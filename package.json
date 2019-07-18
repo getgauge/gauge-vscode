@@ -279,7 +279,7 @@
     "build": "npm install && npm run lint && npm run compile && npm run pack && vsce package",
     "update-vscode": "node ./node_modules/vscode/bin/install",
     "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "cross-env CODE_TESTS_WORKSPACE=test/testdata/sampleProject node ./node_modules/vscode/bin/test",
+    "test": "cross-env CODE_TESTS_WORKSPACE=test/testdata/sampleProject CODE_VERSION=1.35.1 node ./node_modules/vscode/bin/test",
     "publish": "vsce publish"
   },
   "devDependencies": {
