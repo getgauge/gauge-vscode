@@ -32,7 +32,7 @@ export class ConfigProvider extends Disposable {
                 "Apply & Reload", "Remind me later", "Ignore")
                 .then((option) => {
                     if (option === "Apply & Reload") {
-                        this.applyAndReload(this.recommendedSettings, ConfigurationTarget.Workspace, false)
+                        this.applyAndReload(this.recommendedSettings, ConfigurationTarget.Workspace, false);
                         let settings = {"gauge.recommendedSettings.options": "Apply & Reload"};
                         return this.applyAndReload(settings, ConfigurationTarget.Global);
                     } else if (option === "Ignore") {
