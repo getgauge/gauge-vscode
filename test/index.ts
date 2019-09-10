@@ -1,11 +1,31 @@
-import testRunner = require('vscode/lib/testrunner');
+import * as path from 'path';
+import * as Mocha from 'mocha';
+import * as glob from 'glob';
 
-// You can directly control Mocha options by uncommenting the following lines
-// See https://github.com/mochajs/mocha/wiki/Using-mocha-programmatically#set-options for more info
-testRunner.configure({
-    ui: 'tdd', 		// the TDD UI is being used in extension.test.ts (suite, test, etc.)
-    useColors: true, // colored output from test results
-    timeout: 5000
-});
+export function run(testsRoot: string, cb: (error: any, failures?: number) => void): void {
+    // Create the mocha test
+    const mocha = new Mocha({
+        ui: 'tdd',
+    });
+    mocha.useColors(true);
 
-module.exports = testRunner;
+    glob('**/**.test.js', { cwd: testsRoot }, (err, files) => {
+        if (err) {
+            return cb(err);
+        }
+
+        // Add files to the test suite
+        files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+
+        try {
+            // Run the mocha test
+            mocha
+                .run(failures => {
+                    cb(null, failures);
+                });
+
+        } catch (err) {
+            cb(err);
+        }
+    });
+}
