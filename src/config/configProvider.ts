@@ -18,14 +18,13 @@ export class ConfigProvider extends Disposable {
 
         this.applyDefaultSettings();
         this._disposable = commands.registerCommand(GaugeVSCodeCommands.SaveRecommendedSettings,
-            () => this.applyAndReload(this.recommendedSettings));
+            () => this.applyAndReload(this.recommendedSettings, ConfigurationTarget.Workspace));
 
         if (!this.verifyRecommendedConfig()) {
             let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
             if (config.globalValue === "Apply & Reload") {
-                let settings = {...this.recommendedSettings,
-                    ...{"gauge.recommendedSettings.options": "Apply & Reload"}};
-                this.applyAndReload(settings);
+                let settings = {...this.recommendedSettings};
+                this.applyAndReload(settings, ConfigurationTarget.Workspace);
                 return;
             }
             window.showInformationMessage("Gauge [recommends](https://docs.gauge.org/using.html#id31) " +
@@ -33,15 +32,17 @@ export class ConfigProvider extends Disposable {
                 "Apply & Reload", "Remind me later", "Ignore")
                 .then((option) => {
                     if (option === "Apply & Reload") {
-                        let settings = {...this.recommendedSettings,
-                            ...{"gauge.recommendedSettings.options": "Apply & Reload"}};
-                        return this.applyAndReload(settings);
+                        this.applyAndReload(this.recommendedSettings, ConfigurationTarget.Workspace, false);
+                        let settings = {"gauge.recommendedSettings.options": "Apply & Reload"};
+                        return this.applyAndReload(settings, ConfigurationTarget.Global);
                     } else if (option === "Ignore") {
-                        return this.applyAndReload({"gauge.recommendedSettings.options": "Ignore"});
+                        let settings = { "gauge.recommendedSettings.options": "Ignore" };
+                        return this.applyAndReload(settings, ConfigurationTarget.Global, false);
                     } else if (option === "Remind me later") {
                         let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
                         if (config.globalValue !== "Remind me later") {
-                            return this.applyAndReload({"gauge.recommendedSettings.options": "Remind me later"});
+                            let settings = { "gauge.recommendedSettings.options": "Remind me later" };
+                            return this.applyAndReload(settings, ConfigurationTarget.Global, false);
                         }
                     }
                 });
@@ -72,14 +73,15 @@ export class ConfigProvider extends Disposable {
         return true;
     }
 
-    private applyAndReload(settings: Object): Thenable<any> {
+    private applyAndReload(settings: Object, configurationTarget: number, shouldReload: boolean = true): Thenable<any> {
         let updatePromises = [];
         for (const key in settings) {
             if (settings.hasOwnProperty(key)) {
                 updatePromises.push(workspace.getConfiguration()
-                    .update(key, settings[key], ConfigurationTarget.Global));
+                    .update(key, settings[key], configurationTarget));
             }
         }
+        if (!shouldReload) return;
         return Promise.all(updatePromises).then(() => commands.executeCommand(VSCodeCommands.ReloadWindow));
     }
 
