@@ -11,7 +11,7 @@
   "version": "0.0.11",
   "publisher": "getgauge",
   "engines": {
-    "vscode": "1.38.0"
+    "vscode": "^1.38.0"
   },
   "categories": [
     "Languages"
