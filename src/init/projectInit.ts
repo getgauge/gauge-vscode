@@ -26,7 +26,8 @@ export class ProjectInitializer extends Disposable {
         { name: 'java', desc: "template for gauge-java projects", },
         { name: 'java_maven', desc: "template for gauge-java projects with maven as build tool.", },
         { name: 'java_maven_selenium', desc: "template for gauge-java selenium projects with maven as build tool.", },
-        { name: 'ts', desc: "template for gauge-typescript projects.", }
+        { name: 'ts', desc: "template for gauge-typescript projects.", },
+        { name: 'dotnet', desc: "template for gauge-dotnet projects.", }
     ];
 
     private readonly _archtypes: any = {
