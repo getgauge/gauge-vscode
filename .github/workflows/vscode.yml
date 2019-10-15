@@ -43,7 +43,7 @@ jobs:
           export PATH=/tmp/bin:$PATH
           git clone https://github.com/getgauge/gauge-js
           cd gauge-js
-          npm run install
+          npm install
           npm run installPlugin
 
       - name: Run tests
