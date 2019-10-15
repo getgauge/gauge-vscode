@@ -15,4 +15,28 @@ jobs:
       - name: build
         run: |
           npm run build
-
+      - name: Setup go 1.13.1
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13.1
+      - name: Install gauge on linux and macos
+        if: matrix.os != 'windows-latest'
+        run: |
+          git clone https://github.com/getgauge/gauge
+          cd gauge
+          go run build/make.go --verbose
+          go run build/make.go --install --prefix=/tmp/
+      - name: Install gauge (windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          git clone https://github.com/getgauge/gauge
+          cd gauge
+          go run build/make.go --verbose
+          go run build/make.go --install
+      - name: Install gauge-js
+        run: |
+          git clone https://github.com/getgauge/gauge-js
+          cd gauge-js
+          npm run installPlugin
+      - name: Run tests
+        run: npm test
