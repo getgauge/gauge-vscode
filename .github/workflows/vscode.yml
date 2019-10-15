@@ -53,8 +53,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           export PATH=/tmp/bin:$PATH
-          xvfb-run --auto-servernum
-          npm test
+          xvfb-run --auto-servernum npm test
 
       - name: Run tests (macos)
         if: matrix.os == 'macos-latest'
