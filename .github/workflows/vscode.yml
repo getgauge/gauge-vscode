@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
       - name: Use NodeJS 12
         uses: actions/setup-node@v1
         with:
@@ -15,10 +16,12 @@ jobs:
       - name: build
         run: |
           npm run build
+
       - name: Setup go 1.13.1
         uses: actions/setup-go@v1
         with:
           go-version: 1.13.1
+
       - name: Install gauge on linux and macos
         if: matrix.os != 'windows-latest'
         run: |
@@ -26,6 +29,7 @@ jobs:
           cd gauge
           go run build/make.go --verbose
           go run build/make.go --install --prefix=/tmp/
+
       - name: Install gauge (windows)
         if: matrix.os == 'windows-latest'
         run: |
@@ -33,12 +37,15 @@ jobs:
           cd gauge
           go run build/make.go --verbose
           go run build/make.go --install
+
       - name: Install gauge-js
         run: |
           export PATH=/tmp/bin:$PATH
           git clone https://github.com/getgauge/gauge-js
           cd gauge-js
+          npm run install
           npm run installPlugin
+
       - name: Run tests
         run: |
         export PATH=/tmp/bin:$PATH
