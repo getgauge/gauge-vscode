@@ -48,5 +48,5 @@ jobs:
 
       - name: Run tests
         run: |
-        export PATH=/tmp/bin:$PATH
-        npm test
+          export PATH=/tmp/bin:$PATH
+          npm test
