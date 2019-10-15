@@ -35,8 +35,11 @@ jobs:
           go run build/make.go --install
       - name: Install gauge-js
         run: |
+          export PATH=/tmp/bin:$PATH
           git clone https://github.com/getgauge/gauge-js
           cd gauge-js
           npm run installPlugin
       - name: Run tests
-        run: npm test
+        run: |
+        export PATH=/tmp/bin:$PATH
+        npm test
