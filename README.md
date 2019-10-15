@@ -122,16 +122,8 @@ To override default configurations in [VSCode settings](https://code.visualstudi
 
 	$ npm run build
 
-This will create `gauge-<version>.vsix` file which can be installed via VScode's [Install from VSIX](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix). 
+This will create `gauge-<version>.vsix` file which can be installed via VScode's [Install from VSIX](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix).
 > Note: Manually delete the Gauge extension folder from [VSCode extensions folder](https://vscode-docs.readthedocs.io/en/stable/extensions/install-extension/) for a successful uninstallation of VSCode extension
-
-# Install nightly versions
-
-Nightly version of vscode is available in bintray. To install a nightly version,
-- [Uninstall](https://code.visualstudio.com/docs/editor/extension-gallery#_manage-extensions) existing version of gauge extension. 
-> Note: Manually delete the Gauge extension folder from [VSCode extensions folder](https://vscode-docs.readthedocs.io/en/stable/extensions/install-extension/) for a successful uninstallation of VSCode extension
-- Download the latest [nightly version of gauge extension](https://bintray.com/gauge/gauge-vscode/Nightly/_latestVersion) from bintray
-- [Install](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix) gauge extension from source
 
 # Troubleshooting
 
