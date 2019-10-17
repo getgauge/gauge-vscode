@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12'
+
       - name: build
         run: |
           npm run build
@@ -31,7 +32,7 @@ jobs:
           git clone https://github.com/getgauge/gauge
           cd gauge
           go run build/make.go --verbose
-          go run build/make.go --install --prefix=/tmp/
+          go run build/make.go --install --verbose --prefix=/tmp/
 
       - name: Install gauge (windows)
         if: matrix.os == 'windows-latest'
@@ -39,15 +40,39 @@ jobs:
           git clone https://github.com/getgauge/gauge
           cd gauge
           go run build/make.go --verbose
-          go run build/make.go --install
+          go run build/make.go --install --verbose
 
-      - name: Install gauge-js
+      - name: Install gauge-js (linux and macos)
+        if: matrix.os != 'windows-latest'
         run: |
           export PATH=/tmp/bin:$PATH
           git clone https://github.com/getgauge/gauge-js
           cd gauge-js
           npm install
           npm run installPlugin
+
+      - name: Install gauge-js (windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          ${env:PATH} += ";C:\Program Files\gauge\bin"
+          git clone https://github.com/getgauge/gauge-js
+          cd gauge-js
+          npm install
+          npm run installPlugin
+
+      - name: Gauge version (linux and macos)
+        if: matrix.os != 'windows-latest'
+        run: |
+          export PATH=/tmp/bin:$PATH
+          gauge -v
+
+      - name: Gauge version (windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          ${env:PATH} += ";C:\Program Files\gauge\bin"
+          gauge -v
 
       - name: Run tests (linux)
         if: matrix.os == 'ubuntu-latest'
