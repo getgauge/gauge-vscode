@@ -2,21 +2,22 @@
 
 import { spawnSync, spawn } from 'child_process';
 import { window } from 'vscode';
-import { GaugeCommands, MAVEN_COMMAND } from './constants';
+import { GaugeCommands, MAVEN_COMMAND, GRADLE_COMMAND } from './constants';
 import { OutputChannel } from './execution/outputChannel';
 import { platform } from 'os';
 
 export class CLI {
-    private _isGaugeInstalled: boolean;
     private readonly _gaugeVersion: string;
     private readonly _gaugeCommitHash: string;
     private readonly _gaugePlugins: Array<any>;
     private readonly _gaugeCommand: string;
     private readonly _mvnCommand: string;
+    private readonly _gradleCommand: string;
 
-    public constructor(cmd: string, manifest: any, mvnCommand: string) {
+    public constructor(cmd: string, manifest: any, mvnCommand: string, gradleCommand: string) {
         this._gaugeCommand = cmd;
         this._mvnCommand = mvnCommand;
+        this._gradleCommand = gradleCommand;
         this._gaugeVersion = manifest.version;
         this._gaugeCommitHash = manifest.commitHash;
         this._gaugePlugins = manifest.plugins;
@@ -25,9 +26,10 @@ export class CLI {
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
         let mvnCommand = this.getCommand(MAVEN_COMMAND);
-        if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand);
+        let gradleCommand = this.getGradleCommand();
+        if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand, gradleCommand);
         let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
-        return new CLI(gaugeCommand, JSON.parse(gv.stdout.toString()), mvnCommand);
+        return new CLI(gaugeCommand, JSON.parse(gv.stdout.toString()), mvnCommand, gradleCommand);
     }
 
     public isPluginInstalled(pluginName: string): boolean {
@@ -77,6 +79,10 @@ export class CLI {
         return this._mvnCommand;
     }
 
+    public gradleCommand() {
+        return  this._gradleCommand;
+    }
+
     public gaugeVersionString(): string {
         let v = `Gauge version: ${this._gaugeVersion}`;
         let cm = this._gaugeCommitHash && `Commit Hash: ${this._gaugeCommitHash}` || '';
@@ -94,5 +100,10 @@ export class CLI {
             let executable = `${command}${ext}`;
             if (!spawnSync(executable).error) return executable;
         }
+    }
+
+    private static getGradleCommand() {
+        if (platform() === 'win32') return `${GRADLE_COMMAND}.bat`;
+        return GRADLE_COMMAND;
     }
 }

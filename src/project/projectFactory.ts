@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from "fs";
 import { join, parse } from "path";
-import { GAUGE_MANIFEST_FILE, MAVEN_POM } from "../constants";
+import { GAUGE_MANIFEST_FILE, MAVEN_POM, GRADLE_BUILD } from "../constants";
 import { GaugeProject } from "./gaugeProject";
 import { MavenProject } from "./mavenProject";
+import { GradleProject } from "./gradleProject";
 
 export class ProjectFactory {
     public static builders: Array<{
@@ -12,8 +13,11 @@ export class ProjectFactory {
             {
                 predicate: (root: string) => existsSync(join(root, MAVEN_POM)),
                 build: (root: string, data: any) => new MavenProject(root, data)
+            },
+            {
+                predicate: (root: string) => existsSync(join(root, GRADLE_BUILD)),
+                build: (root: string, data: any) => new GradleProject(root, data)
             }
-            // Add other project types if required. example: GradleProject
         ];
 
     public static get(path: string): GaugeProject {

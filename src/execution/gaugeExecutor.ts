@@ -18,6 +18,7 @@ import {
     LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor, ReportEventProcessor
 } from './lineProcessors';
 import { MavenProject } from '../project/mavenProject';
+import { GradleProject } from '../project/gradleProject';
 import { ProjectFactory } from '../project/projectFactory';
 
 const outputChannelName = 'Gauge Execution';
@@ -186,8 +187,20 @@ export class GaugeExecutor extends Disposable {
         return args;
     }
 
+    private createGradleArgs(spec, config: ExecutionConfig): Array<string> {
+        let args = ["clean", "gauge"];
+        let defaultArgs = `-PadditionalFlags=--hide-suggestion --simple-console`;
+        if (config.getFailed()) return args.concat(`-PadditionalFlags=--failed`);
+        if (config.getRepeat()) return args.concat(`-PadditionalFlags=--repeat`);
+        args = args.concat(defaultArgs);
+        if (config.getParallel()) args = args.concat("-PinParallel=true");
+        if (spec) return args.concat(`-PspecsDir=${relative(config.getProject().root(), spec)}`);
+        return args;
+    }
+
     private getArgs(spec: string, config: ExecutionConfig): Array<string> {
         if (config.getProject() instanceof MavenProject) return this.createMavenArgs(spec, config);
+        if (config.getProject() instanceof GradleProject) return this.createGradleArgs(spec, config);
         if (config.getFailed()) {
             return [GaugeCommands.Run, GaugeCommands.RerunFailed];
         }
