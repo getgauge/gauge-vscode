@@ -21,10 +21,11 @@ jobs:
         run: |
           npm run build
 
-      - name: Setup go 1.13.1
+      - name: Set up Go 1.13
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13.1
+          go-version: 1.13
+        id: go
 
       - name: Install gauge (linux and macos)
         if: matrix.os != 'windows-latest'
