@@ -41,6 +41,7 @@ jobs:
           cd gauge
           go run build/make.go --verbose
           go run build/make.go --install --verbose
+          echo "::add-path::C:\\Program Files\\gauge\\bin"
 
       - name: Install gauge-js (linux and macos)
         if: matrix.os != 'windows-latest'
