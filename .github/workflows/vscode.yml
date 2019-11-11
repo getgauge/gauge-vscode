@@ -47,23 +47,16 @@ jobs:
           go run build/make.go --install --prefix=/tmp/gauge --verbose
           echo "::add-path::/tmp/gauge/bin"
 
-      - name: Install gauge-js (linux and macos)
-        if: matrix.os != 'windows-latest'
+      - name: Prep gauge-js
         run: |
-          export PATH=/tmp/bin:$PATH
-          git clone https://github.com/getgauge/gauge-js
+          git clone https://github.com/getgauge/gauge-js.git
           cd gauge-js
           npm install
-          npm run installPlugin
+        shell: bash
 
-      - name: Install gauge-js (windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
+      - name: Install gauge-js
         run: |
-          ${env:PATH} += ";C:\Program Files\gauge\bin"
-          git clone https://github.com/getgauge/gauge-js
           cd gauge-js
-          npm install
           npm run installPlugin
 
       - name: Gauge version (linux and macos)
