@@ -24,3 +24,4 @@ appveyor.yml
 *.ps1
 node_modules
 bin/**
+.github/**
