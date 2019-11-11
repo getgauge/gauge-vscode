@@ -27,23 +27,25 @@ jobs:
           go-version: 1.13
         id: go
 
-      - name: Install gauge (linux and macos)
+      - name: Clone gauge and build
+        run: |
+          git clone https://github.com/getgauge/gauge
+          cd gauge
+          go run build/make.go --verbose
+
+      - name: Install Gauge (windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd gauge
+          go run build/make.go --install  --verbose
+          echo "::add-path::C:\\Program Files\\gauge\\bin"
+
+      - name: Install Gauge (mac and linux)
         if: matrix.os != 'windows-latest'
         run: |
-          git clone https://github.com/getgauge/gauge
           cd gauge
-          go run build/make.go --verbose
-          go run build/make.go --install --verbose --prefix=/tmp/
-
-      - name: Install gauge (windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          git clone https://github.com/getgauge/gauge
-          cd gauge
-          go run build/make.go --verbose
-          go run build/make.go --install --verbose
-          echo "::add-path::C:\\Program Files\\gauge\\bin"
+          go run build/make.go --install --prefix=/tmp/gauge --verbose
+          echo "::add-path::/tmp/gauge/bin"
 
       - name: Install gauge-js (linux and macos)
         if: matrix.os != 'windows-latest'
