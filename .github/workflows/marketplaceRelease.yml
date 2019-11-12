@@ -1,0 +1,30 @@
+name: release
+
+on:
+  release:
+    types: [prereleased, published]
+
+jobs:
+  release:
+    name: Deploy to marketplace
+    runs-on: macos-latest
+    env:
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      VS_PAT: '${{ secrets.VS_PAT }}'
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Use NodeJS 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Build artifacts
+        run: |
+          npm run build
+
+      - name: Upload to marketplace
+        run: |
+          version=$(ls gauge-* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
+          npm install
+          npm run publish -- --packagePath gauge-$version.vsix -p $VS_PAT
