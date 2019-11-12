@@ -26,7 +26,7 @@ jobs:
       - name: update
         run: |
           if [ -z "$version" ]; then
-            version=$(ls gauge-vscode* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-vscode-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
+            version=$(ls gauge-* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
           fi
 
           artifacts=()
@@ -37,7 +37,7 @@ jobs:
           echo "Updating release v$version"
           echo "---------------------------"
 
-          echo -e "Gauge VSCode v$version\n\n" > desc.txt
+          echo -e "gauge-vscode $version\n\n" > desc.txt
 
           release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" gauge-vscode getgauge)
 
