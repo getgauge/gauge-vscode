@@ -1,0 +1,71 @@
+name: Deploy
+
+on: [deployment]
+
+jobs:
+  deploy:
+    name: Create Draft with assets
+    runs-on: macos-latest
+    env:
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Use NodeJS 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Build artifacts
+        run: |
+          npm run build
+
+      - name: Install hub
+        run: brew install hub
+
+      - name: update
+        run: |
+          if [ -z "$version" ]; then
+            version=$(ls gauge-* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
+          fi
+
+          artifacts=()
+          dir=`pwd`
+          artifacts+="$dir/*.vsix"
+
+          echo "---------------------------"
+          echo "Updating release v$version"
+          echo "---------------------------"
+
+          echo -e "gauge-vscode $version\n\n" > desc.txt
+
+          release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" gauge-vscode getgauge)
+
+          echo "$release_description" >> desc.txt
+
+          echo "Creating new draft for release v$version"
+          hub release create -d -F ./desc.txt "v$version"
+
+          rm -rf desc.txt
+
+          echo "Start uploading assets..."
+          for i in `ls $artifacts`; do
+              hub release edit -m "" -a $i "v$version"
+              if [ $? -ne 0 ];then
+                  exit 1
+              fi
+          done
+
+      - name: 'deployment success'
+        if: success()
+        uses: 'deliverybot/status@master'
+        with:
+          state: 'success'
+          token: '${{ secrets.GITHUB_TOKEN }}'
+
+      - name: 'deployment failure'
+        if: failure()
+        uses: 'deliverybot/status@master'
+        with:
+          state: 'failure'
+          token: '${{ secrets.GITHUB_TOKEN }}'

@@ -1,6 +1,5 @@
 [![Released Version](https://vsmarketplacebadge.apphb.com/version-short/getgauge.gauge.svg)](https://marketplace.visualstudio.com/items?itemName=getgauge.gauge)
-[![Build Status](https://travis-ci.org/getgauge/gauge-vscode.svg?branch=master)](https://travis-ci.org/getgauge/gauge-vscode)
-[![Build status](https://ci.appveyor.com/api/projects/status/w9rjq31rqnru66fi?svg=true)](https://ci.appveyor.com/project/getgauge/gauge-vscode)
+[![Actions Status](https://github.com/getgauge/gauge-vscode/workflows/vscode/badge.svg)](https://github.com/getgauge/gauge-vscode/actions)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
 Gauge extension for [Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=getgauge.gauge)
@@ -27,6 +26,13 @@ $ code --install-extension getgauge.gauge
 * [Reports](#reports)
 * [Test Explorer](#test-explorer)
 * [Code Snippets](#snippets-for-specification-scenarios-and-tables)
+
+Gauge langauge plugins supported by the Gauge Visual Studio Code plugin are:
+* [gauge-js](https://github.com/getgauge/gauge-js)
+* [gauge-java](https://github.com/getgauge/gauge-java)
+* [gauge-dotnet](https://github.com/getgauge/gauge-dotnet)
+* [gauge-python](https://github.com/getgauge/gauge-python)
+* [gauge-ruby](https://github.com/getgauge/gauge-ruby)
 
 ## Create new project
 
