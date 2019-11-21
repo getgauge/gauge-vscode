@@ -25,3 +25,4 @@ appveyor.yml
 node_modules
 bin/**
 .github/**
+README.md
