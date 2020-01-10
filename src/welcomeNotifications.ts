@@ -4,7 +4,7 @@ import { Uri, workspace, commands, window, ExtensionContext } from "vscode";
 
 const HAS_OPENED_BEFORE = "hasOpenedBefore";
 const GAUGE_DOCS_URI = 'https://docs.gauge.org';
-const INSTALL_INSTRUCTION_URI = `${GAUGE_DOCS_URI}/latest/installation.html`;
+const INSTALL_INSTRUCTION_URI = `${GAUGE_DOCS_URI}/getting_started/installing-gauge.html`;
 const CONFIG_WELCOME_NOTIFICATION = 'gauge.welcomeNotification';
 
 function shouldDisplayWelcomeNotification(isProjOpendBefore: boolean): boolean {
