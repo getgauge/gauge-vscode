@@ -174,12 +174,12 @@ export class GaugeWorkspace extends Disposable {
     }
 
     private generateJavaConfig(project: GaugeProject) {
-        if (project.isProjectLanguage(GaugeRunners.Java)
-            && this.cli.isPluginInstalled(GaugeRunners.Java)
-            && !(project instanceof MavenProject)) {
+        if (project.isProjectLanguage(GaugeRunners.Java) && this.cli.isPluginInstalled(GaugeRunners.Java)) {
+            if (!(project instanceof MavenProject)) {
                 new GaugeJavaProjectConfig(project.root(),
                     this.cli.getGaugePluginVersion(GaugeRunners.Java), new GaugeConfig(platform())).generate();
-                process.env.SHOULD_BUILD_PROJECT = "false";
+            }
+            process.env.SHOULD_BUILD_PROJECT = "false";
         }
     }
 
