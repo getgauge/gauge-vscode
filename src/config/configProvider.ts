@@ -27,7 +27,7 @@ export class ConfigProvider extends Disposable {
                 this.applyAndReload(settings, ConfigurationTarget.Workspace);
                 return;
             }
-            window.showInformationMessage("Gauge [recommends](https://docs.gauge.org/using.html#id31) " +
+            window.showInformationMessage("Gauge recommends " +
                 "some settings for best experience with Visual Studio Code.",
                 "Apply & Reload", "Remind me later", "Ignore")
                 .then((option) => {
