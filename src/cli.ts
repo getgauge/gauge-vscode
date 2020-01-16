@@ -64,8 +64,8 @@ export class CLI {
             childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code) => {
-                let postFailureMessage = '\nRefer https://docs.gauge.org/latest/installation.html' +
-                    '#language-plugins to install manually';
+                let postFailureMessage = '\nRefer https://docs.gauge.org/plugin.html' +
+                    ' to install manually';
                 chan.onFinish(resolve, code, "", postFailureMessage, false);
             });
         });
