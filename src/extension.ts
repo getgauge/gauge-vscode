@@ -17,6 +17,8 @@ const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
 
 export async function activate(context: ExtensionContext) {
     let cli = CLI.instance();
+    if(!cli)
+        return
     let folders = workspace.workspaceFolders;
     context.subscriptions.push(
         new ProjectInitializer(cli),
