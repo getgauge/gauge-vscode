@@ -34,7 +34,6 @@ export class CLI {
             gaugeVersionInfo = JSON.parse(gv.stdout.toString());
         } catch (e) {
             window.showErrorMessage(`Unable to parse\n${gv.stdout.toString()}`);
-            window.showErrorMessage(`Error ${e.stack}`);
             return;
         }
         return new CLI(gaugeCommand, gaugeVersionInfo, mvnCommand, gradleCommand);
