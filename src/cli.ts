@@ -29,7 +29,14 @@ export class CLI {
         let gradleCommand = this.getGradleCommand();
         if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand, gradleCommand);
         let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
-        return new CLI(gaugeCommand, JSON.parse(gv.stdout.toString()), mvnCommand, gradleCommand);
+        let gaugeVersionInfo;
+        try {
+            gaugeVersionInfo = JSON.parse(gv.stdout.toString());
+        } catch (e) {
+            window.showErrorMessage(`Error fetching Gauge and plugins version information. \n${gv.stdout.toString()}`);
+            return;
+        }
+        return new CLI(gaugeCommand, gaugeVersionInfo, mvnCommand, gradleCommand);
     }
 
     public isPluginInstalled(pluginName: string): boolean {
