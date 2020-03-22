@@ -21,12 +21,6 @@ export async function activate(context: ExtensionContext) {
         return;
     }
     let folders = workspace.workspaceFolders;
-    context.subscriptions.push(
-        new ProjectInitializer(cli),
-        commands.registerCommand(GaugeVSCodeCommands.ReportIssue, () => {
-            reportIssue(cli);
-        })
-    );
     let hasGaugeProject = folders && folders.some((f) => ProjectFactory.isGaugeProject(f.uri.fsPath));
     if (!hasActiveGaugeDocument(window.activeTextEditor) && !hasGaugeProject) return;
     if (!cli.isGaugeInstalled() || !cli.isGaugeVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
@@ -45,26 +39,4 @@ export async function activate(context: ExtensionContext) {
         new GenerateStubCommandProvider(clientsMap),
         new ConfigProvider(context)
     );
-}
-
-function reportIssue(cli: CLI) {
-    let extVersion = extensions.getExtension("getgauge.gauge").packageJSON.version;
-    let gaugeVersionInfo = "";
-    if (cli.isGaugeInstalled()) {
-        gaugeVersionInfo = cli.gaugeVersionString();
-    } else {
-        gaugeVersionInfo = "Gauge executable not found!!";
-    }
-    let issueTemplate = `\`\`\`
-VS-Code version: ${version}
-Gauge Extension Version: ${extVersion}
-
-${gaugeVersionInfo}
-\`\`\``;
-
-    return env.openExternal(
-        Uri.parse(encodeURI(`https://github.com/getgauge/gauge-vscode/issues/new?body=${escape(issueTemplate)}`))).then(
-        () => { }, (err) => {
-            window.showErrorMessage("Can't open issue URL. " + err);
-        });
 }
