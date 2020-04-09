@@ -1,11 +1,12 @@
 name: Deploy
 
-on: [deployment]
+on: deployment
 
 jobs:
-  deploy:
-    name: Create Draft with assets
-    runs-on: macos-latest
+  release:
+    if: github.event.deployment.environment == 'production'
+    name: Create package
+    runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
     steps:
@@ -15,15 +16,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12'
+      - uses: geertvdc/setup-hub@master
 
       - name: Build artifacts
         run: |
           npm run build
 
-      - name: Install hub
-        run: brew install hub
-
-      - name: update
+      - name: Release on github
         run: |
           if [ -z "$version" ]; then
             version=$(ls gauge-* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
@@ -39,12 +38,12 @@ jobs:
 
           echo -e "gauge-vscode $version\n\n" > desc.txt
 
-          release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" gauge-vscode getgauge)
+          release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" getgauge gauge-vscode)
 
           echo "$release_description" >> desc.txt
 
           echo "Creating new draft for release v$version"
-          hub release create -d -F ./desc.txt "v$version"
+          hub release create -F ./desc.txt "v$version"
 
           rm -rf desc.txt
 
