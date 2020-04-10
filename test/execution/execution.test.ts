@@ -28,7 +28,7 @@ suite('Gauge Execution Tests', () => {
     test('should execute given scenario', async () => {
         let spec = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
         await window.showTextDocument(spec);
-        let scenario = spec.path + ":6";
+        let scenario = spec.fsPath + ":6";
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, scenario);
         assertStatus(status);
     }).timeout(10000);
