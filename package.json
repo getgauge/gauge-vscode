@@ -62,22 +62,22 @@
     "commands": [
       {
         "command": "gauge.createProject",
-        "title": "Create a new Gauge Project",
+        "title": "Create a New Gauge Project",
         "category": "Gauge"
       },
       {
         "command": "gauge.create.specification",
-        "title": "Create New Specification",
+        "title": "Create a New Specification",
         "category": "Gauge"
       },
       {
         "command": "gauge.config.saveRecommended",
-        "title": "Optimize VS Code configuration for Gauge",
+        "title": "Optimize VS Code Configuration for Gauge",
         "category": "Gauge"
       },
       {
         "command": "gauge.stopExecution",
-        "title": "Stop current gauge execution",
+        "title": "Stop Current Gauge Execution",
         "category": "Gauge",
         "when": "gauge:executing"
       },
@@ -239,12 +239,12 @@
         "gauge.create.specification.withHelp": {
           "type": "boolean",
           "default": true,
-          "description": "When true, create the specification wtih help comments."
+          "description": "When true, create the specification with help comments."
         },
         "gauge.codeLenses.reference": {
           "type": "boolean",
           "default": true,
-          "description": "When true, reference codeLenses appers in implementation files."
+          "description": "When true, reference codeLenses appear in implementation files."
         },
         "gauge.recommendedSettings.options": {
           "type": "string",
