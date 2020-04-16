@@ -21,6 +21,7 @@ export async function activate(context: ExtensionContext) {
         return;
     }
     let folders = workspace.workspaceFolders;
+    context.subscriptions.push(new ProjectInitializer(cli));
     let hasGaugeProject = folders && folders.some((f) => ProjectFactory.isGaugeProject(f.uri.fsPath));
     if (!hasActiveGaugeDocument(window.activeTextEditor) && !hasGaugeProject) return;
     if (!cli.isGaugeInstalled() || !cli.isGaugeVersionGreaterOrEqual(MINIMUM_SUPPORTED_GAUGE_VERSION)) {
