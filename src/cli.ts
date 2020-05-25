@@ -111,6 +111,6 @@ export class CLI {
 
     private static getGradleCommand() {
         if (platform() === 'win32') return `${GRADLE_COMMAND}.bat`;
-        return GRADLE_COMMAND;
+        return `./${GRADLE_COMMAND}`;
     }
 }
