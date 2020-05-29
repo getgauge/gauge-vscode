@@ -145,7 +145,7 @@ export class GaugeWorkspace extends Disposable {
         let serverOptions = {
             command: this.cli.gaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + project.root()],
-            options: { env: process.env }
+            options: { env: { ...process.env, ...project.envs(this.cli) } }
         };
 
         this._launchConfig = workspace.getConfiguration(GAUGE_LAUNCH_CONFIG);

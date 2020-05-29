@@ -57,4 +57,8 @@ export class GaugeProject {
         return this.root() === (o as GaugeProject).root();
     }
 
+    public envs(cli: CLI): NodeJS.ProcessEnv {
+        return {};
+    }
+
 }
