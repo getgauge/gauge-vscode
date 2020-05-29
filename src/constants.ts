@@ -85,3 +85,4 @@ export const MAVEN_POM = "pom.xml";
 export const MAVEN_COMMAND = "mvn";
 export const GRADLE_COMMAND = "gradlew";
 export const GRADLE_BUILD = 'build.gradle';
+export const GAUGE_CUSTOM_CLASSPATH = 'gauge_custom_classpath';

@@ -1,7 +1,10 @@
 'use strict';
 
+import { execSync } from 'child_process';
+import { window } from 'vscode';
 import { CLI } from '../cli';
 import { GaugeProject } from './gaugeProject';
+import { GAUGE_CUSTOM_CLASSPATH } from '../constants';
 
 export class GradleProject extends GaugeProject {
     constructor(projectRoot: string, manifest: any) {
@@ -17,6 +20,15 @@ export class GradleProject extends GaugeProject {
         if (!(o instanceof GradleProject)) return false;
         if (o === this) return true;
         return this.root() === (o as GradleProject).root();
+    }
+
+    public envs(cli: CLI): NodeJS.ProcessEnv {
+        try {
+            let classpath = execSync(`${cli.gradleCommand()} -q clean classpath`, {cwd: this.root()});
+            return {[GAUGE_CUSTOM_CLASSPATH]: classpath.toString().trim() };
+        } catch (e) {
+            window.showErrorMessage(`Error calculating project classpath.\t\n${e.output.toString()}`);
+        }
     }
 
 }
