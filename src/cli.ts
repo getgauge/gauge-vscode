@@ -1,10 +1,10 @@
 'use strict';
 
-import { spawnSync, spawn } from 'child_process';
-import { window } from 'vscode';
-import { GaugeCommands, MAVEN_COMMAND, GRADLE_COMMAND } from './constants';
-import { OutputChannel } from './execution/outputChannel';
+import { spawn, spawnSync } from 'child_process';
 import { platform } from 'os';
+import { window } from 'vscode';
+import { GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND } from './constants';
+import { OutputChannel } from './execution/outputChannel';
 
 export class CLI {
     private readonly _gaugeVersion: string;
@@ -48,7 +48,7 @@ export class CLI {
     }
 
     public isGaugeInstalled(): boolean {
-        return !!this.gaugeCommand && this._gaugeCommand !== '';
+        return !!this._gaugeCommand && this._gaugeCommand !== '';
     }
 
     public isGaugeVersionGreaterOrEqual(version: string): boolean {

@@ -86,3 +86,5 @@ export const MAVEN_COMMAND = "mvn";
 export const GRADLE_COMMAND = "gradlew";
 export const GRADLE_BUILD = 'build.gradle';
 export const GAUGE_CUSTOM_CLASSPATH = 'gauge_custom_classpath';
+export const GAUGE_DOCS_URI = 'https://docs.gauge.org';
+export const INSTALL_INSTRUCTION_URI = `${GAUGE_DOCS_URI}/getting_started/installing-gauge.html`;
