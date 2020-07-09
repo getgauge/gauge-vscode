@@ -1,6 +1,8 @@
 'use strict';
 
 import * as getPort from 'get-port';
+import * as fs from 'fs-extra';
+import * as path from 'path';
 import { debug, DebugSession, window, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
 import { GaugeClients } from '../gaugeClients';
@@ -19,7 +21,7 @@ export class GaugeDebugger {
     private config: ExecutionConfig;
     private clientsMap: GaugeClients;
 
-    constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients, config: ExecutionConfig) {
+      constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients, config: ExecutionConfig) {
         this.languageId = clientLanguageMap.get(config.getProject().root());
         this.clientsMap = clientsMap;
         this.config = config;
@@ -72,13 +74,18 @@ export class GaugeDebugger {
                 };
             }
             case "csharp": {
-                return {
+                let configobject: ConfigObj;
+                configobject = {
                     name: GAUGE_DEBUGGER_NAME,
                     type: "coreclr",
                     request: REQUEST_TYPE,
                     processId: this.dotnetProcessID,
-                    justMyCode: true
+                    justMyCode: true,
+                    sourceFileMap: {}
                 };
+                this.updateConfigFromLaunchJson(configobject);
+                return configobject;
+
             }
             case "java": {
                 return {
@@ -90,6 +97,38 @@ export class GaugeDebugger {
                 };
             }
         }
+    }
+
+    private updateConfigFromLaunchJson(configobject: ConfigObj) {
+        let launchJsonPath = path.resolve(this.projectRoot, ".vscode", "launch.json");
+        if (fs.existsSync(launchJsonPath)) {
+            let { jsObject, lines }: {
+                jsObject: string;
+                lines: string[];
+            } = this.getFileContent(launchJsonPath);
+            jsObject = this.removeCommentsFromContent(lines, jsObject);
+            try {
+                let job: LaunchJsonConfigObj = JSON.parse(jsObject);
+                configobject.sourceFileMap = job.configurations[0].sourceFileMap;
+                configobject.justMyCode = job.configurations[0].justMyCode;
+            } catch (ex) {
+                console.log(ex);
+            }
+        }
+    }
+
+    private getFileContent(launchJsonPath: string) {
+        let jsObject: string = fs.readFileSync(launchJsonPath, "UTF8");
+        let lines: string[] = jsObject.split("\n");
+        return { jsObject, lines };
+    }
+
+    private removeCommentsFromContent(lines: string[], jsObject: string) {
+        lines.forEach((element) => {
+            if (element.startsWith("//"))
+                jsObject = jsObject.replace(element, "");
+        });
+        return jsObject;
     }
 
     addProcessId(pid: number): any {
@@ -141,4 +180,25 @@ export class GaugeDebugger {
         }
     }
 
+}
+interface LaunchJsonConfigObj {
+    configurations:
+    [{
+        name: string,
+        type: string,
+        request: string,
+        processId: string,
+        justMyCode: boolean,
+        sourceFileMap: { [sourceFile: string]: string }
+    }];
+
+}
+
+interface ConfigObj {
+    name: string;
+    type: string;
+    request: string;
+    processId: number;
+    justMyCode: boolean;
+    sourceFileMap: { [sourceFile: string]: string };
 }
