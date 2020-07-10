@@ -21,7 +21,7 @@ export class GaugeDebugger {
     private config: ExecutionConfig;
     private clientsMap: GaugeClients;
 
-      constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients, config: ExecutionConfig) {
+    constructor(clientLanguageMap: Map<string, string>, clientsMap: GaugeClients, config: ExecutionConfig) {
         this.languageId = clientLanguageMap.get(config.getProject().root());
         this.clientsMap = clientsMap;
         this.config = config;
@@ -83,7 +83,7 @@ export class GaugeDebugger {
                     justMyCode: true,
                     sourceFileMap: {}
                 };
-                this.updateConfigFromLaunchJson(configobject);
+                this.updateConfigFromVscodeDebugConfig(configobject);
                 return configobject;
 
             }
@@ -99,36 +99,15 @@ export class GaugeDebugger {
         }
     }
 
-    private updateConfigFromLaunchJson(configobject: ConfigObj) {
-        let launchJsonPath = path.resolve(this.projectRoot, ".vscode", "launch.json");
-        if (fs.existsSync(launchJsonPath)) {
-            let { jsObject, lines }: {
-                jsObject: string;
-                lines: string[];
-            } = this.getFileContent(launchJsonPath);
-            jsObject = this.removeCommentsFromContent(lines, jsObject);
-            try {
-                let job: LaunchJsonConfigObj = JSON.parse(jsObject);
-                configobject.sourceFileMap = job.configurations[0].sourceFileMap;
-                configobject.justMyCode = job.configurations[0].justMyCode;
-            } catch (ex) {
-                console.log(ex);
-            }
+    private updateConfigFromVscodeDebugConfig(configobject: ConfigObj) {
+        try {
+            const config = workspace.getConfiguration('launch', workspace.workspaceFolders[0].uri);
+            const values = config.get('configurations');
+            configobject.sourceFileMap = values[0].sourceFileMap;
+            configobject.justMyCode = values[0].justMyCode;
+        } catch (ex) {
+            console.log(ex);
         }
-    }
-
-    private getFileContent(launchJsonPath: string) {
-        let jsObject: string = fs.readFileSync(launchJsonPath, "UTF8");
-        let lines: string[] = jsObject.split("\n");
-        return { jsObject, lines };
-    }
-
-    private removeCommentsFromContent(lines: string[], jsObject: string) {
-        lines.forEach((element) => {
-            if (element.startsWith("//"))
-                jsObject = jsObject.replace(element, "");
-        });
-        return jsObject;
     }
 
     addProcessId(pid: number): any {
@@ -179,18 +158,6 @@ export class GaugeDebugger {
             debug.activeDebugSession.customRequest("disconnect");
         }
     }
-
-}
-interface LaunchJsonConfigObj {
-    configurations:
-    [{
-        name: string,
-        type: string,
-        request: string,
-        processId: string,
-        justMyCode: boolean,
-        sourceFileMap: { [sourceFile: string]: string }
-    }];
 
 }
 
