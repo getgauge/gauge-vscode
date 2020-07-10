@@ -1,8 +1,6 @@
 'use strict';
 
 import * as getPort from 'get-port';
-import * as fs from 'fs-extra';
-import * as path from 'path';
 import { debug, DebugSession, window, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
 import { GaugeClients } from '../gaugeClients';
