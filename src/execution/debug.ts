@@ -99,7 +99,8 @@ export class GaugeDebugger {
 
     private updateConfigFromVscodeDebugConfig(configobject: ConfigObj) {
         try {
-            const config = workspace.getConfiguration('launch', workspace.workspaceFolders[0].uri);
+            let workspacePath = workspace.workspaceFolders.find((f) => f.uri.fsPath === this.projectRoot).uri;
+            const config = workspace.getConfiguration('launch', workspacePath);
             const values = config.get('configurations');
             configobject.sourceFileMap = values[0].sourceFileMap;
             configobject.justMyCode = values[0].justMyCode;
