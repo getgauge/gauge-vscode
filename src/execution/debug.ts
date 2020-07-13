@@ -72,13 +72,18 @@ export class GaugeDebugger {
                 };
             }
             case "csharp": {
-                return {
+                let configobject: ConfigObj;
+                configobject = {
                     name: GAUGE_DEBUGGER_NAME,
                     type: "coreclr",
                     request: REQUEST_TYPE,
                     processId: this.dotnetProcessID,
-                    justMyCode: true
+                    justMyCode: true,
+                    sourceFileMap: {}
                 };
+                this.updateConfigFromVscodeDebugConfig(configobject);
+                return configobject;
+
             }
             case "java": {
                 return {
@@ -89,6 +94,18 @@ export class GaugeDebugger {
                     port: this.debugPort
                 };
             }
+        }
+    }
+
+    private updateConfigFromVscodeDebugConfig(configobject: ConfigObj) {
+        try {
+            let workspacePath = workspace.workspaceFolders.find((f) => f.uri.fsPath === this.projectRoot).uri;
+            const config = workspace.getConfiguration('launch', workspacePath);
+            const values = config.get('configurations');
+            configobject.sourceFileMap = values[0].sourceFileMap;
+            configobject.justMyCode = values[0].justMyCode;
+        } catch (ex) {
+            console.log(ex);
         }
     }
 
@@ -141,4 +158,13 @@ export class GaugeDebugger {
         }
     }
 
+}
+
+interface ConfigObj {
+    name: string;
+    type: string;
+    request: string;
+    processId: number;
+    justMyCode: boolean;
+    sourceFileMap: { [sourceFile: string]: string };
 }
