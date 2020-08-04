@@ -15,12 +15,12 @@ import { GaugeExecutor } from "./execution/gaugeExecutor";
 import { SpecNodeProvider } from "./explorer/specExplorer";
 import { SpecificationProvider } from './file/specificationFileProvider';
 import { GaugeClients as GaugeProjectClientMap } from './gaugeClients';
+import { GaugeState } from "./gaugeState";
 import { GaugeWorkspaceFeature } from "./gaugeWorkspace.proposed";
 import { GaugeProject } from './project/gaugeProject';
+import { MavenProject } from './project/mavenProject';
 import { ProjectFactory } from './project/projectFactory';
 import { getActiveGaugeDocument, hasActiveGaugeDocument } from './util';
-import { MavenProject } from './project/mavenProject';
-import { GaugeState } from "./gaugeState";
 
 const DEBUG_LOG_LEVEL_CONFIG = 'enableDebugLogs';
 const GAUGE_LAUNCH_CONFIG = 'gauge.launch';
@@ -142,6 +142,7 @@ export class GaugeWorkspace extends Disposable {
         if (!ProjectFactory.isGaugeProject(folder)) return;
         let project = ProjectFactory.get(folder);
         if (this._clientsMap.has(project.root())) return;
+        process.env.GAUGE_IGNORE_RUNNER_BUILD_FAILURES = "true";
         let serverOptions = {
             command: this.cli.gaugeCommand(),
             args: ["daemon", "--lsp", "--dir=" + project.root()],
