@@ -83,8 +83,14 @@ export class ProjectInitializer extends Disposable {
     private async getTemplatesList(): Promise<Array<FileListItem>> {
         let args = ["template", "--list", "--machine-readable"];
         let cp = spawnSync(this.cli.gaugeCommand(), args, { env: process.env });
-        let _templates = JSON.parse(cp.stdout.toString());
-        return _templates.map((tmpl) => new FileListItem(tmpl.key, tmpl.Description, tmpl.value));
+        try {
+            let _templates = JSON.parse(cp.stdout.toString());
+            return _templates.map((tmpl) => new FileListItem(tmpl.key, tmpl.Description, tmpl.value));
+        } catch (error) {
+            await window.showErrorMessage("Failed to get list of templates.",
+                " Try running 'gauge template --list ----machine-readable' from command line");
+            return [];
+        }
     }
 
     private handleError(p: ProgressHandler, err, dirPath: string, removeDir: boolean = true) {
