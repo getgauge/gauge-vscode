@@ -1,43 +1,15 @@
 'use strict';
 
-import * as os from 'os';
-import * as path from 'path';
-import { get } from 'https';
-
+import { spawn, spawnSync } from 'child_process';
 import * as fs from 'fs-extra';
-
-import { Disposable, commands, window, Uri, workspace, Progress } from 'vscode';
-
-import AdmZip = require('adm-zip');
-
-import {
-    VSCodeCommands, GaugeCommands, GaugeVSCodeCommands, GAUGE_TEMPLATE_URL} from "../constants";
-import { FileListItem } from '../types/fileListItem';
-import { execSync, spawn } from 'child_process';
+import * as path from 'path';
+import { commands, Disposable, Progress, Uri, window, workspace } from 'vscode';
 import { CLI } from '../cli';
-
+import { GaugeCommands, GaugeVSCodeCommands, INSTALL_INSTRUCTION_URI, VSCodeCommands } from "../constants";
+import { FileListItem } from '../types/fileListItem';
 export class ProjectInitializer extends Disposable {
     private readonly _disposable: Disposable;
 
-    private readonly _templates: any = [
-        { name: 'python', desc: "template for gauge-python projects", },
-        { name: 'js', desc: "template for gauge-javascript projects", },
-        { name: 'ruby', desc: "template for gauge-ruby projects", },
-        { name: 'java', desc: "template for gauge-java projects", },
-        { name: 'java_maven', desc: "template for gauge-java projects with maven as build tool.", },
-        { name: 'java_maven_selenium', desc: "template for gauge-java selenium projects with maven as build tool.", },
-        { name: 'java_gradle', desc: "template for gauge-gradle projects with gradle as build tool.", },
-        { name: 'ts', desc: "template for gauge-typescript projects.", },
-        { name: 'dotnet', desc: "template for gauge-dotnet projects.", }
-    ];
-
-    private readonly _archtypes: any = {
-        java_maven: { archetypeArtifactId: 'gauge-archetype-java', archetypeGroupId: 'com.thoughtworks.gauge.maven' },
-        java_maven_selenium: {
-            archetypeArtifactId: 'gauge-archetype-selenium',
-            archetypeGroupId: 'com.thoughtworks.gauge.maven'
-        },
-    };
     private readonly cli: CLI;
 
     constructor(cli: CLI) {
@@ -53,12 +25,16 @@ export class ProjectInitializer extends Disposable {
     }
 
     private async createProject() {
-        const tmpl = await window.showQuickPick(this.getTemplatesList());
+        if (!this.cli.isGaugeInstalled()) {
+            window.showErrorMessage("Please install gauge to create a new Gauge project." +
+                `For more info please refer the [install intructions](${INSTALL_INSTRUCTION_URI}).`);
+            return;
+        }
+        const tmpl = await window.showQuickPick(await this.getTemplatesList());
         if (!tmpl) return;
         let folders = await this.getTargetFolder();
         if (!folders) return;
         let options: any = { prompt: "Enter a name for your new project", placeHolder: "gauge-tests" };
-        if (tmpl.label.includes("java_maven")) return this.createMavenProject(tmpl.label, folders[0].fsPath);
         const name = await window.showInputBox(options);
         if (!name) return;
         const projectFolderUri = Uri.file(path.join(folders[0].fsPath, name));
@@ -80,55 +56,11 @@ export class ProjectInitializer extends Disposable {
         return folders;
     }
 
-    private async createMavenProject(tmpl: string, targetDir: string) {
-        try {
-            if (!this.cli.isMavenInstalled()) throw new Error("Executable mvn not found.");
-            let info = await this.captureMavenProjectInfo();
-            if (!info) return;
-            return await this.createProjectFromArchType(tmpl, info, targetDir);
-        } catch (error) {
-            throw new Error(`Failed to create gauge maven project.\n${error}`);
-        }
-
-    }
-
-    private async createProjectFromArchType(tmpl: string, info: any, targetDir: string) {
-        return window.withProgress({ location: 10 }, async (p: Progress<{}>) => {
-            return new Promise(async (res, rej) => {
-                let ph = new ProgressHandler(p, res, rej);
-                let archtype = this._archtypes[tmpl];
-                let args = ['-q', '-B', 'archetype:generate', `-DarchetypeArtifactId=${archtype.archetypeArtifactId}`,
-                    `-DarchetypeGroupId=${archtype.archetypeGroupId}`];
-                args.push(`-DgroupId=${info.groupID}`);
-                args.push(`-DartifactId=${info.artifactID}`);
-                args.push(`-Dversion=${info.version}`);
-                ph.report("Creating project from maven archtyp...");
-                let proc = spawn(this.cli.mavenCommand(), args, { cwd: targetDir, env: process.env });
-                proc.addListener('error', async (err) => {
-                    await this.handleError(ph, "Failed to create template. " + err.message, targetDir);
-                });
-                proc.addListener('close', async () => await ph.end(Uri.file(path.join(targetDir, info.artifactID))));
-            });
-        });
-    }
-
-    private async captureMavenProjectInfo() {
-        let groupID = "example";
-        let artifactID = await window.showInputBox({
-            prompt: "Enter name for your new project",
-            placeHolder: "gauge-tests"
-        });
-        if (!artifactID) return;
-        let version = "1.0-SNAPSHOT";
-        return { groupID: groupID, artifactID: artifactID, version: version };
-    }
-
     private async createProjectInDir(template: FileListItem, projectFolder: Uri) {
         return window.withProgress({ location: 10 }, async (p: Progress<{}>) => {
             return new Promise(async (res, rej) => {
                 let ph = new ProgressHandler(p, res, rej);
-                if (this.cli.isGaugeInstalled()) await this.createFromCommandLine(template, projectFolder, ph);
-                else await this.createFromTemplate(template, projectFolder, ph);
+                await this.createFromCommandLine(template, projectFolder, ph);
             });
         });
     }
@@ -141,57 +73,24 @@ export class ProjectInitializer extends Disposable {
         proc.addListener('error', async (err) => {
             this.handleError(p, "Failed to create template. " + err.message, projectFolder.fsPath);
         });
-        proc.addListener('close', async () => await p.end(projectFolder));
-    }
-
-    private getTemplatesList(): Array<FileListItem> {
-        return this._templates.map((tmpl) => new FileListItem(tmpl.name, tmpl.desc, tmpl.name + ".zip"));
-    }
-
-    private async createFromTemplate(tmpl: FileListItem, destUri: Uri, p: ProgressHandler) {
-        let tmpDir = this.createTempDir();
-        let tmpFilePath = path.join(tmpDir, tmpl.value);
-        p.report('Downloading template...');
-        await this.downloadTemplateAndSetup(tmpl, tmpFilePath, tmpDir, destUri, p);
-    }
-
-    private async downloadTemplateAndSetup(tmpl: FileListItem, tmpFilePath, tmpDir, destUri: Uri, p: ProgressHandler) {
-        let req = get(`${GAUGE_TEMPLATE_URL}/${tmpl.value}`, (res) => {
-            res.on('data', (d) => fs.appendFileSync(tmpFilePath, d));
-            res.on('end', async () => await this.extractZipAndCopyFiles(tmpFilePath, tmpDir, tmpl.label, destUri, p));
-        });
-        req.on('error', (err) => {
-            this.handleError(p, "Failed to download template. " + err.message, destUri.fsPath);
+        proc.stdout.on('data', (m) => { console.log(m.toString()); });
+        proc.on('close', async (code) => {
+            if (code === 0) { p.cancel("Faile to initialize project."); }
+            await p.end(projectFolder);
         });
     }
 
-    private async extractZipAndCopyFiles(zip, tmpDir, tmpl: string, destUri: Uri, p: ProgressHandler) {
+    private async getTemplatesList(): Promise<Array<FileListItem>> {
+        let args = ["template", "--list", "--machine-readable"];
+        let cp = spawnSync(this.cli.gaugeCommand(), args, { env: process.env });
         try {
-            p.report("Extracting template...");
-            new AdmZip(zip).extractAllTo(tmpDir, true);
-            p.report("Copying files to " + destUri.fsPath);
-            await fs.copy(path.join(tmpDir, tmpl), destUri.fsPath);
-            this.runPostInstall(destUri.fsPath, p);
-            p.end(destUri);
-        } catch (err) {
-            return this.handleError(p, "Failed to extract template. " + err.message, destUri.fsPath);
+            let _templates = JSON.parse(cp.stdout.toString());
+            return _templates.map((tmpl) => new FileListItem(tmpl.key, tmpl.Description, tmpl.value));
+        } catch (error) {
+            await window.showErrorMessage("Failed to get list of templates.",
+                " Try running 'gauge template --list ----machine-readable' from command line");
+            return [];
         }
-    }
-
-    private runPostInstall(projectFolder: string, p: ProgressHandler) {
-        let metadataFile = path.join(projectFolder, 'metadata.json');
-        let cmd = JSON.parse(fs.readFileSync(metadataFile, 'UTF-8')).postInstallCmd;
-        fs.unlinkSync(metadataFile);
-        if (!cmd) return;
-        p.report('Running post install commands to setup project...');
-        execSync(cmd, { cwd: projectFolder });
-    }
-
-    private createTempDir() {
-        let tmpDir = path.join(os.tmpdir(), 'gauge');
-        fs.removeSync(tmpDir);
-        fs.mkdirSync(tmpDir);
-        return tmpDir;
     }
 
     private handleError(p: ProgressHandler, err, dirPath: string, removeDir: boolean = true) {
