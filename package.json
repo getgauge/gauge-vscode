@@ -298,7 +298,7 @@
   },
   "dependencies": {
     "clipboardy": "^1.2.3",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "^9.0.1",
     "get-port": "^4.2.0",
     "ps-tree": "^1.2.0",
     "vscode-jsonrpc": "^4.0.0",
