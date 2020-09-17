@@ -302,7 +302,7 @@
     "get-port": "^4.2.0",
     "ps-tree": "^1.2.0",
     "vscode-jsonrpc": "^4.0.0",
-    "vscode-languageclient": "^5.1.1",
+    "vscode-languageclient": "^6.1.3",
     "vscode-languageserver-protocol": "^3.13.0",
     "xmlbuilder": "^10.1.1"
   }
