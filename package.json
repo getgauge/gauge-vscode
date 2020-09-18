@@ -297,7 +297,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
-    "clipboardy": "^1.2.3",
+    "clipboardy": "^2.3.0",
     "fs-extra": "^7.0.1",
     "get-port": "^4.2.0",
     "ps-tree": "^1.2.0",
