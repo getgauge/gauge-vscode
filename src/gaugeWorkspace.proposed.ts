@@ -28,7 +28,7 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
 
     public initialize(): void {
         let client = this._client;
-        client.onRequest(SaveFilesRequest.type, () => {
+        client.onRequest(SaveFilesRequest.type.method, () => {
             return workspace.saveAll(false).then(() => {
                 return null;
             });
