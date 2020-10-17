@@ -227,13 +227,11 @@ export class GaugeWorkspace extends Disposable {
         });
     }
 
-    dispose(): Thenable<void> {
-        let promises: Thenable<void>[] = [];
+    async dispose(): Promise<void> {
         for (let cp of this._clientsMap.values()) {
-            promises.push(cp.client.stop());
+            await cp.client.sendRequest("shutdown", new CancellationTokenSource().token);
+            await cp.client.stop();
         }
-        return Promise.all(promises).then((f) => {
-            this._disposable.dispose();
-        });
+        this._disposable.dispose();
     }
 }

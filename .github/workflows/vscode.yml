@@ -15,7 +15,7 @@ jobs:
       - name: Use NodeJS 12
         uses: actions/setup-node@v1
         with:
-          node-version: '12'
+          node-version: '14.x'
 
       - name: build
         run: |
@@ -29,7 +29,7 @@ jobs:
 
       - name: Clone gauge and build
         run: |
-          git clone https://github.com/getgauge/gauge
+          git clone https://github.com/getgauge/gauge -b test
           cd gauge
           go run build/make.go --verbose
 
