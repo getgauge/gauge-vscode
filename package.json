@@ -280,7 +280,7 @@
     "@types/mocha": "^8.0.3",
     "@types/node": "^10.12.5",
     "@types/ps-tree": "^1.1.0",
-    "cross-env": "^5.2.0",
+    "cross-env": "^7.0.2",
     "glob": "^7.1.4",
     "mocha": "^6.2.3",
     "sinon": "^9.0.2",
