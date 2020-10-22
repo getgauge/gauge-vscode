@@ -15,7 +15,7 @@ jobs:
       - name: Use NodeJS 12
         uses: actions/setup-node@v1
         with:
-          node-version: '12'
+          node-version: '14.x'
 
       - name: build
         run: |
