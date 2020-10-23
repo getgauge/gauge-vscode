@@ -283,7 +283,7 @@
     "cross-env": "^7.0.2",
     "glob": "^7.1.6",
     "mocha": "^8.2.0",
-    "sinon": "^9.0.2",
+    "sinon": "^9.2.0",
     "terser-webpack-plugin": "^2.3.5",
     "ts-loader": "8.0.6",
     "ts-mockito": "^2.6.1",
