@@ -99,17 +99,6 @@ export class GaugeExecutor extends Disposable {
     }
     private killRecursive(pid: number, aborted: boolean) {
         try {
-            psTree(pid, (error: Error, children: Array<any>) => {
-                if (!error && children.length) {
-                    children.forEach((c: any) => {
-                        try {
-                            process.kill(c.PID);
-                        } catch (e) {
-                            if (e.code !== 'ESRCH') throw error;
-                        }
-                    });
-                }
-            });
             this.aborted = aborted;
             return process.kill(-pid);
         } catch (error) {
