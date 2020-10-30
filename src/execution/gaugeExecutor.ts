@@ -13,7 +13,6 @@ import { OutputChannel } from './outputChannel';
 import { ExecutionConfig } from './executionConfig';
 import { CLI } from '../cli';
 import { join, relative, extname } from 'path';
-import psTree = require('ps-tree');
 import {
     LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor, ReportEventProcessor
 } from './lineProcessors';
@@ -99,17 +98,6 @@ export class GaugeExecutor extends Disposable {
     }
     private killRecursive(pid: number, aborted: boolean) {
         try {
-            psTree(pid, (error: Error, children: Array<any>) => {
-                if (!error && children.length) {
-                    children.forEach((c: any) => {
-                        try {
-                            process.kill(c.PID);
-                        } catch (e) {
-                            if (e.code !== 'ESRCH') throw error;
-                        }
-                    });
-                }
-            });
             this.aborted = aborted;
             return process.kill(-pid);
         } catch (error) {
