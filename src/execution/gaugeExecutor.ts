@@ -65,7 +65,7 @@ export class GaugeExecutor extends Disposable {
                     const relPath = relative(config.getProject().root(), config.getStatus());
                     this.preExecute.forEach((f) => { f.call(null, env, relPath); });
                     this.aborted = false;
-                    this.childProcess = spawn(cmd, args, { cwd: config.getProject().root(), env: env, detached: true });
+                    this.childProcess = spawn(cmd, args, { cwd: config.getProject().root(), env: env });
                     this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText: string) => {
                         chan.appendOutBuf(lineText);
                         lineText.split("\n").forEach((lineText) => {
@@ -111,7 +111,7 @@ export class GaugeExecutor extends Disposable {
                 }
             });
             this.aborted = aborted;
-            return process.kill(-pid);
+            return process.kill(pid);
         } catch (error) {
             if (error.code !== 'ESRCH') throw error;
         }
