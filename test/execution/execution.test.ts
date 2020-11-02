@@ -64,7 +64,7 @@ suite('Gauge Execution Tests', () => {
         setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
         assertStatus(status, false);
-    }).timeout(20000);;
+    });
 
     test('should reject execution when another is already in progress', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
