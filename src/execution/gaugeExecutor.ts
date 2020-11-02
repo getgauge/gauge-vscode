@@ -13,6 +13,7 @@ import { OutputChannel } from './outputChannel';
 import { ExecutionConfig } from './executionConfig';
 import { CLI } from '../cli';
 import { join, relative, extname } from 'path';
+import psTree = require('ps-tree');
 import {
     LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor, ReportEventProcessor
 } from './lineProcessors';
