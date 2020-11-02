@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.38.0"
