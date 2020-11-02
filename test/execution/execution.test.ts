@@ -23,7 +23,7 @@ suite('Gauge Execution Tests', () => {
         await window.showTextDocument(Uri.file(spec));
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
         assertStatus(status);
-    }).timeout(30000);
+    }).timeout(20000);
 
     test('should execute given scenario', async () => {
         let spec = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
@@ -31,19 +31,19 @@ suite('Gauge Execution Tests', () => {
         let scenario = spec.fsPath + ":6";
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, scenario);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(10000);
 
     test('should execute all specification in spec dir', async () => {
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(10000);
 
     test('should execute currently open specification', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
         await window.showTextDocument(specFile);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteSpec);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(10000);
 
     test('should execute scenario at cursor', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
@@ -53,7 +53,7 @@ suite('Gauge Execution Tests', () => {
         await commands.executeCommand("cursorMove", cm);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteScenario);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(10000);
 
     test('should abort execution', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
@@ -64,7 +64,7 @@ suite('Gauge Execution Tests', () => {
         setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
         assertStatus(status, false);
-    }).timeout(20000);;
+    });
 
     test('should reject execution when another is already in progress', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
@@ -76,5 +76,5 @@ suite('Gauge Execution Tests', () => {
         } catch (err) {
             assert.equal(err.message, "A Specification or Scenario is still running!");
         }
-    }).timeout(20000);
+    }).timeout(10000);
 });
