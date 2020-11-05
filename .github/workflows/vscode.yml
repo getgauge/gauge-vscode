@@ -29,7 +29,7 @@ jobs:
 
       - name: Clone gauge and build
         run: |
-          git clone https://github.com/getgauge/gauge
+          git clone --branch kill_runner_on_signal https://github.com/getgauge/gauge
           cd gauge
           go run build/make.go --verbose
 
