@@ -293,7 +293,7 @@
     "vscode": "^1.1.37",
     "vscode-test": "^1.4.1",
     "webpack": "4.44.2",
-    "webpack-cli": "^3.3.12",
+    "webpack-cli": "^4.2.0",
     "webpack-node-externals": "^2.5.2"
   },
   "dependencies": {
