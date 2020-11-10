@@ -1,6 +1,7 @@
 'use strict';
 
 import { ChildProcess, spawn } from 'child_process';
+import { platform } from 'os';
 import {
     CancellationTokenSource, commands, Disposable, Position,
     StatusBarAlignment, Uri, window, DebugSession, env
@@ -65,7 +66,11 @@ export class GaugeExecutor extends Disposable {
                     const relPath = relative(config.getProject().root(), config.getStatus());
                     this.preExecute.forEach((f) => { f.call(null, env, relPath); });
                     this.aborted = false;
-                    this.childProcess = spawn(cmd, args, { cwd: config.getProject().root(), env: env });
+                    let options = { cwd: config.getProject().root(), env: env , detached: false};
+                    if (platform() !== 'win32') {
+                        options.detached = true;
+                    }
+                    this.childProcess = spawn(cmd, args, options);
                     this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText: string) => {
                         chan.appendOutBuf(lineText);
                         lineText.split("\n").forEach((lineText) => {
@@ -99,6 +104,9 @@ export class GaugeExecutor extends Disposable {
     }
     private killRecursive(pid: number, aborted: boolean) {
         try {
+            if (platform() !== 'win32') {
+                return process.kill(-pid);
+            }
             psTree(pid, (error: Error, children: Array<any>) => {
                 if (!error && children.length) {
                     children.forEach((c: any) => {
