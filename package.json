@@ -276,7 +276,7 @@
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.3",
+    "@types/fs-extra": "^9.0.4",
     "@types/mocha": "^8.0.3",
     "@types/node": "^14.14.6",
     "@types/ps-tree": "^1.1.0",
