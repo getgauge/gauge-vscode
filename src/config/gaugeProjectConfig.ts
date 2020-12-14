@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { writeFileSync, readdirSync } from 'fs';
+import { writeFileSync, readdirSync, existsSync } from 'fs';
 import { exec } from 'child_process';
 import * as xmlbuilder from 'xmlbuilder';
 import GaugeConfig from './gaugeConfig';
@@ -81,6 +81,7 @@ export class GaugeJavaProjectConfig {
     }
 
     private configFile(filePath, contentObj) {
+        if (existsSync(filePath)) return;
         const xml = xmlbuilder.create(contentObj, { encoding: 'UTF-8' });
         let content = xml.end({ pretty: true });
         writeFileSync(filePath, content);
