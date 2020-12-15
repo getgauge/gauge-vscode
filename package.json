@@ -303,7 +303,7 @@
     "ps-tree": "^1.2.0",
     "vscode-jsonrpc": "^5.0.1",
     "vscode-languageclient": "^6.1.3",
-    "vscode-languageserver-protocol": "^3.13.0",
+    "vscode-languageserver-protocol": "^3.16.0",
     "xmlbuilder": "^15.1.1"
   }
 }
