@@ -17,78 +17,35 @@ jobs:
         with:
           node-version: '12'
 
-      - name: build
-        run: |
-          npm run build
-
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
         with:
           go-version: 1.13
         id: go
 
-      - name: Clone gauge and build
+      - name: build
         run: |
-          git clone --branch kill_runner_on_signal https://github.com/getgauge/gauge
-          cd gauge
-          go run build/make.go --verbose
+          npm run build
 
-      - name: Install Gauge (windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd gauge
-          go run build/make.go --install  --verbose
-          echo "C:\\Program Files\\gauge\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
-      - name: Install Gauge (mac and linux)
-        if: matrix.os != 'windows-latest'
-        run: |
-          cd gauge
-          go run build/make.go --install --prefix=/tmp/gauge --verbose
-          echo "/tmp/gauge/bin" >> $GITHUB_PATH
-
-      - name: Prep gauge-js
-        run: |
-          git clone https://github.com/getgauge/gauge-js.git
-          cd gauge-js
-          npm install
-        shell: bash
-
-      - name: Install gauge-js
-        run: |
-          cd gauge-js
-          npm run installPlugin
-
-      - name: Gauge version (linux and macos)
-        if: matrix.os != 'windows-latest'
-        run: |
-          export PATH=/tmp/bin:$PATH
-          gauge -v
-
-      - name: Gauge version (windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          ${env:PATH} += ";C:\Program Files\gauge\bin"
-          gauge -v
+      - uses: getgauge/setup-gauge@master
+        with:
+          gauge-version: master
+          gauge-plugins: screenshot,html-report,js
 
       - name: Run tests (linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          export PATH=/tmp/bin:$PATH
           xvfb-run --auto-servernum npm test
 
       - name: Run tests (macos)
         if: matrix.os == 'macos-latest'
         run: |
-          export PATH=/tmp/bin:$PATH
           npm test
 
       - name: Run tests (windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          ${env:PATH} += ";C:\Program Files\gauge\bin"
           npm test
 
       - name: Upload logs
