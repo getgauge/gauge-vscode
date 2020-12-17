@@ -6,7 +6,7 @@ import {
     CancellationTokenSource, commands, Disposable, Position,
     StatusBarAlignment, Uri, window, DebugSession, env
 } from 'vscode';
-import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
+import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient/node';
 import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 import { GaugeDebugger } from "./debug";

@@ -6,7 +6,7 @@ import {
     CancellationTokenSource, commands, Disposable, OutputChannel, Uri,
     window, workspace, WorkspaceConfiguration, WorkspaceFoldersChangeEvent
 } from "vscode";
-import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn } from "vscode-languageclient";
+import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn } from "vscode-languageclient/node";
 import { CLI } from './cli';
 import GaugeConfig from './config/gaugeConfig';
 import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';

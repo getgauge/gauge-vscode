@@ -14,6 +14,8 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
     constructor(private _client: BaseLanguageClient) {
     }
 
+    public registrationType;
+
     public get messages(): RequestType0<any, void> {
         return SaveFilesRequest.type;
     }
@@ -35,7 +37,7 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
         });
     }
 
-    public register(_message: RequestType0<any, void> , data: RegistrationData<undefined>): void {
+    public register(data: RegistrationData<undefined>): void {
     }
 
     public unregister(id: string): void {
