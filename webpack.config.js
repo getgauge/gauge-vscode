@@ -17,7 +17,6 @@ module.exports = function(env, argv) {
         new webpack.optimize.ModuleConcatenationPlugin(),
         new TerserPlugin({
             parallel: true,
-            sourceMap: sourceMaps,
             terserOptions: {
                 ecma: 8,
                 compress: minify ? {} : false,
@@ -43,6 +42,9 @@ module.exports = function(env, argv) {
             extensions: ['.ts']
         },
         externals: [
+            {
+            vscode: "commonjs vscode"
+            },
             nodeExternals()
         ],
         devtool: sourceMaps ? 'source-map' : false,

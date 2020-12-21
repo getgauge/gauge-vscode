@@ -6,7 +6,7 @@ import {
     commands, Disposable, Position, Range, TextDocument, TextDocumentShowOptions,
     TextEditor, Uri, window, workspace
 } from 'vscode';
-import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient';
+import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient/node';
 import { GaugeCommandContext, GaugeRequests, GaugeVSCodeCommands, setCommandContext } from '../constants';
 import { ExecutionConfig } from '../execution/executionConfig';
 import { GaugeWorkspace } from '../gaugeWorkspace';

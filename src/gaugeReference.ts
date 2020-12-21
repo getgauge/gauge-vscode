@@ -4,7 +4,7 @@ import { Disposable, commands, workspace, Uri, CancellationTokenSource, window }
 import { GaugeVSCodeCommands, VSCodeCommands } from "./constants";
 import {
     LanguageClient, TextDocumentIdentifier, Location as LSLocation, Position as LSPosition
-} from 'vscode-languageclient';
+} from 'vscode-languageclient/node';
 import { GaugeClients } from "./gaugeClients";
 
 export class ReferenceProvider extends Disposable {

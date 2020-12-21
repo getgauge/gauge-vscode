@@ -1,9 +1,9 @@
 'use strict';
 
 import { workspace, Disposable } from 'vscode';
-import { DynamicFeature, RegistrationData, BaseLanguageClient } from 'vscode-languageclient';
+import { DynamicFeature, RegistrationData, BaseLanguageClient, RequestType0 } from 'vscode-languageclient';
 
-import { ClientCapabilities, InitializedParams, RPCMessageType } from 'vscode-languageserver-protocol';
+import { ClientCapabilities, InitializedParams } from 'vscode-languageserver-protocol';
 
 import { SaveFilesRequest, GaugeClientCapabilities } from './protocol/gauge.proposed';
 
@@ -14,7 +14,9 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
     constructor(private _client: BaseLanguageClient) {
     }
 
-    public get messages(): RPCMessageType {
+    public registrationType;
+
+    public get messages(): RequestType0<any, void> {
         return SaveFilesRequest.type;
     }
 
@@ -35,7 +37,7 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
         });
     }
 
-    public register(_message: RPCMessageType, data: RegistrationData<undefined>): void {
+    public register(data: RegistrationData<undefined>): void {
     }
 
     public unregister(id: string): void {

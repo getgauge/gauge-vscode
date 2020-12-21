@@ -3,7 +3,7 @@ import { GaugeClients } from '../src/gaugeClients';
 import { GaugeProject } from '../src/project/gaugeProject';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { LanguageClient } from 'vscode-languageclient';
+import { LanguageClient } from 'vscode-languageclient/node';
 suite('GaugeClients', () => {
 
     test('.get should give the project and client for given project root if exists', () => {
