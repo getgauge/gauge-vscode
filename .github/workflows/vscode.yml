@@ -12,10 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - name: Use NodeJS 15
+      - name: Use NodeJS 14
         uses: actions/setup-node@v1
         with:
-          node-version: '15'
+          node-version: '14'
 
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
