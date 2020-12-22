@@ -12,7 +12,7 @@ async function go() {
         await runTests({
             extensionDevelopmentPath,
             extensionTestsPath,
-            launchArgs: ['--disable-extensions', `--folder-uri ${testWorkspace}`]
+            launchArgs: ['--disable-extensions']
         });
 
 
