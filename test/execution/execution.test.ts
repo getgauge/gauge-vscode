@@ -20,14 +20,16 @@ suite('Gauge Execution Tests', () => {
 
     test('should execute given specification', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        await window.showTextDocument(Uri.file(spec));
+        let doc = await workspace.openTextDocument(Uri.file(spec));
+        await window.showTextDocument(doc);
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
         assertStatus(status);
     }).timeout(30000);
 
     test('should execute given scenario', async () => {
         let spec = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
-        await window.showTextDocument(spec);
+        let doc = await workspace.openTextDocument(spec);
+        await window.showTextDocument(doc);
         let scenario = spec.fsPath + ":6";
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, scenario);
         assertStatus(status);
@@ -40,14 +42,16 @@ suite('Gauge Execution Tests', () => {
 
     test('should execute currently open specification', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
-        await window.showTextDocument(specFile);
+        let doc = await workspace.openTextDocument(specFile);
+        await window.showTextDocument(doc);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteSpec);
         assertStatus(status);
     }).timeout(20000);
 
     test('should execute scenario at cursor', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
-        await window.showTextDocument(specFile);
+        let doc = await workspace.openTextDocument(specFile);
+        await window.showTextDocument(doc);
         await commands.executeCommand("workbench.action.focusFirstEditorGroup");
         let cm = { to: 'down', by: 'line', value: 8 };
         await commands.executeCommand("cursorMove", cm);
@@ -57,7 +61,8 @@ suite('Gauge Execution Tests', () => {
 
     test('should abort execution', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        await window.showTextDocument(Uri.file(spec));
+        let doc = await workspace.openTextDocument(Uri.file(spec));
+        await window.showTextDocument(doc);
         // simulate a delay, we could handle this in executor, i.e. before spawining an execution
         // check if an abort signal has been sent.
         // It seems like over-complicating things for a non-human scenario :)
@@ -68,7 +73,8 @@ suite('Gauge Execution Tests', () => {
 
     test('should reject execution when another is already in progress', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
-        await window.showTextDocument(Uri.file(spec));
+        let doc = await workspace.openTextDocument(Uri.file(spec));
+        await window.showTextDocument(doc);
         commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
         try {
             await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
