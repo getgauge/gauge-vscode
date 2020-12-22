@@ -105,6 +105,7 @@ export class GaugeExecutor extends Disposable {
     private killRecursive(pid: number, aborted: boolean) {
         try {
             if (platform() !== 'win32') {
+                this.aborted = aborted;
                 return process.kill(-pid);
             }
             psTree(pid, (error: Error, children: Array<any>) => {
@@ -227,7 +228,7 @@ export class GaugeExecutor extends Disposable {
         return [GaugeCommands.Run, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
     }
 
-    private getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Thenable<any> {
+    private async getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Promise<any> {
         let uri = TextDocumentIdentifier.create(window.activeTextEditor.document.uri.toString());
         let currPos = window.activeTextEditor.selection.active;
         let params = { textDocument: uri, position: currPos };
@@ -235,6 +236,7 @@ export class GaugeExecutor extends Disposable {
             // change the position to get all scenarios instead of only related to cursor position
             params.position = new Position(1, 1);
         }
+        await languageClient.onReady();
         return languageClient.sendRequest("gauge/scenarios", params, new CancellationTokenSource().token);
     }
 

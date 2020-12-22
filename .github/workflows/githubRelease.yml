@@ -16,7 +16,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12'
-      - uses: geertvdc/setup-hub@master
 
       - name: Build artifacts
         run: |
