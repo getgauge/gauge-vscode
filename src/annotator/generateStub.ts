@@ -2,7 +2,7 @@
 
 import * as path from 'path';
 import { CancellationTokenSource, commands, Disposable, window } from "vscode";
-import { LanguageClient } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 import { COPY_TO_CLIPBOARD, GaugeRequests, GaugeVSCodeCommands, NEW_FILE } from "../constants";
 import { GaugeClients } from "../gaugeClients";
 import { ProjectFactory } from "../project/projectFactory";

@@ -1,5 +1,5 @@
 import { GaugeProject } from "./project/gaugeProject";
-import { LanguageClient } from "vscode-languageclient";
+import { LanguageClient } from "vscode-languageclient/node";
 
 export class GaugeClients extends Map<string, { project: GaugeProject, client: LanguageClient }> {
 
