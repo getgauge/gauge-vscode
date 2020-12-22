@@ -6,7 +6,9 @@ import { GaugeVSCodeCommands } from '../../src/constants';
 let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 'sampleProject');
 
 suite('Gauge Execution Tests', () => {
-    setup(async () => { await commands.executeCommand('workbench.action.closeAllEditors'); });
+    setup(async () => { await commands.executeCommand('workbench.action.closeAllEditors');
+    await commands.executeCommand("vscode.openFolder", Uri.file( path.join(__dirname, '..', '..', '..', 'test', 'testdata')));
+});
 
     let assertStatus = (status, val = true) => {
         let logDoc = workspace.textDocuments.find((x) => x.languageId === "Log");
@@ -16,6 +18,7 @@ suite('Gauge Execution Tests', () => {
 
     teardown(async () => {
         await commands.executeCommand(GaugeVSCodeCommands.StopExecution);
+        await commands.executeCommand('workbench.action.closeAllEditors');
     });
 
     test('should execute given specification', async () => {
