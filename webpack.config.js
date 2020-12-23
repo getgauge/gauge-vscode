@@ -1,7 +1,6 @@
 'use strict';
 const webpack = require('webpack');
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = function(env, argv) {
@@ -39,13 +38,12 @@ module.exports = function(env, argv) {
             path: path.resolve(__dirname, 'out')
         },
         resolve: {
-            extensions: ['.ts']
+            extensions: ['.ts',  '.js']
         },
         externals: [
             {
             vscode: "commonjs vscode"
             },
-            nodeExternals()
         ],
         devtool: sourceMaps ? 'source-map' : false,
         module: {
