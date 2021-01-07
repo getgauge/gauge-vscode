@@ -9,11 +9,7 @@ https://docs.gauge.org
 
 before asking questions at:
 
-https://spectrum.chat/gauge
-
-Or mailing:
-
-getgauge@googlegroups.com
+https://github.com/getgauge/gauge/discussions
 
 NOTE: Please report only bugs, features and enhancements here.
 Issues that don't fall in this category will be closed and
