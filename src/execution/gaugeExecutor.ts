@@ -48,10 +48,10 @@ export class GaugeExecutor extends Disposable {
     }
 
     public execute(spec: string, config: ExecutionConfig): Thenable<any> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if (this.executing) {
-                reject(new Error('A Specification or Scenario is still running!'));
-                return;
+                window.showErrorMessage('A Specification or Scenario is still running!');
+                return resolve(undefined);
             }
             try {
                 this.executing = true;
@@ -151,14 +151,16 @@ export class GaugeExecutor extends Disposable {
         if (activeTextEditor) {
             let doc = activeTextEditor.document;
             if (!extensions.includes(extname(doc.fileName))) {
-                return Promise.reject(new Error(`No specification found. Current file is not a gauge specification.`));
+                window.showErrorMessage('No specification found. Current file is not a gauge specification.');
+                return Promise.resolve(undefined);
             }
             return this.execute(doc.fileName, new ExecutionConfig()
                 .setStatus(doc.fileName)
                 .setProject(ProjectFactory.getProjectByFilepath(doc.uri.fsPath))
             );
         } else {
-            return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
+            window.showErrorMessage('A gauge specification file should be open to run this command.');
+            return Promise.resolve(undefined);
         }
     }
 
@@ -169,7 +171,8 @@ export class GaugeExecutor extends Disposable {
             let spec = activeTextEditor.document.fileName;
             let lc = clientsMap.get(window.activeTextEditor.document.uri.fsPath).client;
             if (!extensions.includes(extname(spec))) {
-                return Promise.reject(new Error(`No scenario(s) found. Current file is not a gauge specification.`));
+                window.showErrorMessage('No scenario(s) found. Current file is not a gauge specification.');
+                return;
             }
             return this.getAllScenarios(lc, atCursor).then((scenarios: any): Thenable<any> => {
                 if (atCursor) {
@@ -178,10 +181,11 @@ export class GaugeExecutor extends Disposable {
                 return this.executeOptedScenario(scenarios);
             }, (reason: any) => {
                 window.showErrorMessage(`found some problems in ${spec}. Fix all problems before running scenarios.`);
-                return Promise.reject(reason);
+                return Promise.resolve(undefined);
             });
         } else {
-            return Promise.reject(new Error(`A gauge specification file should be open to run this command.`));
+            window.showErrorMessage('A gauge specification file should be open to run this command.');
+            return Promise.resolve(undefined);
         }
     }
 
@@ -259,7 +263,8 @@ export class GaugeExecutor extends Disposable {
                 );
             }
         }, (reason: any) => {
-            return Promise.reject(reason);
+            window.showErrorMessage(reason);
+            return Promise.resolve(undefined);
         });
     }
 
