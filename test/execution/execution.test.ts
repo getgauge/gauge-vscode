@@ -2,13 +2,22 @@ import * as assert from 'assert';
 import * as path from 'path';
 import { commands, Uri, window, workspace } from 'vscode';
 import { GaugeVSCodeCommands } from '../../src/constants';
+import { createSandbox } from 'sinon';
 
 let testDataPath = path.join(__dirname, '..', '..', '..', 'test', 'testdata', 'sampleProject');
 
 suite('Gauge Execution Tests', () => {
-    setup(async () => { await commands.executeCommand('workbench.action.closeAllEditors');
-    await commands.executeCommand("vscode.openFolder", Uri.file( path.join(__dirname, '..', '..', '..', 'test', 'testdata')));
-});
+    let sandbox;
+
+    teardown(() => {
+        sandbox.restore();
+    });
+
+    setup(async () => {
+        sandbox = createSandbox();
+        await commands.executeCommand('workbench.action.closeAllEditors');
+        await commands.executeCommand("vscode.openFolder", Uri.file( path.join(__dirname, '..', '..', '..', 'test', 'testdata')));
+    });
 
     let assertStatus = (status, val = true) => {
         let logDoc = workspace.textDocuments.find((x) => x.languageId === "Log");
@@ -75,15 +84,18 @@ suite('Gauge Execution Tests', () => {
     });
 
     test('should reject execution when another is already in progress', async () => {
+        let expectedErrorMessage;
+        sandbox.stub(window, 'showErrorMessage').callsFake((args) => expectedErrorMessage = args );
+
         let spec = path.join(testDataPath, 'specs', 'example.spec');
         let doc = await workspace.openTextDocument(Uri.file(spec));
         await window.showTextDocument(doc);
         commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
         try {
             await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
-            throw new Error("Expected simultaneous runs to reject");
-        } catch (err) {
-            assert.equal(err.message, "A Specification or Scenario is still running!");
+            throw new Error("Must not run new tests when others are already in progress");
+        } catch {
+            assert.equal(expectedErrorMessage, "A Specification or Scenario is still running!");
         }
     }).timeout(20000);
 });
