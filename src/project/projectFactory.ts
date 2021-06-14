@@ -6,7 +6,7 @@ import { MavenProject } from "./mavenProject";
 import { GradleProject } from "./gradleProject";
 
 export class ProjectFactory {
-    public static builders: Array<{
+    public static javaProjectBuilders: Array<{
         predicate: (root: string) => boolean,
         build: (root: string, data: string) => GaugeProject
     }> = [
@@ -24,8 +24,10 @@ export class ProjectFactory {
         if (!path) throw new Error(`${path} does not belong to a valid gauge project.`);
         const content = readFileSync(join(path, GAUGE_MANIFEST_FILE));
         const data = JSON.parse(content.toString());
-        for (const builder of this.builders) {
-            if (builder.predicate(path)) return builder.build(path, data);
+        if (data.Language && data.Language === "java") {
+            for (const builder of this.javaProjectBuilders) {
+                if (builder.predicate(path)) return builder.build(path, data);
+            }
         }
         return new GaugeProject(path, data);
     }
