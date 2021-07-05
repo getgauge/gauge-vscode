@@ -292,7 +292,7 @@
     "vsce": "1.83.0",
     "vscode-test": "^1.5.2",
     "webpack": "5.11.0",
-    "webpack-cli": "^4.2.0"
+    "webpack-cli": "^4.7.2"
   },
   "dependencies": {
     "clipboardy": "^2.3.0",
