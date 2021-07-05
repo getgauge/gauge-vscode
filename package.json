@@ -239,7 +239,7 @@
         "gauge.create.specification.withHelp": {
           "type": "boolean",
           "default": true,
-          "description": "When true, create the specification wtih help comments."
+          "description": "When true, create the specification with help comments."
         },
         "gauge.codeLenses.reference": {
           "type": "boolean",
