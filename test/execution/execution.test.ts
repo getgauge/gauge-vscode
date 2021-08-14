@@ -16,7 +16,6 @@ suite('Gauge Execution Tests', () => {
     setup(async () => {
         sandbox = createSandbox();
         await commands.executeCommand('workbench.action.closeAllEditors');
-        await commands.executeCommand("vscode.openFolder", Uri.file( path.join(__dirname, '..', '..', '..', 'test', 'testdata')));
     });
 
     let assertStatus = (status, val = true) => {
