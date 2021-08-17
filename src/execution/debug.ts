@@ -1,7 +1,7 @@
 'use strict';
 
 import getPort = require('get-port');
-import { debug, DebugSession, window, workspace } from 'vscode';
+import { debug, DebugSession, Uri, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
 import { GaugeClients } from '../gaugeClients';
 import { ExecutionConfig } from './executionConfig';
@@ -135,8 +135,8 @@ export class GaugeDebugger {
 
     public startDebugger() {
         return new Promise((res, rej) => {
-            let folder = workspace.getWorkspaceFolder(window.activeTextEditor.document.uri);
-            let root = this.clientsMap.get(window.activeTextEditor.document.uri.fsPath).project.root();
+            const root = this.config.getProject().root();
+            const folder = workspace.getWorkspaceFolder(Uri.parse(root));
             if (!folder) {
                 throw new Error(`The debugger does not work for a stand alone file. Please open the folder ${root}.`);
             }

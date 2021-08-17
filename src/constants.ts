@@ -22,6 +22,8 @@ export enum GaugeVSCodeCommands {
     ExecuteSpec = 'gauge.execute.specification',
     ExecuteAllSpecs = 'gauge.execute.specification.all',
     ExecuteAllSpecExplorer = 'gauge.specexplorer.runAllActiveProjectSpecs',
+    ExecuteNode = 'gauge.specexplorer.runNode',
+    DebugNode = 'gauge.specexplorer.debugNode',
     ExecuteScenario = 'gauge.execute.scenario',
     ExecuteScenarios = 'gauge.execute.scenarios',
     GenerateStepStub = 'gauge.generate.step',

@@ -116,6 +116,18 @@
         }
       },
       {
+        "command": "gauge.specexplorer.runNode",
+        "title": "Run",
+        "category": "Gauge",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "gauge.specexplorer.debugNode",
+        "title": "Debug",
+        "category": "Gauge",
+        "icon": "$(bug)"
+      },
+      {
         "command": "gauge.execute.scenario",
         "title": "Run Scenario",
         "category": "Gauge"
@@ -193,6 +205,14 @@
         {
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",
           "when": "false"
+        },
+        {
+          "command": "gauge.specexplorer.runNode",
+          "when": "false"
+        },
+        {
+          "command": "gauge.specexplorer.debugNode",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -205,6 +225,18 @@
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",
           "when": "view == gauge:specExplorer",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gauge.specexplorer.runNode",
+          "when": "view == gauge:specExplorer",
+          "group": "inline"
+        },
+        {
+          "command": "gauge.specexplorer.debugNode",
+          "when": "view == gauge:specExplorer",
+          "group": "inline"
         }
       ]
     },
