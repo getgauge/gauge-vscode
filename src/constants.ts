@@ -44,11 +44,6 @@ export enum GaugeCommands {
     Version = '--version',
     MachineReadable = '--machine-readable',
     Run = 'run',
-    Parallel = '--parallel',
-    SimpleConsole = '--simple-console',
-    RerunFailed = '--failed',
-    Repeat = '--repeat',
-    HideSuggestion = '--hide-suggestion',
     Init = 'init',
     Install = "install",
 }

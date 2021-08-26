@@ -4,10 +4,10 @@ import { ChildProcess, spawn } from 'child_process';
 import { platform } from 'os';
 import {
     CancellationTokenSource, commands, Disposable, Position,
-    StatusBarAlignment, Uri, window, DebugSession, env
+    StatusBarAlignment, Uri, window, DebugSession, env, workspace, DebugConfiguration
 } from 'vscode';
 import { LanguageClient, TextDocumentIdentifier } from 'vscode-languageclient/node';
-import { GaugeCommands, GaugeVSCodeCommands } from '../constants';
+import { GaugeVSCodeCommands } from '../constants';
 import { GaugeWorkspace } from '../gaugeWorkspace';
 import { GaugeDebugger } from "./debug";
 import { OutputChannel } from './outputChannel';
@@ -21,6 +21,7 @@ import {
 import { MavenProject } from '../project/mavenProject';
 import { GradleProject } from '../project/gradleProject';
 import { ProjectFactory } from '../project/projectFactory';
+import { buildRunArgs, extractGaugeRunOption } from './runArgs';
 
 const outputChannelName = 'Gauge Execution';
 const extensions = [".spec", ".md"];
@@ -189,47 +190,34 @@ export class GaugeExecutor extends Disposable {
         }
     }
 
-    private createMavenArgs(spec, config: ExecutionConfig): Array<string> {
-        let args = ["-q", "clean", "compile", "test-compile", "gauge:execute"];
-        let defaultArgs = `-Dflags=--hide-suggestion,--simple-console`;
-        if (config.getFailed()) return args.concat(`-Dflags=--failed`);
-        if (config.getRepeat()) return args.concat(`-Dflags=--repeat`);
-        args = args.concat(defaultArgs);
-        if (config.getParallel()) args = args.concat("-DinParallel=true");
-        if (spec) return args.concat(`-DspecsDir=${relative(config.getProject().root(), spec)}`);
-        return args;
-    }
-
-    private createGradleArgs(spec, config: ExecutionConfig): Array<string> {
-        let args = ["clean", "gauge"];
-        let defaultArgs = `-PadditionalFlags=--hide-suggestion --simple-console`;
-        if (config.getFailed()) return args.concat(`-PadditionalFlags=--failed`);
-        if (config.getRepeat()) return args.concat(`-PadditionalFlags=--repeat`);
-        args = args.concat(defaultArgs);
-        if (config.getParallel()) args = args.concat("-PinParallel=true");
-        if (spec) return args.concat(`-PspecsDir=${relative(config.getProject().root(), spec)}`);
-        return args;
-    }
-
     private getArgs(spec: string, config: ExecutionConfig): Array<string> {
-        if (config.getProject() instanceof MavenProject) return this.createMavenArgs(spec, config);
-        if (config.getProject() instanceof GradleProject) return this.createGradleArgs(spec, config);
-        if (config.getFailed()) {
-            return [GaugeCommands.Run, GaugeCommands.RerunFailed];
+        const project = config.getProject();
+        const workspaceFolder = workspace.getWorkspaceFolder(Uri.parse(project.root()));
+        const launchConfigs = workspace.getConfiguration('launch', workspaceFolder).get<DebugConfiguration[]>('configurations');
+        const option = {
+            ...extractGaugeRunOption(launchConfigs),
+            failed: config.getFailed(),
+            repeat: config.getRepeat(),
+            parallel: config.getParallel(),
+        };
+
+        const isScenario = spec?.match(/:\d+$/);
+        if (isScenario) {
+            // unset options for filtering
+            option.tags = null;
+            option.scenario = null;
+            option['retry-only'] = null;
         }
-        if (config.getRepeat()) {
-            return [GaugeCommands.Run, GaugeCommands.Repeat];
+
+        const relativeOrNull = (from: string, to: string): string | null => to ? relative(from, to) : null;
+        if (project instanceof GradleProject) {
+            return buildRunArgs.forGradle(relativeOrNull(project.root(), spec), option);
         }
-        if (config.getParallel()) {
-            if (spec) {
-                return [GaugeCommands.Run, GaugeCommands.Parallel, spec, GaugeCommands.HideSuggestion];
-            }
-            return [GaugeCommands.Run, GaugeCommands.Parallel, GaugeCommands.HideSuggestion];
+        if (project instanceof MavenProject) {
+            return buildRunArgs.forMaven(relativeOrNull(project.root(), spec), option);
         }
-        if (spec) {
-            return [GaugeCommands.Run, spec, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
-        }
-        return [GaugeCommands.Run, GaugeCommands.SimpleConsole, GaugeCommands.HideSuggestion];
+
+        return buildRunArgs.forGauge(spec, option);
     }
 
     private async getAllScenarios(languageClient: LanguageClient, atCursor?: boolean): Promise<any> {
