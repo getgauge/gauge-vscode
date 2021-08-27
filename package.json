@@ -160,7 +160,7 @@
         },
         {
           "command": "gauge.specexplorer.switchProject",
-          "when": "false"
+          "when": "config.noExists"
         },
         {
           "command": "gauge.execute.repeat",
@@ -204,15 +204,15 @@
         },
         {
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",
-          "when": "false"
+          "when": "config.noExists"
         },
         {
           "command": "gauge.specexplorer.runNode",
-          "when": "false"
+          "when": "config.noExists"
         },
         {
           "command": "gauge.specexplorer.debugNode",
-          "when": "false"
+          "when": "config.noExists"
         }
       ],
       "view/title": [
