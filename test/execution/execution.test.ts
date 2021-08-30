@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as path from 'path';
-import { commands, Uri, window, workspace } from 'vscode';
+import { commands, Selection, Uri, window, workspace } from 'vscode';
 import { GaugeVSCodeCommands } from '../../src/constants';
 import { createSandbox } from 'sinon';
 
@@ -16,7 +16,6 @@ suite('Gauge Execution Tests', () => {
     setup(async () => {
         sandbox = createSandbox();
         await commands.executeCommand('workbench.action.closeAllEditors');
-        await commands.executeCommand("vscode.openFolder", Uri.file( path.join(__dirname, '..', '..', '..', 'test', 'testdata')));
     });
 
     let assertStatus = (status, val = true) => {
@@ -65,8 +64,7 @@ suite('Gauge Execution Tests', () => {
         let doc = await workspace.openTextDocument(specFile);
         await window.showTextDocument(doc);
         await commands.executeCommand("workbench.action.focusFirstEditorGroup");
-        let cm = { to: 'down', by: 'line', value: 8 };
-        await commands.executeCommand("cursorMove", cm);
+        window.activeTextEditor.selection = new Selection(8, 0, 8, 0);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteScenario);
         assertStatus(status);
     }).timeout(20000);

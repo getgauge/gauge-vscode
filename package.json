@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.52.0"
@@ -239,7 +239,7 @@
         "gauge.create.specification.withHelp": {
           "type": "boolean",
           "default": true,
-          "description": "When true, create the specification wtih help comments."
+          "description": "When true, create the specification with help comments."
         },
         "gauge.codeLenses.reference": {
           "type": "boolean",
@@ -275,8 +275,8 @@
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.5",
-    "@types/mocha": "^8.2.0",
+    "@types/fs-extra": "^9.0.11",
+    "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.14",
     "@types/ps-tree": "^1.1.0",
     "@types/vscode": "^1.52.0",
