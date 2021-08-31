@@ -41,7 +41,7 @@ export class WorkspaceEditor {
     private applyTextEdit(fileName: string, fileEdit: TextEdit[]): void {
         if (!existsSync(fileName)) {
             this.ensureDirectoryExistence(fileName);
-            writeFileSync(fileName, "", "UTF-8");
+            writeFileSync(fileName, "", {encoding: "utf8"});
         }
         workspace.openTextDocument(fileName).then((document: TextDocument) => {
             this.writeInDocument(document, fileEdit);
