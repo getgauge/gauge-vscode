@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.59.0"
@@ -116,6 +116,18 @@
         }
       },
       {
+        "command": "gauge.specexplorer.runNode",
+        "title": "Run",
+        "category": "Gauge",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "gauge.specexplorer.debugNode",
+        "title": "Debug",
+        "category": "Gauge",
+        "icon": "$(bug)"
+      },
+      {
         "command": "gauge.execute.scenario",
         "title": "Run Scenario",
         "category": "Gauge"
@@ -148,7 +160,7 @@
         },
         {
           "command": "gauge.specexplorer.switchProject",
-          "when": "false"
+          "when": "config.noExists"
         },
         {
           "command": "gauge.execute.repeat",
@@ -192,7 +204,15 @@
         },
         {
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",
-          "when": "false"
+          "when": "config.noExists"
+        },
+        {
+          "command": "gauge.specexplorer.runNode",
+          "when": "config.noExists"
+        },
+        {
+          "command": "gauge.specexplorer.debugNode",
+          "when": "config.noExists"
         }
       ],
       "view/title": [
@@ -205,6 +225,18 @@
           "command": "gauge.specexplorer.runAllActiveProjectSpecs",
           "when": "view == gauge:specExplorer",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gauge.specexplorer.runNode",
+          "when": "view == gauge:specExplorer",
+          "group": "inline"
+        },
+        {
+          "command": "gauge.specexplorer.debugNode",
+          "when": "view == gauge:specExplorer",
+          "group": "inline"
         }
       ]
     },

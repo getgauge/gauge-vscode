@@ -44,8 +44,8 @@ export class DebuggerAttachedEventProcessor extends BaseProcessor {
     public process(lineText: string, gaugeDebugger: GaugeDebugger): void {
         if (!this.canProcess(lineText)) return;
         gaugeDebugger.addProcessId(+lineText.replace(/^\D+/g, ''));
-        gaugeDebugger.startDebugger().catch((reason) => {
-            window.showErrorMessage(reason);
+        gaugeDebugger.startDebugger().catch(error => {
+            window.showErrorMessage(`Failed to start debugger: ${error.message}`);
             this.executor.cancel(false);
         });
     }
