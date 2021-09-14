@@ -1,16 +1,15 @@
 'use strict';
 
-import { commands, ExtensionContext, extensions, languages, version, window, workspace, Uri, env, debug, DebugConfigurationProviderTriggerKind} from 'vscode';
+import { debug, ExtensionContext, languages, window, workspace } from 'vscode';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { CLI } from './cli';
 import { ConfigProvider } from './config/configProvider';
-import { GaugeVSCodeCommands } from './constants';
 import { ReferenceProvider } from './gaugeReference';
+import { GaugeState } from './gaugeState';
 import { GaugeWorkspace } from './gaugeWorkspace';
 import { ProjectInitializer } from './init/projectInit';
 import { ProjectFactory } from './project/projectFactory';
 import { hasActiveGaugeDocument } from './util';
-import { GaugeState } from './gaugeState';
 import { showInstallGaugeNotification, showWelcomeNotification } from './welcomeNotifications';
 
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
