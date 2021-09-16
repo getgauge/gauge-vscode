@@ -136,7 +136,7 @@ export class GaugeDebugger {
     public startDebugger() {
         return new Promise((res, rej) => {
             const root = this.config.getProject().root();
-            const folder = workspace.getWorkspaceFolder(Uri.parse(root));
+            const folder = workspace.getWorkspaceFolder(Uri.file(root));
             if (!folder) {
                 throw new Error(`The debugger does not work for a stand alone file. Please open the folder ${root}.`);
             }
