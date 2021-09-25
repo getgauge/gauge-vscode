@@ -335,10 +335,10 @@ export class GaugeExecutor extends Disposable {
     }
 
     private openReport() {
-        return env.openExternal(Uri.parse(this.gaugeWorkspace.getReportPath())).then(
-        () => { }, (err) => {
-            window.showErrorMessage("Can't open html report. " + err);
-        });
+        return env.openExternal(Uri.file(this.gaugeWorkspace.getReportPath())).then(
+            () => { }, (err) => {
+                window.showErrorMessage("Can't open html report. " + err);
+            });
     }
 
     private registerStopExecution() {
