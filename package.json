@@ -329,7 +329,7 @@
   "dependencies": {
     "clipboardy": "^2.3.0",
     "fs-extra": "^10.0.0",
-    "get-port": "^5.1.1",
+    "get-port": "^6.0.0",
     "ps-tree": "^1.2.0",
     "vscode-jsonrpc": "^6.0.0",
     "vscode-languageclient": "^7.0.0",
