@@ -1,63 +1,42 @@
-import { DebugConfiguration } from "vscode";
-import { GaugeCommands } from "../constants";
+import { DebugConfiguration } from 'vscode';
+import { GaugeCommands } from '../constants';
 
 export type GaugeRunOption = {
     env?: string[];
-    'fail-safe'?: boolean;
     failed?: boolean;
-    group?: number;
     'hide-suggestion'?: boolean;
-    'install-plugins'?: boolean;
-    'max-retries-count'?: number;
     n?: number;
     parallel?: boolean;
     repeat?: boolean;
     'retry-only'?: string;
     scenario?: string[];
     'simple-console'?: boolean;
-    sort?: boolean;
-    strategy?: 'eager' | 'lazy';
-    'table-rows'?: string;
     tags?: string;
-    verbose?: boolean;
-    dir?: string;
-    'log-level'?: 'debug' | 'info' | 'warning' | 'error' | 'critical';
-    'machine-readable'?: boolean;
 }
 
-// Set non-nullish default value to enable runtime type guard
-const gaugeRunOption: Readonly<Required<GaugeRunOption>> = {
-    env: ['default'],
-    'fail-safe': false,
-    failed: false,
-    group: -1,
-    'hide-suggestion': false,
-    'install-plugins': true,
-    'max-retries-count': 1,
-    n: 8,
-    parallel: false,
-    repeat: false,
-    'retry-only': '',
-    scenario: [],
-    'simple-console': false,
-    sort: false,
-    strategy: 'lazy',
-    'table-rows': '',
-    tags: '',
-    verbose: false,
-    dir: '.',
-    'log-level': 'info',
-    'machine-readable': false
-};
+const commonLaunchAttributes = new Set([
+    'type',
+    'request',
+    'name',
+    'presentation',
+    'preLaunchTask',
+    'postDebugTask',
+    'internalConsoleOptions',
+    'debugServer',
+    'serverReadyAction',
+    'windows',
+    'linux',
+    'osx'
+]);
 
-const pickOnlyGaugeRunOption = (object: object): GaugeRunOption =>
-    Object.entries(object).filter(([k, v]) => k in gaugeRunOption && typeof gaugeRunOption[k] === typeof v)
+const excludeCommonLaunchAtrributes = (object: object): object =>
+    Object.entries(object).filter(([key, _]) => !(commonLaunchAttributes.has(key)))
         .reduce((out, [k, v]) => { out[k] = v; return out; }, {});
 
 export const extractGaugeRunOption = (configs: DebugConfiguration[]): GaugeRunOption => {
     if (!configs) return {};
     const extracted = configs.find(c => c.type === 'gauge' && c.request === 'test') || {};
-    return pickOnlyGaugeRunOption(extracted);
+    return excludeCommonLaunchAtrributes(extracted);
 }
 
 type BuildRunArgs = (spec: string, option: GaugeRunOption) => string[]

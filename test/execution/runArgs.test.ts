@@ -1,17 +1,17 @@
 import assert = require('assert');
 import { buildRunArgs, extractGaugeRunOption } from '../../src/execution/runArgs';
 
-suite("Gauge Run Args Tests", () => {
+suite('Gauge Run Args Tests', () => {
     suite('buildRunArgs.forGauge', () => {
         test('should ignore other args when failed flag is set', () => {
             assert.strictEqual(
-                buildRunArgs.forGauge('my.spec:123', { failed: true, verbose: true }).join(' '),
+                buildRunArgs.forGauge('my.spec:123', { failed: true, tags: 'should be ignored' }).join(' '),
                 'run --failed');
         });
 
         test('should ignore other args when repeat flag is set', () => {
             assert.strictEqual(
-                buildRunArgs.forGauge('my.spec:123', { repeat: true, verbose: true }).join(' '),
+                buildRunArgs.forGauge('my.spec:123', { repeat: true, tags: 'should be ignored' }).join(' '),
                 'run --repeat');
         });
 
@@ -19,15 +19,15 @@ suite("Gauge Run Args Tests", () => {
             assert.strictEqual(
                 buildRunArgs.forGauge('my.spec:123', {
                     tags: 'foo bar',
-                    'max-retries-count': 3,
+                    n: 3,
                     env: ['a', 'b', 'c'],
-                    verbose: true,
+                    parallel: true,
                     // following should be ignored
                     failed: null,
                     repeat: false,
-                    dir: null
+                    'retry-only': null
                 }).join(' '),
-                'run --hide-suggestion --simple-console --tags foo bar --max-retries-count 3 --env a,b,c --verbose my.spec:123');
+                'run --hide-suggestion --tags foo bar --n 3 --env a,b,c --parallel my.spec:123');
         });
 
         test('should not contain simple-console flag when parallel flag is set', () => {
@@ -66,7 +66,7 @@ suite("Gauge Run Args Tests", () => {
                     // following should be ignored
                     failed: null,
                     repeat: false,
-                    dir: null
+                    'retry-only': null
                 }).join(' '),
                 'clean gauge -PinParallel=true -Pnodes=3 -Ptags=foo bar -Penv=a,b,c -PadditionalFlags=--hide-suggestion --simple-console -PspecsDir=my.spec:123');
         });
@@ -101,7 +101,7 @@ suite("Gauge Run Args Tests", () => {
                     // following should be ignored
                     failed: null,
                     repeat: false,
-                    dir: null
+                    'retry-only': null
                 }).join(' '),
                 '-q clean compile test-compile gauge:execute -DinParallel=true -Dnodes=3 -Dtags=foo bar -Denv=a,b,c -Dflags=--hide-suggestion,--simple-console -DspecsDir=my.spec:123');
         });
@@ -115,15 +115,15 @@ suite("Gauge Run Args Tests", () => {
     });
 
     suite('extractGaugeRunOption', () => {
-        test('should extract only gauge run options from the first gauge:test entry', () => {
+        test('should pick the first gauge:test entry and remove the common launch attributes', () => {
             const configs = [
                 { type: 'foo', name: '1', request: 'launch', tags: 'fail' },
                 { type: 'bar', name: '2', request: 'test', tags: 'fail' },
                 { type: 'gauge', name: '3', request: 'attach', tags: 'fail' },
-                { type: 'gauge', name: '4', request: 'test', tags: 'hit', unknown: 'prop' },
+                { type: 'gauge', name: '4', request: 'test', tags: 'hit', unknown: 'attributes are also available' },
                 { type: 'gauge', name: '5', request: 'test', tags: 'fail' }
             ]
-            assert.deepStrictEqual(extractGaugeRunOption(configs), { tags: 'hit' });
+            assert.deepStrictEqual(extractGaugeRunOption(configs), { tags: 'hit', unknown: 'attributes are also available' });
         });
 
         test('should return empty object when no gauge:test entry is found', () => {
