@@ -1,16 +1,15 @@
 'use strict';
 
-import { commands, ExtensionContext, extensions, languages, version, window, workspace, Uri, env} from 'vscode';
+import { debug, ExtensionContext, languages, window, workspace } from 'vscode';
 import { GenerateStubCommandProvider } from './annotator/generateStub';
 import { CLI } from './cli';
 import { ConfigProvider } from './config/configProvider';
-import { GaugeVSCodeCommands } from './constants';
 import { ReferenceProvider } from './gaugeReference';
+import { GaugeState } from './gaugeState';
 import { GaugeWorkspace } from './gaugeWorkspace';
 import { ProjectInitializer } from './init/projectInit';
 import { ProjectFactory } from './project/projectFactory';
 import { hasActiveGaugeDocument } from './util';
-import { GaugeState } from './gaugeState';
 import { showInstallGaugeNotification, showWelcomeNotification } from './welcomeNotifications';
 
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
@@ -38,6 +37,12 @@ export async function activate(context: ExtensionContext) {
         gaugeWorkspace,
         new ReferenceProvider(clientsMap),
         new GenerateStubCommandProvider(clientsMap),
-        new ConfigProvider(context)
+        new ConfigProvider(context),
+        debug.registerDebugConfigurationProvider('gauge',
+            {
+                resolveDebugConfiguration: () => {
+                    throw Error("Starting with the Gauge debug configuration is not supported. Please use the 'Gauge' commands instead.");
+                }
+            })
     );
 }

@@ -124,6 +124,12 @@ To override default configurations in [VSCode settings](https://code.visualstudi
 * `gauge.notification.suppressUpdateNotification`:  Stops notifications for gauge-vscode plugin auto-updates, defaults to `false`
 * `gauge.create.specification.withHelp`: Create specification template with help comments, defaults to `true`
 
+## Run and Debug configuration
+
+To specify the execution options for the tests, add a `"type":"gauge"` entry with `"request":"test"` to `launch.json`.
+The options of the [gage run command](https://manpage.gauge.org/gauge_run.html) are available as properties of the entry. For Maven and Gradle plugins, the corresponding arguments are supported.
+If there are multiple `"request":"test"` entries in `launch.json`, the first definition will be used.
+
 # Install from source
 
 	$ npm run build
