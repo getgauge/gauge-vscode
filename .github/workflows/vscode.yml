@@ -23,10 +23,10 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Set up Go 1.18
+      - name: Set up Go 1.17.3
         uses: actions/setup-go@v2
         with:
-          go-version: 1.18
+          go-version: 1.17.3
         id: go
 
       - name: build
