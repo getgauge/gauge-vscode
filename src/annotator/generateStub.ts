@@ -47,7 +47,7 @@ export class GenerateStubCommandProvider implements Disposable {
             window.showQuickPick(this.getFileLists(files, pc.project.root())).then((selected: FileListItem) => {
                 if (!selected) return;
                 if (selected.isCopyToClipBoard()) {
-                    clipboardy.writeSync(code);
+                    clipboardy.default.writeSync(code);
                     window.showInformationMessage("Step Implementation copied to clipboard");
                 } else {
                     let params = { implementationFilePath: selected.value, codes: [code] };
