@@ -1,0 +1,5 @@
+steps:
+  - uses: ahmadnassri/action-dependabot-auto-merge@v2
+    with:
+      target: minor
+      github-token: ${{ secrets.GAUGEBOT_GITHUB_TOKEN }}
