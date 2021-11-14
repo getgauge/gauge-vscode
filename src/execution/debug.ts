@@ -1,10 +1,10 @@
 'use strict';
 
-import getPort from 'get-port';
 import { debug, DebugSession, Uri, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
 import { GaugeClients } from '../gaugeClients';
 import { ExecutionConfig } from './executionConfig';
+import * as net from 'net';
 
 const GAUGE_DEBUGGER_NAME = "Gauge Debugger";
 const REQUEST_TYPE = "attach";
@@ -119,7 +119,7 @@ export class GaugeDebugger {
             env.DEBUGGING = true;
             env.use_nested_specs = "false";
             env.SHOULD_BUILD_PROJECT = "true";
-            return getPort({ port: this.debugPort }).then((port) => {
+            return this.getPort({ port: this.debugPort }).then((port) => {
                 if (this.config.getProject().isProjectLanguage(GaugeRunners.Dotnet)) {
                     env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
                 }
@@ -156,6 +156,21 @@ export class GaugeDebugger {
         if (debug.activeDebugSession) {
             debug.activeDebugSession.customRequest("disconnect");
         }
+    }
+
+    private getPort(options: any): Thenable<any> {
+        return new Promise((resolve, reject) => {
+            const server = net.createServer();
+            server.unref();
+            server.on('error', reject);
+
+            server.listen(options, () => {
+                const {port} = server.address() as net.AddressInfo;
+                server.close(() => {
+                    resolve(port);
+                });
+            });
+        });
     }
 
 }
