@@ -478,7 +478,7 @@
     "webpack-cli": "^4.9.1"
   },
   "dependencies": {
-    "clipboardy": "^2.3.0",
+    "clipboardy": "^3.0.0",
     "fs-extra": "^10.0.0",
     "get-port": "^5.1.1",
     "ps-tree": "^1.2.0",
