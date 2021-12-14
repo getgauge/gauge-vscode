@@ -463,7 +463,7 @@
     "@types/node": "^16.11.12",
     "@types/ps-tree": "^1.1.1",
     "@types/vscode": "^1.62.0",
-    "@vscode/test-electron": "^1.6.2",
+    "@vscode/test-electron": "^2.0.0",
     "cross-env": "^7.0.3",
     "glob": "^7.2.0",
     "mocha": "^9.1.3",
