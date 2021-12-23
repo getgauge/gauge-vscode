@@ -1,6 +1,6 @@
 'use strict';
 
-import getPort = require('get-port');
+import getPort from 'get-port';
 import { debug, DebugSession, Uri, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
 import { GaugeClients } from '../gaugeClients';

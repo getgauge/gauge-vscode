@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 
 suite('Output Channel', () => {
     class MockVSOutputChannel implements vscode.OutputChannel {
+        replace(value: string): void {}
         name: string;
         text: string;
         append(value: string): void { }
