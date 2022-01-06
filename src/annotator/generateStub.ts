@@ -9,7 +9,7 @@ import { ProjectFactory } from "../project/projectFactory";
 import { WorkspaceEditor } from "../refactor/workspaceEditor";
 import { FileListItem } from "../types/fileListItem";
 
-import clipboardy from "clipboardy";
+import clipboardy = require("clipboardy");
 
 export class GenerateStubCommandProvider implements Disposable {
     private readonly _clientsMap: GaugeClients;
