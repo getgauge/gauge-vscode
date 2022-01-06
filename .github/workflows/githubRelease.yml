@@ -10,12 +10,12 @@ jobs:
     env:
       GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
-      - name: Use NodeJS 14
-        uses: actions/setup-node@v1
+      - name: Use NodeJS 17
+        uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: 17
 
       - name: Build artifacts
         run: |
@@ -61,12 +61,12 @@ jobs:
     env:
       VS_PAT: '${{ secrets.VS_PAT }}'
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
-      - name: Use NodeJS 12
-        uses: actions/setup-node@v1
+      - name: Use NodeJS 17
+        uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: 17
 
       - name: Build artifacts
         run: |
