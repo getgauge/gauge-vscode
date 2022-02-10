@@ -460,7 +460,7 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^17.0.8",
+    "@types/node": "^17.0.17",
     "@types/ps-tree": "^1.1.2",
     "@types/vscode": "^1.63.1",
     "@vscode/test-electron": "^2.0.2",
