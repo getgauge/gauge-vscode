@@ -27,10 +27,6 @@ jobs:
             version=$(ls gauge-* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-//" | sed "s/-[a-z]*\.[a-z0-9_]*$//");
           fi
 
-          artifacts=()
-          dir=`pwd`
-          artifacts+="$dir/*.vsix"
-
           echo "---------------------------"
           echo "Updating release v$version"
           echo "---------------------------"
@@ -40,19 +36,7 @@ jobs:
           release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" getgauge gauge-vscode)
 
           echo "$release_description" >> desc.txt
-
-          echo "Creating new draft for release v$version"
-          hub release create -F ./desc.txt "v$version"
-
-          rm -rf desc.txt
-
-          echo "Start uploading assets..."
-          for i in `ls $artifacts`; do
-              hub release edit -m "" -a $i "v$version"
-              if [ $? -ne 0 ];then
-                  exit 1
-              fi
-          done
+          gh release create --title "gauge-vscode v${version}" --notes-file ./desc.txt "v${version}" *.vsix
 
   marketplace-release:
     name: Deploy to marketplace
