@@ -56,7 +56,7 @@ export class SpecificationProvider extends Disposable {
     private createFileAndShow(filename: string): Thenable<any> {
         let info = this.getDocumentInfo();
         return fs.createFile(filename).then(() => {
-            return fs.writeFile(filename, info.text, "UTF-8").then(() => {
+            return fs.writeFile(filename, info.text, { encoding: "utf8" }).then(() => {
                 return workspace.openTextDocument(filename).then((doc: TextDocument) => {
                     return window.showTextDocument(doc, { selection: info.range });
                 }, this.handleError);
