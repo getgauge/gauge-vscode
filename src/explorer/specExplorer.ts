@@ -151,7 +151,7 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
         const workspacePath = Uri.file(projectPath).fsPath;
         const client = this.gaugeWorkspace.getClientsMap().get(workspacePath).client;
         if (!client) return;
-        client.onReady().then(() => {
+        client.start().then(() => {
             this._languageClient = client;
             this.activeFolder = projectPath;
             this.refresh();

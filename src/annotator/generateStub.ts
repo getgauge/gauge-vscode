@@ -9,7 +9,7 @@ import { ProjectFactory } from "../project/projectFactory";
 import { WorkspaceEditor } from "../refactor/workspaceEditor";
 import { FileListItem } from "../types/fileListItem";
 
-import clipboardy = require("clipboardy");
+import clipboardy from 'clipboardy';
 
 export class GenerateStubCommandProvider implements Disposable {
     private readonly _clientsMap: GaugeClients;
@@ -60,8 +60,9 @@ export class GenerateStubCommandProvider implements Disposable {
     private generateInFile(request: string, params: any, languageClient: LanguageClient) {
         let token = new CancellationTokenSource().token;
         languageClient.sendRequest(request, params, token).then((e) => {
-            let editor = new WorkspaceEditor(languageClient.protocol2CodeConverter.asWorkspaceEdit(e));
-            editor.applyChanges();
+            languageClient.protocol2CodeConverter.asWorkspaceEdit(e).then((edit) =>{
+                new WorkspaceEditor(edit).applyChanges()
+            }, this.handleError);
         }, this.handleError);
     }
 
