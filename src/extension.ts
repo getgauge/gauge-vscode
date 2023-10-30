@@ -11,8 +11,11 @@ import { ProjectInitializer } from './init/projectInit';
 import { ProjectFactory } from './project/projectFactory';
 import { hasActiveGaugeDocument } from './util';
 import { showInstallGaugeNotification, showWelcomeNotification } from './welcomeNotifications';
+import { GaugeClients as GaugeProjectClientMap } from './gaugeClients';
 
 const MINIMUM_SUPPORTED_GAUGE_VERSION = '0.9.6';
+
+const clientsMap: GaugeProjectClientMap = new GaugeProjectClientMap();
 
 export async function activate(context: ExtensionContext) {
     let cli = CLI.instance();
@@ -28,10 +31,7 @@ export async function activate(context: ExtensionContext) {
     }
     showWelcomeNotification(context);
     languages.setLanguageConfiguration('gauge', { wordPattern: /^(?:[*])([^*].*)$/g });
-
-    let gaugeWorkspace = new GaugeWorkspace(new GaugeState(context), cli);
-
-    let clientsMap = gaugeWorkspace.getClientsMap();
+    let gaugeWorkspace = new GaugeWorkspace(new GaugeState(context), cli, clientsMap);
 
     context.subscriptions.push(
         gaugeWorkspace,
@@ -45,4 +45,13 @@ export async function activate(context: ExtensionContext) {
                 }
             })
     );
+}
+
+export function deactivate(): Thenable<void> {
+    const promises: Thenable<void>[] = [];
+
+    for (const {client} of clientsMap.values()) {
+        promises.push(client.stop());
+    }
+    return Promise.all(promises).then(() => undefined);
 }
