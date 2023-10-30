@@ -10,12 +10,12 @@ jobs:
     env:
       GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Use NodeJS 17
-        uses: actions/setup-node@v2
+      - name: Use NodeJS 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 17
+          node-version: 20
 
       - name: Build artifacts
         run: |
@@ -27,10 +27,6 @@ jobs:
             version=$(ls gauge-* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-//" | sed "s/-[a-z]*\.[a-z0-9_]*$//");
           fi
 
-          artifacts=()
-          dir=`pwd`
-          artifacts+="$dir/*.vsix"
-
           echo "---------------------------"
           echo "Updating release v$version"
           echo "---------------------------"
@@ -40,19 +36,7 @@ jobs:
           release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" getgauge gauge-vscode)
 
           echo "$release_description" >> desc.txt
-
-          echo "Creating new draft for release v$version"
-          hub release create -F ./desc.txt "v$version"
-
-          rm -rf desc.txt
-
-          echo "Start uploading assets..."
-          for i in `ls $artifacts`; do
-              hub release edit -m "" -a $i "v$version"
-              if [ $? -ne 0 ];then
-                  exit 1
-              fi
-          done
+          gh release create --title "gauge-vscode v${version}" --notes-file ./desc.txt "v${version}" *.vsix
 
   marketplace-release:
     name: Deploy to marketplace
@@ -61,12 +45,12 @@ jobs:
     env:
       VS_PAT: '${{ secrets.VS_PAT }}'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Use NodeJS 17
-        uses: actions/setup-node@v2
+      - name: Use NodeJS 20
+        uses: actions/setup-node@v4
         with:
-          node-version: 17
+          node-version: 20
 
       - name: Build artifacts
         run: |
