@@ -30,15 +30,18 @@ const REFERENCE_CONFIG = 'reference';
 export class GaugeWorkspace extends Disposable {
     private readonly _fileProvider: SpecificationProvider;
     private _executor: GaugeExecutor;
-    private _clientsMap: GaugeProjectClientMap = new GaugeProjectClientMap();
+    private _clientsMap: GaugeProjectClientMap;
     private _clientLanguageMap: Map<string, string> = new Map();
     private _outputChannel: OutputChannel = window.createOutputChannel('gauge');
     private _launchConfig: WorkspaceConfiguration;
     private _codeLensConfig: WorkspaceConfiguration;
     private _disposable: Disposable;
     private _specNodeProvider: SpecNodeProvider;
-    constructor(private state: GaugeState, private cli: CLI) {
+
+    constructor(private state: GaugeState, private cli: CLI, clientsMap: GaugeProjectClientMap) {
         super(() => this.dispose());
+
+        this._clientsMap = clientsMap
         this._executor = new GaugeExecutor(this, cli);
 
         if (workspace.workspaceFolders) {
@@ -227,13 +230,5 @@ export class GaugeWorkspace extends Disposable {
         });
     }
 
-    dispose(): Thenable<void> {
-        let promises: Thenable<void>[] = [];
-        for (let cp of this._clientsMap.values()) {
-            promises.push(cp.client.stop());
-        }
-        return Promise.all(promises).then((f) => {
-            this._disposable.dispose();
-        });
-    }
+
 }
