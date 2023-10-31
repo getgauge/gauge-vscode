@@ -11,7 +11,7 @@
   "version": "0.1.1",
   "publisher": "getgauge",
   "engines": {
-    "vscode": "^1.83.1"
+    "vscode": "^1.63.1"
   },
   "categories": [
     "Programming Languages"
@@ -462,7 +462,7 @@
     "@types/mocha": "^10.0.3",
     "@types/node": "^20.8.9",
     "@types/ps-tree": "^1.1.4",
-    "@types/vscode": "^1.83.1",
+    "@types/vscode": "^1.63.1",
     "@vscode/test-electron": "^2.3.6",
     "cross-env": "^7.0.3",
     "glob": "^10.3.10",
