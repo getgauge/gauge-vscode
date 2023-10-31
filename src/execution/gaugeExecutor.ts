@@ -228,7 +228,7 @@ export class GaugeExecutor extends Disposable {
             // change the position to get all scenarios instead of only related to cursor position
             params.position = new Position(1, 1);
         }
-        await languageClient.onReady();
+        await languageClient.start();
         return languageClient.sendRequest("gauge/scenarios", params, new CancellationTokenSource().token);
     }
 

@@ -1,7 +1,7 @@
 'use strict';
 
 import { workspace, Disposable } from 'vscode';
-import { DynamicFeature, RegistrationData, BaseLanguageClient, RequestType0 } from 'vscode-languageclient';
+import { DynamicFeature, RegistrationData, BaseLanguageClient, RequestType0, FeatureState } from 'vscode-languageclient';
 
 import { ClientCapabilities, InitializedParams } from 'vscode-languageserver-protocol';
 
@@ -54,5 +54,15 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
             disposable.dispose();
         }
         this._listeners.clear();
+    }
+
+    public clear():void{}
+
+    public getState(): FeatureState {
+        return {
+          kind: "workspace",
+          id: this.registrationType,
+          registrations: this._listeners.size > 0,
+        };
     }
 }

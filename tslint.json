@@ -32,7 +32,8 @@
         "max-classes-per-file": [true, 5],
         "no-namespace": false,
         "callable-types":false,
-        "prefer-for-of":false
+        "prefer-for-of":false,
+        "no-unnecessary-initializer":false
     },
     "rulesDirectory": []
 }
