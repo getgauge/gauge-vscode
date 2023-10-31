@@ -173,8 +173,8 @@ export class GaugeWorkspace extends Disposable {
         await this.installRunnerFor(project);
         this.generateJavaConfig(project);
         this.registerDynamicFeatures(languageClient);
-        languageClient.start();
-        return languageClient.onReady().then(() => { this.setLanguageId(languageClient, project.root()); });
+        await languageClient.start();
+        this.setLanguageId(languageClient, project.root());
     }
 
     private generateJavaConfig(project: GaugeProject) {
