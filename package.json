@@ -455,6 +455,7 @@
     "pack": "webpack-cli --env production",
     "build": "npm install && npm run lint && npm run compile && npm run pack && vsce package",
     "test": "node out/test/runTest.js",
+		"compatibilityTest": "node out/test/runTest.js --compatibility",
     "publish": "vsce publish"
   },
   "devDependencies": {

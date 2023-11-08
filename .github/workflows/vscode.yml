@@ -42,16 +42,32 @@ jobs:
         run: |
           xvfb-run --auto-servernum npm test
 
+      - name: Run compatibility tests (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          xvfb-run --auto-servernum npm run compatibilityTest
+
       - name: Run tests (macos)
         if: matrix.os == 'macos-latest'
         run: |
           npm test
+
+      - name: Run compatibility tests (macos)
+        if: matrix.os == 'macos-latest'
+        run: |
+          npm run compatibilityTest
 
       - name: Run tests (windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           npm test
+
+      - name: Run compatibility tests (windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          npm run compatibilityTest
 
       - name: Upload logs
         uses: actions/upload-artifact@v3
