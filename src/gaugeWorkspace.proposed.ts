@@ -1,7 +1,8 @@
 'use strict';
 
 import { workspace, Disposable } from 'vscode';
-import { DynamicFeature, RegistrationData, BaseLanguageClient, RequestType0, FeatureState } from 'vscode-languageclient';
+import { RequestType0 } from 'vscode-jsonrpc';
+import { DynamicFeature, RegistrationData, BaseLanguageClient,  FeatureState } from 'vscode-languageclient';
 
 import { ClientCapabilities, InitializedParams } from 'vscode-languageserver-protocol';
 

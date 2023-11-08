@@ -1,491 +1,491 @@
 {
-  "name": "gauge",
-  "displayName": "Gauge",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/getgauge/gauge-vscode.git"
-  },
-  "description": "Gauge support for VScode.",
-  "author": "ThoughtWorks",
-  "license": "MIT",
-  "version": "0.1.3",
-  "publisher": "getgauge",
-  "engines": {
-    "vscode": "^1.63.1"
-  },
-  "categories": [
-    "Programming Languages"
-  ],
-  "activationEvents": [
-    "onCommand:gauge.createProject",
-    "workspaceContains:manifest.json",
-    "onLanguage:gauge",
-    "onDebugResolve:gauge"
-  ],
-  "icon": "images/gauge-icon.png",
-  "galleryBanner": {
-    "color": "#F5C20F",
-    "theme": "light"
-  },
-  "main": "./out/extension",
-  "contributes": {
-    "views": {
-      "test": [
-        {
-          "id": "gauge:specExplorer",
-          "name": "Gauge Specs",
-          "when": "gauge:activated"
-        }
-      ]
-    },
-    "languages": [
-      {
-        "id": "gauge",
-        "extensions": [
-          ".spec",
-          ".cpt"
-        ],
-        "aliases": [
-          "Gauge",
-          "Specification",
-          "Spec"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "gauge",
-        "scopeName": "text.html.markdown",
-        "path": "./syntaxes/markdown.tmLanguage"
-      }
-    ],
-    "commands": [
-      {
-        "command": "gauge.createProject",
-        "title": "Create a new Gauge Project",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.create.specification",
-        "title": "Create New Specification",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.config.saveRecommended",
-        "title": "Optimize VS Code configuration for Gauge",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.stopExecution",
-        "title": "Stop current gauge execution",
-        "category": "Gauge",
-        "when": "gauge:executing"
-      },
-      {
-        "command": "gauge.execute.failed",
-        "title": "Re-Run Failed Scenario(s)",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.report.html",
-        "title": "Show Last Run Report",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.execute.repeat",
-        "title": "Repeat Last Run",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.execute.specification",
-        "title": "Run Specification",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.execute.specification.all",
-        "title": "Run All Specifications",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.specexplorer.runAllActiveProjectSpecs",
-        "title": "Run All Active Project Specifications",
-        "category": "Gauge",
-        "icon": {
-          "light": "resources/light/play.svg",
-          "dark": "resources/dark/play.svg"
-        }
-      },
-      {
-        "command": "gauge.specexplorer.runNode",
-        "title": "Run",
-        "category": "Gauge",
-        "icon": "$(debug-start)"
-      },
-      {
-        "command": "gauge.specexplorer.debugNode",
-        "title": "Debug",
-        "category": "Gauge",
-        "icon": "$(bug)"
-      },
-      {
-        "command": "gauge.execute.scenario",
-        "title": "Run Scenario",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.execute.scenarios",
-        "title": "Run Scenarios",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.showReferences.atCursor",
-        "title": "Find Step References",
-        "category": "Gauge"
-      },
-      {
-        "command": "gauge.specexplorer.switchProject",
-        "title": "Change Project",
-        "category": "Gauge",
-        "icon": {
-          "light": "resources/light/icon-list.svg",
-          "dark": "resources/dark/icon-list.svg"
-        }
-      }
-    ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "gauge.create.specification",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.specexplorer.switchProject",
-          "when": "config.noExists"
-        },
-        {
-          "command": "gauge.execute.repeat",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.execute.specification",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.execute.specification.all",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.execute.scenario",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.execute.scenarios",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.showReferences.atCursor",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.report.html",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.execute.failed",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.stopExecution",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.config.saveRecommended",
-          "when": "gauge:activated"
-        },
-        {
-          "command": "gauge.specexplorer.runAllActiveProjectSpecs",
-          "when": "config.noExists"
-        },
-        {
-          "command": "gauge.specexplorer.runNode",
-          "when": "config.noExists"
-        },
-        {
-          "command": "gauge.specexplorer.debugNode",
-          "when": "config.noExists"
-        }
-      ],
-      "view/title": [
-        {
-          "command": "gauge.specexplorer.switchProject",
-          "when": "gauge:multipleProjects?",
-          "group": "navigation"
-        },
-        {
-          "command": "gauge.specexplorer.runAllActiveProjectSpecs",
-          "when": "view == gauge:specExplorer",
-          "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "gauge.specexplorer.runNode",
-          "when": "view == gauge:specExplorer",
-          "group": "inline"
-        },
-        {
-          "command": "gauge.specexplorer.debugNode",
-          "when": "view == gauge:specExplorer",
-          "group": "inline"
-        }
-      ]
-    },
-    "configuration": {
-      "type": "object",
-      "title": "Gauge configuration",
-      "properties": {
-        "gauge.welcomeNotification.showOn": {
-          "type": "string",
-          "default": "newProjectLoad",
-          "enum": [
-            "newProjectLoad",
-            "never"
-          ],
-          "description": "Shows gauge welcome page based on given value, defaulted to on upgrade."
-        },
-        "gauge.specExplorer.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, gauge specs explorer will be alive and loaded."
-        },
-        "gauge.launch.enableDebugLogs": {
-          "type": "boolean",
-          "default": false,
-          "description": "When true, communication between vscode and gauge server will be logged."
-        },
-        "gauge.execution.debugPort": {
-          "type": "int",
-          "default": 9229,
-          "description": "Default debug port."
-        },
-        "gauge.create.specification.withHelp": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, create the specification with help comments."
-        },
-        "gauge.codeLenses.reference": {
-          "type": "boolean",
-          "default": true,
-          "description": "When true, reference codeLenses appers in implementation files."
-        },
-        "gauge.recommendedSettings.options": {
-          "type": "string",
-          "default": "Remind me later",
-          "enum": [
-            "Apply & Reload",
-            "Remind me later",
-            "Ignore"
-          ],
-          "description": "Gauge recommended settings are shown/ignored based on the given value."
-        }
-      }
-    },
-    "snippets": [
-      {
-        "language": "gauge",
-        "path": "./snippets/gauge.json"
-      }
-    ],
-    "debuggers": [
-      {
-        "type": "gauge",
-        "label": "Gauge",
-        "configurationAttributes": {
-          "test": {
-            "properties": {
-              "env": {
-                "description": "[Gauge] Specifies the environment to use (default \"default\")",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "default": []
-              },
-              "fail-safe": {
-                "description": "[Gauge] Force return 0 exit code, even in case of failures.",
-                "type": "boolean",
-                "default": false
-              },
-              "failed": {
-                "description": "[Gauge] Run only the scenarios failed in previous run. This cannot be used in conjunction with any other argument",
-                "type": "boolean",
-                "default": false
-              },
-              "group": {
-                "description": "[Gauge] Specify which group of specification to execute based on -n flag (default -1)",
-                "type": "number",
-                "default": -1
-              },
-              "hide-suggestion": {
-                "description": "[Gauge] Hide step implementation stub for every unimplemented step",
-                "type": "boolean",
-                "default": false
-              },
-              "install-plugins": {
-                "description": "[Gauge] Install All Missing Plugins (default true)",
-                "type": "boolean",
-                "default": true
-              },
-              "max-retries-count": {
-                "description": "[Gauge] Max count of iterations for failed scenario (default 1)",
-                "type": "number",
-                "default": 1
-              },
-              "n": {
-                "description": "[Gauge] Specify number of parallel execution streams (default 8)",
-                "type": "number",
-                "default": 8
-              },
-              "parallel": {
-                "description": "[Gauge] Execute specs in parallel",
-                "type": "boolean",
-                "default": false
-              },
-              "repeat": {
-                "description": "[Gauge] Repeat last run. This cannot be used in conjunction with any other argument",
-                "type": "boolean",
-                "default": false
-              },
-              "retry-only": {
-                "description": "[Gauge] Retries the specs and scenarios tagged with given tags",
-                "type": "string",
-                "default": ""
-              },
-              "scenario": {
-                "description": "[Gauge] Set scenarios for running specs with scenario name",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "default": []
-              },
-              "simple-console": {
-                "description": "[Gauge] Removes colouring and simplifies the console output",
-                "type": "boolean",
-                "default": false
-              },
-              "sort": {
-                "description": "[Gauge] Run specs in Alphabetical Order",
-                "type": "boolean",
-                "default": false
-              },
-              "strategy": {
-                "description": "[Gauge] Set the parallelization strategy for execution. Possible options are: eager,lazy (default \"lazy\")",
-                "enum": [
-                  "eager",
-                  "lazy"
-                ],
-                "default": "lazy"
-              },
-              "table-rows": {
-                "description": "[Gauge] Executes the specs and scenarios only for the selected rows. It can be specified by range as 2_4 or as list 2,4",
-                "type": "string",
-                "default": ""
-              },
-              "tags": {
-                "description": "[Gauge] Executes the specs and scenarios tagged with given tags",
-                "type": "string",
-                "default": ""
-              },
-              "verbose": {
-                "description": "[Gauge] Enable step level reporting on console, default being scenario level",
-                "type": "boolean",
-                "default": false
-              },
-              "dir": {
-                "description": "[Gauge] Set the working directory for the current command, accepts a path relative to current directory (default \".\")",
-                "type": "string",
-                "default": "."
-              },
-              "log-level": {
-                "description": "[Gauge] Set level of logging to debug, info, warning, error or critical (default \"info\")",
-                "enum": [
-                  "debug",
-                  "info",
-                  "warning",
-                  "error",
-                  "critical"
-                ],
-                "default": "info"
-              },
-              "machine-readable": {
-                "description": "[Gauge] Prints output in JSON format",
-                "type": "boolean",
-                "default": false
-              }
-            }
-          }
-        },
-        "initialConfigurations": [
-          {
-            "name": "Gauge Run Option",
-            "type": "gauge",
-            "request": "test"
-          }
-        ],
-        "configurationSnippets": [
-          {
-            "label": "Gauge: Run Option",
-            "description": "Specify the execution options for the tests",
-            "body": {
-              "name": "Gauge Run Option",
-              "type": "gauge",
-              "request": "test"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  "scripts": {
-    "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "compile:watch": "tsc -watch -p ./",
-    "compile": "tsc -p ./",
-    "pack": "webpack-cli --env production",
-    "build": "npm install && npm run lint && npm run compile && npm run pack && vsce package",
-    "test": "node out/test/runTest.js",
+	"name": "gauge",
+	"displayName": "Gauge",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/getgauge/gauge-vscode.git"
+	},
+	"description": "Gauge support for VScode.",
+	"author": "ThoughtWorks",
+	"license": "MIT",
+	"version": "0.1.3",
+	"publisher": "getgauge",
+	"engines": {
+		"vscode": "^1.71.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"activationEvents": [
+		"onCommand:gauge.createProject",
+		"workspaceContains:manifest.json",
+		"onLanguage:gauge",
+		"onDebugResolve:gauge"
+	],
+	"icon": "images/gauge-icon.png",
+	"galleryBanner": {
+		"color": "#F5C20F",
+		"theme": "light"
+	},
+	"main": "./out/extension",
+	"contributes": {
+		"views": {
+			"test": [
+				{
+					"id": "gauge:specExplorer",
+					"name": "Gauge Specs",
+					"when": "gauge:activated"
+				}
+			]
+		},
+		"languages": [
+			{
+				"id": "gauge",
+				"extensions": [
+					".spec",
+					".cpt"
+				],
+				"aliases": [
+					"Gauge",
+					"Specification",
+					"Spec"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "gauge",
+				"scopeName": "text.html.markdown",
+				"path": "./syntaxes/markdown.tmLanguage"
+			}
+		],
+		"commands": [
+			{
+				"command": "gauge.createProject",
+				"title": "Create a new Gauge Project",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.create.specification",
+				"title": "Create New Specification",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.config.saveRecommended",
+				"title": "Optimize VS Code configuration for Gauge",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.stopExecution",
+				"title": "Stop current gauge execution",
+				"category": "Gauge",
+				"when": "gauge:executing"
+			},
+			{
+				"command": "gauge.execute.failed",
+				"title": "Re-Run Failed Scenario(s)",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.report.html",
+				"title": "Show Last Run Report",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.execute.repeat",
+				"title": "Repeat Last Run",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.execute.specification",
+				"title": "Run Specification",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.execute.specification.all",
+				"title": "Run All Specifications",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.specexplorer.runAllActiveProjectSpecs",
+				"title": "Run All Active Project Specifications",
+				"category": "Gauge",
+				"icon": {
+					"light": "resources/light/play.svg",
+					"dark": "resources/dark/play.svg"
+				}
+			},
+			{
+				"command": "gauge.specexplorer.runNode",
+				"title": "Run",
+				"category": "Gauge",
+				"icon": "$(debug-start)"
+			},
+			{
+				"command": "gauge.specexplorer.debugNode",
+				"title": "Debug",
+				"category": "Gauge",
+				"icon": "$(bug)"
+			},
+			{
+				"command": "gauge.execute.scenario",
+				"title": "Run Scenario",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.execute.scenarios",
+				"title": "Run Scenarios",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.showReferences.atCursor",
+				"title": "Find Step References",
+				"category": "Gauge"
+			},
+			{
+				"command": "gauge.specexplorer.switchProject",
+				"title": "Change Project",
+				"category": "Gauge",
+				"icon": {
+					"light": "resources/light/icon-list.svg",
+					"dark": "resources/dark/icon-list.svg"
+				}
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "gauge.create.specification",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.specexplorer.switchProject",
+					"when": "config.noExists"
+				},
+				{
+					"command": "gauge.execute.repeat",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.execute.specification",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.execute.specification.all",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.execute.scenario",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.execute.scenarios",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.showReferences.atCursor",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.report.html",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.execute.failed",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.stopExecution",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.config.saveRecommended",
+					"when": "gauge:activated"
+				},
+				{
+					"command": "gauge.specexplorer.runAllActiveProjectSpecs",
+					"when": "config.noExists"
+				},
+				{
+					"command": "gauge.specexplorer.runNode",
+					"when": "config.noExists"
+				},
+				{
+					"command": "gauge.specexplorer.debugNode",
+					"when": "config.noExists"
+				}
+			],
+			"view/title": [
+				{
+					"command": "gauge.specexplorer.switchProject",
+					"when": "gauge:multipleProjects?",
+					"group": "navigation"
+				},
+				{
+					"command": "gauge.specexplorer.runAllActiveProjectSpecs",
+					"when": "view == gauge:specExplorer",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "gauge.specexplorer.runNode",
+					"when": "view == gauge:specExplorer",
+					"group": "inline"
+				},
+				{
+					"command": "gauge.specexplorer.debugNode",
+					"when": "view == gauge:specExplorer",
+					"group": "inline"
+				}
+			]
+		},
+		"configuration": {
+			"type": "object",
+			"title": "Gauge configuration",
+			"properties": {
+				"gauge.welcomeNotification.showOn": {
+					"type": "string",
+					"default": "newProjectLoad",
+					"enum": [
+						"newProjectLoad",
+						"never"
+					],
+					"description": "Shows gauge welcome page based on given value, defaulted to on upgrade."
+				},
+				"gauge.specExplorer.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "When true, gauge specs explorer will be alive and loaded."
+				},
+				"gauge.launch.enableDebugLogs": {
+					"type": "boolean",
+					"default": false,
+					"description": "When true, communication between vscode and gauge server will be logged."
+				},
+				"gauge.execution.debugPort": {
+					"type": "int",
+					"default": 9229,
+					"description": "Default debug port."
+				},
+				"gauge.create.specification.withHelp": {
+					"type": "boolean",
+					"default": true,
+					"description": "When true, create the specification with help comments."
+				},
+				"gauge.codeLenses.reference": {
+					"type": "boolean",
+					"default": true,
+					"description": "When true, reference codeLenses appers in implementation files."
+				},
+				"gauge.recommendedSettings.options": {
+					"type": "string",
+					"default": "Remind me later",
+					"enum": [
+						"Apply & Reload",
+						"Remind me later",
+						"Ignore"
+					],
+					"description": "Gauge recommended settings are shown/ignored based on the given value."
+				}
+			}
+		},
+		"snippets": [
+			{
+				"language": "gauge",
+				"path": "./snippets/gauge.json"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "gauge",
+				"label": "Gauge",
+				"configurationAttributes": {
+					"test": {
+						"properties": {
+							"env": {
+								"description": "[Gauge] Specifies the environment to use (default \"default\")",
+								"type": "array",
+								"items": {
+									"type": "string"
+								},
+								"default": []
+							},
+							"fail-safe": {
+								"description": "[Gauge] Force return 0 exit code, even in case of failures.",
+								"type": "boolean",
+								"default": false
+							},
+							"failed": {
+								"description": "[Gauge] Run only the scenarios failed in previous run. This cannot be used in conjunction with any other argument",
+								"type": "boolean",
+								"default": false
+							},
+							"group": {
+								"description": "[Gauge] Specify which group of specification to execute based on -n flag (default -1)",
+								"type": "number",
+								"default": -1
+							},
+							"hide-suggestion": {
+								"description": "[Gauge] Hide step implementation stub for every unimplemented step",
+								"type": "boolean",
+								"default": false
+							},
+							"install-plugins": {
+								"description": "[Gauge] Install All Missing Plugins (default true)",
+								"type": "boolean",
+								"default": true
+							},
+							"max-retries-count": {
+								"description": "[Gauge] Max count of iterations for failed scenario (default 1)",
+								"type": "number",
+								"default": 1
+							},
+							"n": {
+								"description": "[Gauge] Specify number of parallel execution streams (default 8)",
+								"type": "number",
+								"default": 8
+							},
+							"parallel": {
+								"description": "[Gauge] Execute specs in parallel",
+								"type": "boolean",
+								"default": false
+							},
+							"repeat": {
+								"description": "[Gauge] Repeat last run. This cannot be used in conjunction with any other argument",
+								"type": "boolean",
+								"default": false
+							},
+							"retry-only": {
+								"description": "[Gauge] Retries the specs and scenarios tagged with given tags",
+								"type": "string",
+								"default": ""
+							},
+							"scenario": {
+								"description": "[Gauge] Set scenarios for running specs with scenario name",
+								"type": "array",
+								"items": {
+									"type": "string"
+								},
+								"default": []
+							},
+							"simple-console": {
+								"description": "[Gauge] Removes colouring and simplifies the console output",
+								"type": "boolean",
+								"default": false
+							},
+							"sort": {
+								"description": "[Gauge] Run specs in Alphabetical Order",
+								"type": "boolean",
+								"default": false
+							},
+							"strategy": {
+								"description": "[Gauge] Set the parallelization strategy for execution. Possible options are: eager,lazy (default \"lazy\")",
+								"enum": [
+									"eager",
+									"lazy"
+								],
+								"default": "lazy"
+							},
+							"table-rows": {
+								"description": "[Gauge] Executes the specs and scenarios only for the selected rows. It can be specified by range as 2_4 or as list 2,4",
+								"type": "string",
+								"default": ""
+							},
+							"tags": {
+								"description": "[Gauge] Executes the specs and scenarios tagged with given tags",
+								"type": "string",
+								"default": ""
+							},
+							"verbose": {
+								"description": "[Gauge] Enable step level reporting on console, default being scenario level",
+								"type": "boolean",
+								"default": false
+							},
+							"dir": {
+								"description": "[Gauge] Set the working directory for the current command, accepts a path relative to current directory (default \".\")",
+								"type": "string",
+								"default": "."
+							},
+							"log-level": {
+								"description": "[Gauge] Set level of logging to debug, info, warning, error or critical (default \"info\")",
+								"enum": [
+									"debug",
+									"info",
+									"warning",
+									"error",
+									"critical"
+								],
+								"default": "info"
+							},
+							"machine-readable": {
+								"description": "[Gauge] Prints output in JSON format",
+								"type": "boolean",
+								"default": false
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"name": "Gauge Run Option",
+						"type": "gauge",
+						"request": "test"
+					}
+				],
+				"configurationSnippets": [
+					{
+						"label": "Gauge: Run Option",
+						"description": "Specify the execution options for the tests",
+						"body": {
+							"name": "Gauge Run Option",
+							"type": "gauge",
+							"request": "test"
+						}
+					}
+				]
+			}
+		]
+	},
+	"scripts": {
+		"lint": "tslint -c tslint.json 'src/**/*.ts'",
+		"compile:watch": "tsc -watch -p ./",
+		"compile": "tsc -p ./",
+		"pack": "webpack-cli --env production",
+		"build": "npm install && npm run lint && npm run compile && npm run pack && vsce package",
+		"test": "node out/test/runTest.js",
 		"compatibilityTest": "node out/test/runTest.js --compatibility",
-    "publish": "vsce publish"
-  },
-  "devDependencies": {
-    "@types/fs-extra": "^11.0.3",
-    "@types/mocha": "^10.0.3",
-    "@types/node": "^20.8.9",
-    "@types/ps-tree": "^1.1.4",
-    "@types/vscode": "~1.63.1",
-    "@vscode/test-electron": "^2.3.6",
-    "cross-env": "^7.0.3",
-    "glob": "^10.3.10",
-    "mocha": "^10.2.0",
-    "sinon": "^17.0.1",
-    "terser-webpack-plugin": "^5.3.9",
-    "ts-loader": "^9.5.0",
-    "ts-mockito": "^2.6.1",
-    "tslint": "^6.1.3",
-    "typescript": "^5.2.2",
-    "vsce": "^2.15.0",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "clipboardy": "^4.0.0",
-    "fs-extra": "^11.1.1",
-    "get-port": "^5.1.1",
-    "ps-tree": "^1.2.0",
-    "vscode-jsonrpc": "^8.2.0",
-    "vscode-languageclient": "^9.0.1",
-    "vscode-languageserver-protocol": "~3.17.5",
-    "xmlbuilder": "^15.1.1"
-  }
+		"publish": "vsce publish"
+	},
+	"devDependencies": {
+		"@types/fs-extra": "^11.0.3",
+		"@types/mocha": "^10.0.3",
+		"@types/node": "^20.8.9",
+		"@types/ps-tree": "^1.1.4",
+		"@types/vscode": "~1.71.0",
+		"@vscode/test-electron": "^2.3.6",
+		"cross-env": "^7.0.3",
+		"glob": "^10.3.10",
+		"mocha": "^10.2.0",
+		"sinon": "^17.0.1",
+		"terser-webpack-plugin": "^5.3.9",
+		"ts-loader": "^9.5.0",
+		"ts-mockito": "^2.6.1",
+		"tslint": "^6.1.3",
+		"typescript": "^5.2.2",
+		"vsce": "^2.15.0",
+		"webpack": "^5.89.0",
+		"webpack-cli": "^5.1.4"
+	},
+	"dependencies": {
+		"clipboardy": "^4.0.0",
+		"fs-extra": "^11.1.1",
+		"get-port": "^5.1.1",
+		"ps-tree": "^1.2.0",
+		"vscode-jsonrpc": "~8.1.0",
+		"vscode-languageclient": "~8.1.0",
+		"vscode-languageserver-protocol": "~3.17.3",
+		"xmlbuilder": "^15.1.1"
+	}
 }
