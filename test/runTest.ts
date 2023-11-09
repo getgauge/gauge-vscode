@@ -35,17 +35,10 @@ if (process.argv[2] && process.argv[2] === '--compatibility') {
     // The version is directly taken from this plugins package version
     //
     // This rerun is here to catch incompatibilities of @types/vscode with the lsp
-    // packages:
-    // - vscode-jsonrpc
-    // - vscode-languageclient
-    // - vscode-languageclient-protocol
+    // packages vscode-languageclient
 
-    // You can upgrade vscode-jsonrpc, vscode-languageclient and vscode-languageclient-protocol
-    // but must do so in one step, as these are released in tandem
-    // see https://github.com/Microsoft/vscode-languageserver-node
-
-    // Upgrading them might require a @types/vscode version bump (these version bumps are
-    // not mentioned in their release notes).
+    // Upgrading vscode-languageclient might require a @types/vscode version bump
+    // (these version bumps are not mentioned in their release notes).
     // Bumping @types/vscode will require bumping the minimum supported vscode version in
     // package.json (engines["vscode"]) as well.
     // The value of engines["vscode"] cannot be a pinned version "~1.67.0" but must use the
