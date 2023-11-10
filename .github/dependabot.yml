@@ -9,6 +9,12 @@ updates:
     schedule:
       interval: weekly
     groups:
-      vscode:
+      mocha:
         patterns:
-          - "vscode-*"
+          - "*mocha*"
+      fs-extra:
+        patterns:
+          - "*fs-extra*"
+      sinon:
+        patterns:
+          - "*sinon*"

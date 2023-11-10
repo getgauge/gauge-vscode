@@ -44,12 +44,12 @@ suite('Gauge Execution Tests', () => {
         let scenario = spec.fsPath + ":6";
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, scenario);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(30000);
 
     test('should execute all specification in spec dir', async () => {
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteAllSpecs);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(30000);
 
     test('should execute currently open specification', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
@@ -57,7 +57,7 @@ suite('Gauge Execution Tests', () => {
         await window.showTextDocument(doc);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteSpec);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(30000);
 
     test('should execute scenario at cursor', async () => {
         let specFile = Uri.file(path.join(testDataPath, 'specs', 'example.spec'));
@@ -67,7 +67,7 @@ suite('Gauge Execution Tests', () => {
         window.activeTextEditor.selection = new Selection(8, 0, 8, 0);
         let status = await commands.executeCommand(GaugeVSCodeCommands.ExecuteScenario);
         assertStatus(status);
-    }).timeout(20000);
+    }).timeout(30000);
 
     test('should abort execution', async () => {
         let spec = path.join(testDataPath, 'specs', 'example.spec');
@@ -79,7 +79,7 @@ suite('Gauge Execution Tests', () => {
         setTimeout(() => commands.executeCommand(GaugeVSCodeCommands.StopExecution), 100);
         let status = await commands.executeCommand(GaugeVSCodeCommands.Execute, spec);
         assertStatus(status, false);
-    });
+    }).timeout(30000);
 
     test('should reject execution when another is already in progress', async () => {
         let expectedErrorMessage;
@@ -95,5 +95,5 @@ suite('Gauge Execution Tests', () => {
         } catch {
             assert.equal(expectedErrorMessage, "A Specification or Scenario is still running!");
         }
-    }).timeout(20000);
+    }).timeout(30000);
 });

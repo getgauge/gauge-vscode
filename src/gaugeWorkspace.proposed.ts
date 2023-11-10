@@ -1,9 +1,7 @@
 'use strict';
 
 import { workspace, Disposable } from 'vscode';
-import { DynamicFeature, RegistrationData, BaseLanguageClient, RequestType0, FeatureState } from 'vscode-languageclient';
-
-import { ClientCapabilities, InitializedParams } from 'vscode-languageserver-protocol';
+import { DynamicFeature, RegistrationData, BaseLanguageClient,  FeatureState, ClientCapabilities, InitializedParams, RequestType0 } from 'vscode-languageclient';
 
 import { SaveFilesRequest, GaugeClientCapabilities } from './protocol/gauge.proposed';
 

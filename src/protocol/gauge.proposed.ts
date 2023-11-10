@@ -1,5 +1,4 @@
-import { RequestHandler0, CancellationToken, RequestType0 } from 'vscode-languageserver-protocol';
-import { HandlerResult } from 'vscode-jsonrpc';
+import { CancellationToken, HandlerResult, RequestHandler0, RequestType0 } from 'vscode-languageclient';
 
 export interface GaugeClientCapabilities {
     /**
