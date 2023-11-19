@@ -1,15 +1,13 @@
 'use strict';
 
 import * as path from 'path';
-import { CancellationTokenSource, commands, Disposable, window } from "vscode";
+import { CancellationTokenSource, env, commands, Disposable, window } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { COPY_TO_CLIPBOARD, GaugeRequests, GaugeVSCodeCommands, NEW_FILE } from "../constants";
 import { GaugeClients } from "../gaugeClients";
 import { ProjectFactory } from "../project/projectFactory";
 import { WorkspaceEditor } from "../refactor/workspaceEditor";
 import { FileListItem } from "../types/fileListItem";
-
-import clipboardy = require("clipboardy");
 
 export class GenerateStubCommandProvider implements Disposable {
     private readonly _clientsMap: GaugeClients;
@@ -47,8 +45,9 @@ export class GenerateStubCommandProvider implements Disposable {
             window.showQuickPick(this.getFileLists(files, pc.project.root())).then((selected: FileListItem) => {
                 if (!selected) return;
                 if (selected.isCopyToClipBoard()) {
-                    clipboardy.writeSync(code);
-                    window.showInformationMessage("Step Implementation copied to clipboard");
+                    env.clipboard.writeText(code).then(() => {
+                        window.showInformationMessage("Step Implementation copied to clipboard");
+                    }, this.handleError);
                 } else {
                     let params = { implementationFilePath: selected.value, codes: [code] };
                     this.generateInFile(GaugeRequests.AddStub, params, pc.client);
