@@ -465,7 +465,7 @@
     "@types/ps-tree": "^1.1.4",
     "@types/sinon": "^17.0.1",
     "@types/vscode": "~1.71.0",
-    "@vscode/test-electron": "^2.3.6",
+    "@vscode/test-electron": "^2.3.8",
     "@vscode/vsce": "^2.22.0",
     "cross-env": "^7.0.3",
     "glob": "^10.3.10",
