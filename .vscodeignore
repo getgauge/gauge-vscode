@@ -3,6 +3,7 @@
 tsconfig.json
 tslint.json
 **/*.vsix
+**/*.zip
 **/*.sh
 test/**
 integration-test/**
@@ -26,3 +27,4 @@ node_modules
 bin/**
 .github/**
 README.md
+.idea/
