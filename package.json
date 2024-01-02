@@ -471,7 +471,7 @@
     "glob": "^10.3.10",
     "mocha": "^10.2.0",
     "sinon": "^17.0.1",
-    "terser-webpack-plugin": "^5.3.9",
+    "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.0",
     "ts-mockito": "^2.6.1",
     "tslint": "^6.1.3",
