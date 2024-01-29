@@ -466,7 +466,7 @@
     "@types/sinon": "^17.0.3",
     "@types/vscode": "~1.71.0",
     "@vscode/test-electron": "^2.3.8",
-    "@vscode/vsce": "^2.22.0",
+    "@vscode/vsce": "^2.23.0",
     "cross-env": "^7.0.3",
     "glob": "^10.3.10",
     "mocha": "^10.2.0",
