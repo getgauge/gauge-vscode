@@ -468,7 +468,7 @@
     "@vscode/test-electron": "^2.3.9",
     "@vscode/vsce": "^2.24.0",
     "cross-env": "^7.0.3",
-    "glob": "^10.3.10",
+    "glob": "^10.3.12",
     "mocha": "^10.3.0",
     "sinon": "^17.0.1",
     "terser-webpack-plugin": "^5.3.10",
