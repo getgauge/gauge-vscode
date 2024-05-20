@@ -461,7 +461,7 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.3",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.12.12",
     "@types/ps-tree": "^1.1.4",
     "@types/sinon": "^17.0.3",
     "@types/vscode": "~1.71.0",
