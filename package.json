@@ -460,7 +460,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.3",
-    "@types/mocha": "^10.0.6",
+    "@types/mocha": "^10.0.7",
     "@types/node": "^20.14.4",
     "@types/ps-tree": "^1.1.4",
     "@types/sinon": "^17.0.3",
@@ -469,7 +469,7 @@
     "@vscode/vsce": "^2.27.0",
     "cross-env": "^7.0.3",
     "glob": "^10.4.1",
-    "mocha": "^10.4.0",
+    "mocha": "^10.5.0",
     "sinon": "^18.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.0",
