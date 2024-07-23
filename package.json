@@ -469,7 +469,7 @@
     "@vscode/vsce": "^2.31.1",
     "cross-env": "^7.0.3",
     "glob": "^11.0.0",
-    "mocha": "^10.6.0",
+    "mocha": "^10.7.0",
     "sinon": "^18.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.0",
