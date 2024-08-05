@@ -6,7 +6,7 @@ import {
     CancellationTokenSource, commands, Disposable, OutputChannel, Uri,
     window, workspace, WorkspaceConfiguration, WorkspaceFoldersChangeEvent
 } from "vscode";
-import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn } from "vscode-languageclient/node";
+import { DynamicFeature, LanguageClient, LanguageClientOptions, RevealOutputChannelOn, ServerOptions } from "vscode-languageclient/node";
 import { CLI } from './cli';
 import GaugeConfig from './config/gaugeConfig';
 import { GaugeJavaProjectConfig } from './config/gaugeProjectConfig';
@@ -146,11 +146,15 @@ export class GaugeWorkspace extends Disposable {
         let project = ProjectFactory.get(folder);
         if (this._clientsMap.has(project.root())) return;
         process.env.GAUGE_IGNORE_RUNNER_BUILD_FAILURES = "true";
-        let serverOptions = {
-            command: this.cli.gaugeCommand(),
-            args: ["daemon", "--lsp", "--dir=" + project.root()],
-            options: { env: { ...process.env, ...project.envs(this.cli) } }
+        let serverOptions: ServerOptions = {
+          command: this.cli.gaugeCommand(),
+          args: ["daemon", "--lsp", "--dir=" + project.root()],
+          options: { env: { ...process.env, ...project.envs(this.cli) } },
         };
+
+        if(platform() == "win32") {
+            serverOptions.options.shell = true;
+        }
 
         this._launchConfig = workspace.getConfiguration(GAUGE_LAUNCH_CONFIG);
         if (this._launchConfig.get(DEBUG_LOG_LEVEL_CONFIG)) {
