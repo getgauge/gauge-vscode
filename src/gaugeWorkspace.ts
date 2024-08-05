@@ -152,7 +152,7 @@ export class GaugeWorkspace extends Disposable {
           options: { env: { ...process.env, ...project.envs(this.cli) } },
         };
 
-        if(platform() == "win32") {
+        if (platform() === "win32") {
             serverOptions.options.shell = true;
         }
 
