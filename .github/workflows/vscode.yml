@@ -24,12 +24,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          check-latest: true
-          go-version: '1.23'
-
       - name: build
         run: |
           npm run build
