@@ -10,7 +10,7 @@ async function go(version?: string) {
 
         if (version===undefined){
             // run tests with current stable vscode version
-            version = "stable";
+            version = "1.93.0";
         }
         console.log(`Running tests with version: ${version}`)
 
