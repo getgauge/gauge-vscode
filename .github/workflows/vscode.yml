@@ -52,11 +52,15 @@ jobs:
       - name: Run tests (macos)
         if: matrix.os == 'macos-latest'
         run: |
+          sudo sed -i '' '/ export PATH;$/,+2d' ~/.bashrc
+          source ~/.bashrc
           npm test
 
       - name: Run compatibility tests (macos)
         if: matrix.os == 'macos-latest'
         run: |
+          sudo sed -i '' '/ export PATH;$/,+2d' ~/.bashrc
+          source ~/.bashrc
           npm run compatibilityTest
 
       - name: Run tests (windows)
