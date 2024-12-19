@@ -1,6 +1,6 @@
 'use strict';
 
-import { spawn, spawnSync } from 'child_process';
+import { CommonSpawnOptions, spawn, spawnSync } from 'child_process';
 import { platform } from 'os';
 import { window } from 'vscode';
 import { GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND } from './constants';
@@ -28,7 +28,15 @@ export class CLI {
         let mvnCommand = this.getCommand(MAVEN_COMMAND);
         let gradleCommand = this.getGradleCommand();
         if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand, gradleCommand);
-        let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable]);
+        let options: CommonSpawnOptions = {};
+        if(platform() === "win32") {
+            options.shell = true;
+        }
+        let gv = spawnSync(
+          gaugeCommand,
+          [GaugeCommands.Version, GaugeCommands.MachineReadable],
+          options
+        );
         let gaugeVersionInfo;
         try {
             gaugeVersionInfo = JSON.parse(gv.stdout.toString());
@@ -67,7 +75,15 @@ export class CLI {
         let oc = window.createOutputChannel("Gauge Install");
         let chan = new OutputChannel(oc, `Installing gauge ${language} plugin ...\n`, "");
         return new Promise((resolve, reject) => {
-            let childProcess = spawn(this._gaugeCommand, [GaugeCommands.Install, language]);
+            let options: CommonSpawnOptions = {};
+            if (platform() === "win32") {
+                options.shell = true;
+            }
+            let childProcess = spawn(
+              this._gaugeCommand,
+              [GaugeCommands.Install, language],
+              options
+            );
             childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code) => {
@@ -102,10 +118,14 @@ export class CLI {
 
     private static getCommand(command: string): string {
         let validExecExt = [""];
-        if (platform() === 'win32') validExecExt.push(".bat", ".exe", ".cmd");
+        let options: CommonSpawnOptions = {};
+        if (platform() === 'win32') {
+            validExecExt.push(".bat", ".exe", ".cmd");
+            options.shell = true;
+        }
         for (const ext of validExecExt) {
             let executable = `${command}${ext}`;
-            if (!spawnSync(executable).error) return executable;
+            if (!spawnSync(executable, [], options).error) return executable;
         }
     }
 
