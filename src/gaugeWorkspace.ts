@@ -169,7 +169,6 @@ export class GaugeWorkspace extends Disposable {
             synchronize: {
                 configurationSection: 'gauge'
             },
-
         };
         clientOptions.workspaceFolder = workspace.getWorkspaceFolder(Uri.file(folder));
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
@@ -233,6 +232,4 @@ export class GaugeWorkspace extends Disposable {
             }
         });
     }
-
-
 }
