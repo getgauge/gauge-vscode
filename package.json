@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.71.0"
@@ -348,6 +348,11 @@
           "type": "string",
           "default": "#228549",
           "description": "Color for disabled steps."
+        },
+        "gauge.formatting.skipEmptyLineInsertions": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, skip adding empty lines during formatting."
         }
       }
     },
