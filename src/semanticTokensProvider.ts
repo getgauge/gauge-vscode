@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
 
-// Define token types.
-// Order matters: the index in this array is used by the builder.
 const tokenTypes = [
   'specification',            // For spec headers: lines starting with '#' or underlined with '='
   'scenario',                 // For scenario headers: lines starting with '##' or underlined with '-'
