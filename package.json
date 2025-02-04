@@ -332,7 +332,7 @@
         "gauge.semanticTokenColors.specification": {
           "type": "string",
           "default": "#66d9ef",
-          "description": "Color for specification headers."
+          "description": "Color for specification/concept headers."
         },
         "gauge.semanticTokenColors.scenario": {
           "type": "string",

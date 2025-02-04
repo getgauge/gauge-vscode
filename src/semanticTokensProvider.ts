@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 
 const tokenTypes = [
-  'specification',            // For spec headers: lines starting with '#' or underlined with '='
+  'specification',            // For spec/concept headers: lines starting with '#' or underlined with '='
   'scenario',                 // For scenario headers: lines starting with '##' or underlined with '-'
   'stepMarker',               // For the leading "*" in a step line
   'step',                     // For the rest of the step text
-  'argument',                 // For any quoted text or angle-bracketed text in step lines
+  'argument',                 // For any quoted text or angle-bracketed text in step lines (or concept heading)
   'table',                    // For table cell text (non-border, non-separator)
   'tableHeaderSeparator',     // For table header separator dash characters (only '-' characters)
   'tableBorder',              // For table border characters (the '|' characters)
@@ -68,18 +68,32 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
       }
 
       // 2. Check for '#' style headings.
-      // Check for "##" first.
-      if (trimmedLine.startsWith("##")) {
-        const leadingSpaces = line.length - line.trimStart().length;
-        builder.push(i, leadingSpaces, line.length - leadingSpaces, tokenTypes.indexOf('scenario'), 0);
-        i++;
-        continue;
-      } else if (trimmedLine.startsWith("#")) {
-        const leadingSpaces = line.length - line.trimStart().length;
-        builder.push(i, leadingSpaces, line.length - leadingSpaces, tokenTypes.indexOf('specification'), 0);
+      // Now we process any heading line that starts with '#' to also highlight arguments.
+      if (trimmedLine.startsWith("#")) {
+        // Find the first non‑whitespace index.
+        const firstNonWhitespaceIndex = line.search(/\S/);
+        let lastIndex = firstNonWhitespaceIndex;
+        // Reset regex state for this line.
+        argumentRegex.lastIndex = 0;
+        let match: RegExpExecArray | null = argumentRegex.exec(line);
+        while (match !== null) {
+          const matchStart = match.index;
+          if (matchStart > lastIndex) {
+            // Mark the non‑argument portion as a scenario token.
+            builder.push(i, lastIndex, matchStart - lastIndex, tokenTypes.indexOf('scenario'), 0);
+          }
+          // Mark the matched argument text as an argument token.
+          builder.push(i, matchStart, match[0].length, tokenTypes.indexOf('argument'), 0);
+          lastIndex = argumentRegex.lastIndex;
+          match = argumentRegex.exec(line);
+        }
+        if (lastIndex < line.length) {
+          builder.push(i, lastIndex, line.length - lastIndex, tokenTypes.indexOf('scenario'), 0);
+        }
         i++;
         continue;
       }
+
       // 3. Check for tag lines (lines starting with "tags:" case-insensitively).
       else if (trimmedLine.toLowerCase().startsWith('tags:')) {
         const leadingSpaces = line.length - line.trimStart().length;
@@ -92,6 +106,7 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
         i++;
         continue;
       }
+
       // 4. Process step lines (lines starting with '*').
       else if (trimmedLine.startsWith('*')) {
         const firstNonWhitespaceIndex = line.indexOf('*');
@@ -99,7 +114,8 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
           // Mark the "*" as a stepMarker.
           builder.push(i, firstNonWhitespaceIndex, 1, tokenTypes.indexOf('stepMarker'), 0);
           let lastIndex = firstNonWhitespaceIndex + 1;
-          // Use the combined regex to capture both quoted and angle-bracketed arguments.
+          // Reset regex state for this line.
+          argumentRegex.lastIndex = 0;
           let match: RegExpExecArray | null = argumentRegex.exec(line);
           while (match !== null) {
             const matchStart = match.index;
@@ -119,6 +135,7 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
         i++;
         continue;
       }
+
       // 5. Process table lines (lines starting with '|').
       else if (trimmedLine.startsWith('|')) {
         if (tableHeaderSeparatorRegex.test(trimmedLine)) {
