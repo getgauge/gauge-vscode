@@ -99,9 +99,9 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
           // Mark the "*" as a stepMarker.
           builder.push(i, firstNonWhitespaceIndex, 1, tokenTypes.indexOf('stepMarker'), 0);
           let lastIndex = firstNonWhitespaceIndex + 1;
-          let match: RegExpExecArray | null;
           // Use the combined regex to capture both quoted and angle-bracketed arguments.
-          while ((match = argumentRegex.exec(line)) !== null) {
+          let match: RegExpExecArray | null = argumentRegex.exec(line);
+          while (match !== null) {
             const matchStart = match.index;
             if (matchStart > lastIndex) {
               builder.push(i, lastIndex, matchStart - lastIndex, tokenTypes.indexOf('step'), 0);
@@ -109,6 +109,7 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
             // Mark the entire matched text (including quotes or angle brackets) as an argument.
             builder.push(i, matchStart, match[0].length, tokenTypes.indexOf('argument'), 0);
             lastIndex = argumentRegex.lastIndex;
+            match = argumentRegex.exec(line);
           }
           // Any remaining text after the last argument is part of the step.
           if (lastIndex < line.length) {
