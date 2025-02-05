@@ -166,6 +166,9 @@ export class GaugeWorkspace extends Disposable {
             diagnosticCollectionName: 'gauge',
             outputChannel: this._outputChannel,
             revealOutputChannelOn: RevealOutputChannelOn.Never,
+            synchronize: {
+                configurationSection: 'gauge'
+            },
         };
         clientOptions.workspaceFolder = workspace.getWorkspaceFolder(Uri.file(folder));
         let languageClient = new LanguageClient('gauge', 'Gauge', serverOptions, clientOptions);
@@ -229,6 +232,4 @@ export class GaugeWorkspace extends Disposable {
             }
         });
     }
-
-
 }
