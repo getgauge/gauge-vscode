@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.71.0"
@@ -288,6 +288,66 @@
             "Ignore"
           ],
           "description": "Gauge recommended settings are shown/ignored based on the given value."
+        },
+        "gauge.semanticTokenColors.argument": {
+          "type": "string",
+          "default": "#ae81ff",
+          "description": "Color for arguments."
+        },
+        "gauge.semanticTokenColors.stepMarker": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "Color for the step marker '*'"
+        },
+        "gauge.semanticTokenColors.step": {
+          "type": "string",
+          "default": "#a6e22e",
+          "description": "Color for step text."
+        },
+        "gauge.semanticTokenColors.table": {
+          "type": "string",
+          "default": "#ae81ff",
+          "description": "Color for table rows (cell data)."
+        },
+        "gauge.semanticTokenColors.tableHeaderSeparator": {
+          "type": "string",
+          "default": "#8349f0",
+          "description": "Color for table separator dashes."
+        },
+        "gauge.semanticTokenColors.tableBorder": {
+          "type": "string",
+          "default": "#8349f0",
+          "description": "Color for table table borders."
+        },
+        "gauge.semanticTokenColors.tagKeyword": {
+          "type": "string",
+          "default": "#ff4689",
+          "description": "Color for tag keywords."
+        },
+        "gauge.semanticTokenColors.tagValue": {
+          "type": "string",
+          "default": "#fc88b2",
+          "description": "Color for tag values."
+        },
+        "gauge.semanticTokenColors.specification": {
+          "type": "string",
+          "default": "#66d9ef",
+          "description": "Color for specification/concept headers."
+        },
+        "gauge.semanticTokenColors.scenario": {
+          "type": "string",
+          "default": "#66d9ef",
+          "description": "Color for scenario headers."
+        },
+        "gauge.semanticTokenColors.comment": {
+          "type": "string",
+          "default": "#cccccc",
+          "description": "Color for comments."
+        },
+        "gauge.semanticTokenColors.disabledStep": {
+          "type": "string",
+          "default": "#228549",
+          "description": "Color for disabled steps."
         }
       }
     },
