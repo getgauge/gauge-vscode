@@ -50,7 +50,7 @@
             "tagValue": { "foreground": colors.tagValue },
             "specification": { "foreground": colors.specification },
             "scenario": { "foreground": colors.scenario },
-            "comment": { "foreground": colors.comment },
+            "gaugeComment": { "foreground": colors.comment },
             "disabledStep": { "foreground": colors.disabledStep }
         };
 

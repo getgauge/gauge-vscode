@@ -12,7 +12,7 @@ const tokenTypes = [
   'tagKeyword',               // For the literal "tags:" at the beginning of a tag line
   'tagValue',                 // For the remainder of a tag line after "tags:"
   'disabledStep',             // For lines starting with "//" (used to disable a step)
-  'comment'                   // For lines that do not match any of the above (fallback comment lines)
+  'gaugeComment'              // For lines that do not match any of the above (fallback comment lines)
 ];
 const tokenModifiers: string[] = [];
 export const legend = new vscode.SemanticTokensLegend(tokenTypes, tokenModifiers);
@@ -175,7 +175,7 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
       else {
         // For any other non-empty line, mark it as a comment.
         if (trimmedLine.length > 0) {
-          builder.push(i, 0, line.length, tokenTypes.indexOf('comment'), 0);
+          builder.push(i, 0, line.length, tokenTypes.indexOf('gaugeComment'), 0);
         }
         i++;
       }
