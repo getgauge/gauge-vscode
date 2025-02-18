@@ -67,9 +67,10 @@ export class GaugeExecutor extends Disposable {
                     const relPath = relative(config.getProject().root(), config.getStatus());
                     this.preExecute.forEach((f) => { f.call(null, env, relPath); });
                     this.aborted = false;
-                    let options = { cwd: config.getProject().root(), env: env , detached: false};
+                    let options = { cwd: config.getProject().root(), env: env , detached: false, shell: true};
                     if (platform() !== 'win32') {
                         options.detached = true;
+                        options.shell = false;
                     }
                     this.childProcess = spawn(cmd, args, options);
                     this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText: string) => {

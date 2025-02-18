@@ -105,8 +105,10 @@ export class CLI {
         if (platform() === 'win32') validExecExt.push(".bat", ".exe", ".cmd");
         for (const ext of validExecExt) {
             let executable = `${command}${ext}`;
-            if (!spawnSync(executable).error) return executable;
+            const options = platform() === 'win32' ? { shell: true } : {};
+            if (!spawnSync(executable, options).error) return executable;
         }
+        window.showErrorMessage(`Unable to find launch command: ${command}`);
     }
 
     private static getGradleCommand() {
