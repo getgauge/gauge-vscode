@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.1.6",
+  "version": "0.1.9",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.71.0"
@@ -288,6 +288,71 @@
             "Ignore"
           ],
           "description": "Gauge recommended settings are shown/ignored based on the given value."
+        },
+        "gauge.semanticTokenColors.argument": {
+          "type": "string",
+          "default": "#ae81ff",
+          "description": "Color for arguments."
+        },
+        "gauge.semanticTokenColors.stepMarker": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "Color for the step marker '*'"
+        },
+        "gauge.semanticTokenColors.step": {
+          "type": "string",
+          "default": "#a6e22e",
+          "description": "Color for step text."
+        },
+        "gauge.semanticTokenColors.table": {
+          "type": "string",
+          "default": "#ae81ff",
+          "description": "Color for table rows (cell data)."
+        },
+        "gauge.semanticTokenColors.tableHeaderSeparator": {
+          "type": "string",
+          "default": "#8349f0",
+          "description": "Color for table separator dashes."
+        },
+        "gauge.semanticTokenColors.tableBorder": {
+          "type": "string",
+          "default": "#8349f0",
+          "description": "Color for table table borders."
+        },
+        "gauge.semanticTokenColors.tagKeyword": {
+          "type": "string",
+          "default": "#ff4689",
+          "description": "Color for tag keywords."
+        },
+        "gauge.semanticTokenColors.tagValue": {
+          "type": "string",
+          "default": "#fc88b2",
+          "description": "Color for tag values."
+        },
+        "gauge.semanticTokenColors.specification": {
+          "type": "string",
+          "default": "#66d9ef",
+          "description": "Color for specification/concept headers."
+        },
+        "gauge.semanticTokenColors.scenario": {
+          "type": "string",
+          "default": "#66d9ef",
+          "description": "Color for scenario headers."
+        },
+        "gauge.semanticTokenColors.comment": {
+          "type": "string",
+          "default": "#cccccc",
+          "description": "Color for comments."
+        },
+        "gauge.semanticTokenColors.disabledStep": {
+          "type": "string",
+          "default": "#228549",
+          "description": "Color for disabled steps."
+        },
+        "gauge.formatting.skipEmptyLineInsertions": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, skip adding empty lines during formatting."
         }
       }
     },
@@ -460,27 +525,27 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.3",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "^20.14.11",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.13.4",
     "@types/ps-tree": "^1.1.4",
     "@types/sinon": "^17.0.3",
     "@types/vscode": "~1.71.0",
     "@vscode/test-electron": "^2.4.1",
     "@vscode/vsce": "^2.31.1",
     "cross-env": "^7.0.3",
-    "glob": "^11.0.0",
-    "mocha": "^10.7.0",
-    "sinon": "^18.0.0",
-    "terser-webpack-plugin": "^5.3.10",
-    "ts-loader": "^9.5.0",
+    "glob": "^11.0.1",
+    "mocha": "^11.1.0",
+    "sinon": "^19.0.2",
+    "terser-webpack-plugin": "^5.3.11",
+    "ts-loader": "^9.5.2",
     "ts-mockito": "^2.6.1",
     "tslint": "^6.1.3",
-    "typescript": "^5.5.4",
-    "webpack": "^5.93.0",
+    "typescript": "^5.7.3",
+    "webpack": "^5.98.0",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "get-port": "^5.1.1",
     "ps-tree": "^1.2.0",
     "vscode-languageclient": "~8.1.0",
