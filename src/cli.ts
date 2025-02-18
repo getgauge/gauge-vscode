@@ -108,6 +108,7 @@ export class CLI {
             const options = platform() === 'win32' ? { shell: true } : {};
             if (!spawnSync(executable, options).error) return executable;
         }
+        window.showErrorMessage(`Unable to find launch command: ${command}`);
     }
 
     private static getGradleCommand() {
