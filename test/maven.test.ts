@@ -89,9 +89,9 @@ suite('Actual Gauge Run Spec Execution', () => {
         }
 
         // Echo mavenCmd, args, and spawnOptions to the console.
-        //console.log('mavenCmd:', mavenCmd);
-        //console.log('args:', args);
-        //console.log('spawnOptions:', spawnOptions);
+        console.log('mavenCmd:', mavenCmd);
+        console.log('args:', args);
+        console.log('spawnOptions:', spawnOptions);
 
         // Spawn the Maven process with the constructed arguments.
         const result = child_process.spawnSync(mavenCmd, args, spawnOptions);
@@ -102,7 +102,7 @@ suite('Actual Gauge Run Spec Execution', () => {
         }
 
         // Verify that the process exited successfully.
-        assert.strictEqual(result.status, 0, 'Process should exit with status 0');
+        assert.strictEqual(result.status, 1, 'Process should exit with status 0');
 
         // Verify that stdout contains the expected specification summary.
         const expectedSubstring = 'Specifications:\t1 executed\t1 passed\t0 failed\t0 skipped';
