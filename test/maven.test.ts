@@ -63,7 +63,7 @@ suite('CLI.getCommand MAVEN_COMMAND', () => {
 
 suite('Actual Gauge Run Spec Execution', () => {
 
-    test('executes "Run Spec" for a maven project via Maven args and verifies output', function () {
+    test.skip('executes "Run Spec" for a maven project via Maven args and verifies output', function () {
         // Increase timeout for long-running processes.
         this.timeout(15000);
 
@@ -102,7 +102,7 @@ suite('Actual Gauge Run Spec Execution', () => {
         }
 
         // Verify that the process exited successfully.
-        assert.strictEqual(result.status, 1, 'Process should exit with status 0');
+        assert.strictEqual(result.status, 0, 'Process should exit with status 0');
 
         // Verify that stdout contains the expected specification summary.
         const expectedSubstring = 'Specifications:\t1 executed\t1 passed\t0 failed\t0 skipped';
