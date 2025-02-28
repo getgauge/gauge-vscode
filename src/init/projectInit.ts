@@ -68,10 +68,7 @@ export class ProjectInitializer extends Disposable {
 
     private async createFromCommandLine(template: FileListItem, projectFolder: Uri, p: ProgressHandler) {
         let args = [GaugeCommands.Init, template.label];
-        let options: CommonSpawnOptions = { cwd: projectFolder.fsPath, env: process.env };
-        if (platform() === "win32") {
-            options.shell = true;
-        }
+        let options: CommonSpawnOptions = { cwd: projectFolder.fsPath, env: process.env, ...CLI.getDefaultSpawnOptions() };
         p.report("Initializing project...");
         let proc = spawn(this.cli.gaugeCommand(), args, options);
         proc.addListener('error', async (err) => {
@@ -86,10 +83,7 @@ export class ProjectInitializer extends Disposable {
 
     private async getTemplatesList(): Promise<Array<FileListItem>> {
         let args = ["template", "--list", "--machine-readable"];
-        let options: CommonSpawnOptions = { env: process.env };
-        if (platform() === "win32") {
-            options.shell = true;
-        }
+        let options: CommonSpawnOptions = { env: process.env, ...CLI.getDefaultSpawnOptions() };
         let cp = spawnSync(this.cli.gaugeCommand(), args, options);
         try {
             let _templates = JSON.parse(cp.stdout.toString());
