@@ -1,5 +1,8 @@
 import * as assert from 'assert';
 import { CLI } from '../src/cli';
+import path = require('path');
+
+let testCommandsPath = path.join(__dirname, '..', '..', 'test', 'commands');
 
 suite('CLI', () => {
     test('.isPluginInstalled should tell a gauge plugin is installed or not', () => {
@@ -135,6 +138,42 @@ ruby (1.2.0)`;
         assert.ok(!cli.isGaugeVersionGreaterOrEqual('2.0.0'));
         assert.ok(!cli.isGaugeVersionGreaterOrEqual('2.1.3'));
         assert.ok(!cli.isGaugeVersionGreaterOrEqual('1.3.0'));
+        done();
+    });
+
+    test('.getCommandCandidates choices all valid', (done) => {
+        let candidates = CLI.getCommandCandidates('test_command');
+        const originalPath = process.env.PATH;
+        process.env.PATH = testCommandsPath;
+        let invalid_candidates = [];
+        try {
+            for (const candidate of candidates) {
+                if (!CLI.checkSpawnable(candidate)) {
+                    invalid_candidates.push(candidate);
+                }
+            }
+            assert.ok(invalid_candidates.length === 0, `invalid candidates: ${invalid_candidates.join(', ')}, those should be valid`);
+        } finally {
+            process.env.PATH = originalPath;
+        }
+        done();
+    });
+
+    test('.getCommandCandidates choices are all not valid', (done) => {
+        let candidates = CLI.getCommandCandidates('test_command_not_found');
+        const originalPath = process.env.PATH;
+        process.env.PATH = testCommandsPath;
+        let valid_candidates = [];
+        try {
+            for (const candidate of candidates) {
+                if (CLI.checkSpawnable(candidate)) {
+                    valid_candidates.push(candidate);
+                }
+            }
+            assert.ok(valid_candidates.length === 0, `valid candidates: ${valid_candidates.join(', ')}, those should not be valid`);
+        } finally {
+            process.env.PATH = originalPath;
+        }
         done();
     });
 });

@@ -119,15 +119,23 @@ export class CLI {
         return `${v}\n${cm}\n\n${plugins}`;
     }
 
-    private static getCommand(command: string): string {
+    public static getCommandCandidates(command: string): string[] {
         let validExecExt = [""];
-        let options = CLI.getDefaultSpawnOptions();
         if (platform() === 'win32') {
             validExecExt.push(".bat", ".exe", ".cmd");
         }
-        for (const ext of validExecExt) {
-            let executable = `${command}${ext}`;
-            if (!spawnSync(executable, [], options).error) return executable;
+        return validExecExt.map((ext) => `${command}${ext}`);
+    }
+
+    public static checkSpawnable(command: string): boolean {
+        const result = spawnSync(command, [], CLI.getDefaultSpawnOptions());
+        return result.status === 0 && !result.error;
+    }
+
+    private static getCommand(command: string): string {
+        let possiableCommands = this.getCommandCandidates(command);
+        for (const possiableCommand of possiableCommands) {
+            if (this.checkSpawnable(possiableCommand)) return possiableCommand;
         }
     }
 
