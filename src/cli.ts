@@ -23,15 +23,21 @@ export class CLI {
         this._gaugePlugins = manifest.plugins;
     }
 
+    public static getDefaultSpawnOptions(): CommonSpawnOptions {
+        // should only deal with platform specific options
+        let options: CommonSpawnOptions = {};
+        if(platform() === "win32") {
+            options.shell = true;
+        }
+        return options;
+    }
+
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
         let mvnCommand = this.getCommand(MAVEN_COMMAND);
         let gradleCommand = this.getGradleCommand();
         if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand, gradleCommand);
-        let options: CommonSpawnOptions = {};
-        if(platform() === "win32") {
-            options.shell = true;
-        }
+        let options = this.getDefaultSpawnOptions();
         let gv = spawnSync(
           gaugeCommand,
           [GaugeCommands.Version, GaugeCommands.MachineReadable],
@@ -75,10 +81,7 @@ export class CLI {
         let oc = window.createOutputChannel("Gauge Install");
         let chan = new OutputChannel(oc, `Installing gauge ${language} plugin ...\n`, "");
         return new Promise((resolve, reject) => {
-            let options: CommonSpawnOptions = {};
-            if (platform() === "win32") {
-                options.shell = true;
-            }
+            let options = CLI.getDefaultSpawnOptions();
             let childProcess = spawn(
               this._gaugeCommand,
               [GaugeCommands.Install, language],
@@ -118,10 +121,9 @@ export class CLI {
 
     private static getCommand(command: string): string {
         let validExecExt = [""];
-        let options: CommonSpawnOptions = {};
+        let options = CLI.getDefaultSpawnOptions();
         if (platform() === 'win32') {
             validExecExt.push(".bat", ".exe", ".cmd");
-            options.shell = true;
         }
         for (const ext of validExecExt) {
             let executable = `${command}${ext}`;
