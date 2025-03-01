@@ -1,6 +1,6 @@
 'use strict';
 
-import { ChildProcess, spawn } from 'child_process';
+import { ChildProcess, spawn, SpawnOptions } from 'child_process';
 import { platform } from 'os';
 import {
     CancellationTokenSource, commands, Disposable, Position,
@@ -67,9 +67,11 @@ export class GaugeExecutor extends Disposable {
                     const relPath = relative(config.getProject().root(), config.getStatus());
                     this.preExecute.forEach((f) => { f.call(null, env, relPath); });
                     this.aborted = false;
-                    let options = { cwd: config.getProject().root(), env: env , detached: false};
+                    let options: SpawnOptions = { cwd: config.getProject().root(), env: env , detached: false };
                     if (platform() !== 'win32') {
                         options.detached = true;
+                    } else {
+                        options.shell = true;
                     }
                     this.childProcess = spawn(cmd, args, options);
                     this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText: string) => {
