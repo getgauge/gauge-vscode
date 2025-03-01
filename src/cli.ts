@@ -25,24 +25,16 @@ export class CLI {
 
     public static getDefaultSpawnOptions(): CommonSpawnOptions {
         // should only deal with platform specific options
-        let options: CommonSpawnOptions = {};
-        if(platform() === "win32") {
-            options.shell = true;
-        }
-        return options;
+        return platform() === "win32" ? { shell: true } : {};
     }
 
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
-        let mvnCommand = this.getCommand(MAVEN_COMMAND);
+        const mvnCommand = this.getCommand(MAVEN_COMMAND);
         let gradleCommand = this.getGradleCommand();
         if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand, gradleCommand);
         let options = this.getDefaultSpawnOptions();
-        let gv = spawnSync(
-          gaugeCommand,
-          [GaugeCommands.Version, GaugeCommands.MachineReadable],
-          options
-        );
+        let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable], options);
         let gaugeVersionInfo;
         try {
             gaugeVersionInfo = JSON.parse(gv.stdout.toString());
@@ -82,11 +74,7 @@ export class CLI {
         let chan = new OutputChannel(oc, `Installing gauge ${language} plugin ...\n`, "");
         return new Promise((resolve, reject) => {
             let options = CLI.getDefaultSpawnOptions();
-            let childProcess = spawn(
-              this._gaugeCommand,
-              [GaugeCommands.Install, language],
-              options
-            );
+            let childProcess = spawn(this._gaugeCommand, [GaugeCommands.Install, language], options);
             childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code) => {
@@ -106,7 +94,7 @@ export class CLI {
     }
 
     public gradleCommand() {
-        return  this._gradleCommand;
+        return this._gradleCommand;
     }
 
     public gaugeVersionString(): string {
@@ -120,11 +108,8 @@ export class CLI {
     }
 
     public static getCommandCandidates(command: string): string[] {
-        let validExecExt = [""];
-        if (platform() === 'win32') {
-            validExecExt.push(".bat", ".exe", ".cmd");
-        }
-        return validExecExt.map((ext) => `${command}${ext}`);
+        return (platform() === 'win32' ? [".exe", ".bat", ".cmd"] : [""])
+            .map((ext) => `${command}${ext}`);
     }
 
     public static checkSpawnable(command: string): boolean {
@@ -133,14 +118,13 @@ export class CLI {
     }
 
     private static getCommand(command: string): string {
-        let possiableCommands = this.getCommandCandidates(command);
-        for (const possiableCommand of possiableCommands) {
-            if (this.checkSpawnable(possiableCommand)) return possiableCommand;
+        for (const candidate of this.getCommandCandidates(command)) {
+            if (this.checkSpawnable(candidate)) return candidate;
         }
+        window.showErrorMessage(`Unable to find executable launch command: ${command}`);
     }
 
     private static getGradleCommand() {
-        if (platform() === 'win32') return `${GRADLE_COMMAND}.bat`;
-        return `./${GRADLE_COMMAND}`;
+        return platform() === 'win32' ? `${GRADLE_COMMAND}.bat` : `./${GRADLE_COMMAND}`;
     }
 }
