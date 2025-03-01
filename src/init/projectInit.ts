@@ -7,7 +7,7 @@ import { commands, Disposable, Progress, Uri, window, workspace } from 'vscode';
 import { CLI } from '../cli';
 import { GaugeCommands, GaugeVSCodeCommands, INSTALL_INSTRUCTION_URI, VSCodeCommands } from "../constants";
 import { FileListItem } from '../types/fileListItem';
-import { platform } from 'os';
+
 export class ProjectInitializer extends Disposable {
     private readonly _disposable: Disposable;
 
