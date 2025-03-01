@@ -114,7 +114,7 @@ export class CLI {
     public static getCommandCandidates(command: string): string[] {
         let validExecExt = [""];
         if (platform() === 'win32') {
-            validExecExt.push(".bat", ".exe", ".cmd");
+            validExecExt.push(".exe", ".bat", ".cmd");
         }
         return validExecExt.map((ext) => `${command}${ext}`);
     }
