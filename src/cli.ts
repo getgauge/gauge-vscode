@@ -1,10 +1,10 @@
 'use strict';
 
-import {CommonSpawnOptions, spawn, spawnSync} from 'child_process';
-import {platform} from 'os';
-import {window} from 'vscode';
-import {GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND} from './constants';
-import {OutputChannel} from './execution/outputChannel';
+import { CommonSpawnOptions, spawn, spawnSync } from 'child_process';
+import { platform } from 'os';
+import { window } from 'vscode';
+import { GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND } from './constants';
+import { OutputChannel } from './execution/outputChannel';
 
 export class CLI {
     private readonly _gaugeVersion: string;
@@ -25,11 +25,7 @@ export class CLI {
 
     public static getDefaultSpawnOptions(): CommonSpawnOptions {
         // should only deal with platform specific options
-        let options: CommonSpawnOptions = {};
-        if (platform() === "win32") {
-            options.shell = true;
-        }
-        return options;
+        return platform() === "win32" ? { shell: true } : {};
     }
 
     public static instance(): CLI {
@@ -112,11 +108,8 @@ export class CLI {
     }
 
     public static getCommandCandidates(command: string): string[] {
-        let validExecExt = [""];
-        if (platform() === 'win32') {
-            validExecExt.push(".exe", ".bat", ".cmd");
-        }
-        return validExecExt.map((ext) => `${command}${ext}`);
+        return (platform() === 'win32' ? [".exe", ".bat", ".cmd"] : [""])
+            .map((ext) => `${command}${ext}`);
     }
 
     public static checkSpawnable(command: string): boolean {
@@ -132,7 +125,6 @@ export class CLI {
     }
 
     private static getGradleCommand() {
-        if (platform() === 'win32') return `${GRADLE_COMMAND}.bat`;
-        return `./${GRADLE_COMMAND}`;
+        return platform() === 'win32' ? `${GRADLE_COMMAND}.bat` : `./${GRADLE_COMMAND}`;
     }
 }
