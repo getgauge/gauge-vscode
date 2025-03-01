@@ -1,10 +1,10 @@
 'use strict';
 
-import { CommonSpawnOptions, spawn, spawnSync } from 'child_process';
-import { platform } from 'os';
-import { window } from 'vscode';
-import { GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND } from './constants';
-import { OutputChannel } from './execution/outputChannel';
+import {CommonSpawnOptions, spawn, spawnSync} from 'child_process';
+import {platform} from 'os';
+import {window} from 'vscode';
+import {GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND} from './constants';
+import {OutputChannel} from './execution/outputChannel';
 
 export class CLI {
     private readonly _gaugeVersion: string;
@@ -26,7 +26,7 @@ export class CLI {
     public static getDefaultSpawnOptions(): CommonSpawnOptions {
         // should only deal with platform specific options
         let options: CommonSpawnOptions = {};
-        if(platform() === "win32") {
+        if (platform() === "win32") {
             options.shell = true;
         }
         return options;
@@ -34,15 +34,11 @@ export class CLI {
 
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
-        let mvnCommand = this.getCommand(MAVEN_COMMAND);
+        const mvnCommand = this.getCommand(MAVEN_COMMAND);
         let gradleCommand = this.getGradleCommand();
         if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand, gradleCommand);
         let options = this.getDefaultSpawnOptions();
-        let gv = spawnSync(
-          gaugeCommand,
-          [GaugeCommands.Version, GaugeCommands.MachineReadable],
-          options
-        );
+        let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable], options);
         let gaugeVersionInfo;
         try {
             gaugeVersionInfo = JSON.parse(gv.stdout.toString());
@@ -82,11 +78,7 @@ export class CLI {
         let chan = new OutputChannel(oc, `Installing gauge ${language} plugin ...\n`, "");
         return new Promise((resolve, reject) => {
             let options = CLI.getDefaultSpawnOptions();
-            let childProcess = spawn(
-              this._gaugeCommand,
-              [GaugeCommands.Install, language],
-              options
-            );
+            let childProcess = spawn(this._gaugeCommand, [GaugeCommands.Install, language], options);
             childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code) => {
@@ -106,7 +98,7 @@ export class CLI {
     }
 
     public gradleCommand() {
-        return  this._gradleCommand;
+        return this._gradleCommand;
     }
 
     public gaugeVersionString(): string {
@@ -133,10 +125,10 @@ export class CLI {
     }
 
     private static getCommand(command: string): string {
-        let possiableCommands = this.getCommandCandidates(command);
-        for (const possiableCommand of possiableCommands) {
-            if (this.checkSpawnable(possiableCommand)) return possiableCommand;
+        for (const candidate of this.getCommandCandidates(command)) {
+            if (this.checkSpawnable(candidate)) return candidate;
         }
+        window.showErrorMessage(`Unable to find executable launch command: ${command}`);
     }
 
     private static getGradleCommand() {
