@@ -121,7 +121,6 @@ export class CLI {
         for (const candidate of this.getCommandCandidates(command)) {
             if (this.checkSpawnable(candidate)) return candidate;
         }
-        window.showErrorMessage(`Unable to find executable launch command: ${command}`);
     }
 
     private static getGradleCommand() {
