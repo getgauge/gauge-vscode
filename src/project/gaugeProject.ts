@@ -1,7 +1,7 @@
 'use strict';
 
 import { isAbsolute, relative } from 'path';
-import { CLI } from '../cli';
+import { CLI, Command } from '../cli';
 
 export class GaugeProject {
     private readonly _projectRoot: string;
@@ -18,7 +18,7 @@ export class GaugeProject {
         }
     }
 
-    public getExecutionCommand(cli: CLI): string {
+    public getExecutionCommand(cli: CLI): Command {
         return cli.gaugeCommand();
     }
 

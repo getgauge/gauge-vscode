@@ -1,6 +1,7 @@
 import * as assert from 'assert';
-import { CLI } from '../src/cli';
+import { CLI, Command } from '../src/cli';
 import path = require('path');
+import { spawnSync } from "child_process";
 
 let testCommandsPath = path.join(__dirname, '..', '..', 'test', 'commands');
 
@@ -15,7 +16,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", info, 'mvn', 'gradle');
+        let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
         assert.ok(cli.isPluginInstalled('java'));
         assert.notEqual(true, cli.isPluginInstalled('foo'));
     });
@@ -30,7 +31,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", info, 'mvn', 'gradle');
+        let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
         assert.equal('1.0.0', cli.getGaugePluginVersion('java'));
     });
 
@@ -45,7 +46,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", info, 'mvn', 'gradle');
+        let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
         assert.ok(cli.isPluginInstalled('java'));
         assert.notEqual(true, cli.isPluginInstalled('foo'));
     });
@@ -61,7 +62,7 @@ suite('CLI', () => {
             ]
         };
 
-        let cli = new CLI("gauge", info, 'mvn', 'gradle');
+        let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
 
         let expected = `Gauge version: 1.2.3
 Commit Hash: 3db28e6
@@ -86,7 +87,7 @@ ruby (1.2.0)`;
             ]
         };
 
-        let cli = new CLI("gauge", info, 'mvn', 'gradle');
+        let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
 
         let expected = `Gauge version: 1.2.3
 
@@ -113,7 +114,7 @@ ruby (1.2.0)`;
                 ]
             };
 
-            let cli = new CLI("gauge", info, 'mvn', 'gradle');
+            let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
 
             assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.3'));
             assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.0'));
@@ -133,7 +134,7 @@ ruby (1.2.0)`;
                 { name: "ruby", version: "1.2.0" },
             ]
         };
-        let cli = new CLI("gauge", info, 'mvn', 'gradle');
+        let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
 
         assert.ok(!cli.isGaugeVersionGreaterOrEqual('2.0.0'));
         assert.ok(!cli.isGaugeVersionGreaterOrEqual('2.1.3'));
@@ -141,14 +142,20 @@ ruby (1.2.0)`;
         done();
     });
 
-    test('.getCommandCandidates choices all valid', (done) => {
+    test('.isGaugeInstalled should tell if gauge is installed or not', (done) => {
+        assert.ok(new CLI(new Command("gauge"), {}, undefined, undefined).isGaugeInstalled());
+        assert.ok(!new CLI(null, {}, undefined, undefined).isGaugeInstalled());
+        done();
+    });
+
+    test('.getCommandCandidates choices all valid by .isSpawnable', (done) => {
         let candidates = CLI.getCommandCandidates('test_command');
         const originalPath = process.env.PATH;
         process.env.PATH = testCommandsPath;
         let invalid_candidates = [];
         try {
             for (const candidate of candidates) {
-                if (!CLI.checkSpawnable(candidate)) {
+                if (!CLI.isSpawnable(candidate)) {
                     invalid_candidates.push(candidate);
                 }
             }
@@ -159,18 +166,34 @@ ruby (1.2.0)`;
         done();
     });
 
-    test('.getCommandCandidates choices are all not valid', (done) => {
+    test('.getCommandCandidates choices can be found as in valid via .isSpawnable', (done) => {
         let candidates = CLI.getCommandCandidates('test_command_not_found');
         const originalPath = process.env.PATH;
         process.env.PATH = testCommandsPath;
         let valid_candidates = [];
         try {
             for (const candidate of candidates) {
-                if (CLI.checkSpawnable(candidate)) {
+                if (CLI.isSpawnable(candidate)) {
                     valid_candidates.push(candidate);
                 }
             }
             assert.ok(valid_candidates.length === 0, `valid candidates: ${valid_candidates.join(', ')}, those should not be valid`);
+        } finally {
+            process.env.PATH = originalPath;
+        }
+        done();
+    });
+
+    test('.getCommandCandidates can be spawned with an arg', (done) => {
+        let candidates = CLI.getCommandCandidates('test_command');
+        const originalPath = process.env.PATH;
+        process.env.PATH = testCommandsPath;
+        try {
+            for (const candidate of candidates.filter(c => (c.cmdSuffix !== ".exe"))) {
+                const result = candidate.spawnSync(["Hello World"]);
+                assert.ok(result.status === 0 && !result.error, `Command candidate ${candidate.command} failed to spawn`);
+                assert.equal(result.stdout.toString().trim(), 'Success: "Hello World"', `Command candidate ${candidate.command} has wrong output`)
+            }
         } finally {
             process.env.PATH = originalPath;
         }

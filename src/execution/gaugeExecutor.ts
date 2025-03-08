@@ -37,7 +37,7 @@ export class GaugeExecutor extends Disposable {
     private postExecute: Function[] = [];
     private _disposables: Disposable[] = [];
     private gaugeDebugger: GaugeDebugger;
-    private processors: Array<LineTextProcessor> = new Array();
+    private processors: Array<LineTextProcessor> = [];
 
     constructor(private gaugeWorkspace: GaugeWorkspace, private cli: CLI) {
         super(() => this.dispose());
@@ -62,18 +62,17 @@ export class GaugeExecutor extends Disposable {
                 this.gaugeDebugger.addDebugEnv().then((env) => {
                     let cmd = config.getProject().getExecutionCommand(this.cli);
                     let args = this.getArgs(spec, config);
-                    let initialText = ['Running tool:', cmd, args.join(' ')].join(' ');
+                    let initialText = ['Running tool:', cmd.command, cmd.argsForSpawnType(args).join(' ')].join(' ');
                     let chan = new OutputChannel(this.outputChannel, initialText, config.getProject().root());
                     const relPath = relative(config.getProject().root(), config.getStatus());
                     this.preExecute.forEach((f) => { f.call(null, env, relPath); });
                     this.aborted = false;
-                    let options: SpawnOptions = { cwd: config.getProject().root(), env: env , detached: false };
-                    if (platform() !== 'win32') {
-                        options.detached = true;
-                    } else {
-                        options.shell = true;
-                    }
-                    this.childProcess = spawn(cmd, args, options);
+                    let options: SpawnOptions = {
+                        cwd: config.getProject().root(),
+                        env: env,
+                        detached: platform() !== 'win32'
+                    };
+                    this.childProcess = cmd.spawn(args, options);
                     this.childProcess.stdout.on('data', this.filterStdoutDataDumpsToTextLines((lineText: string) => {
                         chan.appendOutBuf(lineText);
                         lineText.split("\n").forEach((lineText) => {
