@@ -1,6 +1,6 @@
 'use strict';
 
-import { CommonSpawnOptions, spawn, spawnSync } from 'child_process';
+import { ChildProcess, CommonSpawnOptions, spawn, spawnSync, SpawnSyncReturns } from 'child_process';
 import { platform } from 'os';
 import { window } from 'vscode';
 import { GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND } from './constants';
@@ -10,11 +10,11 @@ export class CLI {
     private readonly _gaugeVersion: string;
     private readonly _gaugeCommitHash: string;
     private readonly _gaugePlugins: Array<any>;
-    private readonly _gaugeCommand: string;
-    private readonly _mvnCommand: string;
-    private readonly _gradleCommand: string;
+    private readonly _gaugeCommand: Command;
+    private readonly _mvnCommand: Command;
+    private readonly _gradleCommand: Command;
 
-    public constructor(cmd: string, manifest: any, mvnCommand: string, gradleCommand: string) {
+    public constructor(cmd: Command, manifest: any, mvnCommand: Command, gradleCommand: Command) {
         this._gaugeCommand = cmd;
         this._mvnCommand = mvnCommand;
         this._gradleCommand = gradleCommand;
@@ -23,18 +23,12 @@ export class CLI {
         this._gaugePlugins = manifest.plugins;
     }
 
-    public static getDefaultSpawnOptions(): CommonSpawnOptions {
-        // should only deal with platform specific options
-        return platform() === "win32" ? { shell: true } : {};
-    }
-
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
         const mvnCommand = this.getCommand(MAVEN_COMMAND);
-        let gradleCommand = this.getGradleCommand();
-        if (!gaugeCommand || gaugeCommand === '') return new CLI(gaugeCommand, {}, mvnCommand, gradleCommand);
-        let options = this.getDefaultSpawnOptions();
-        let gv = spawnSync(gaugeCommand, [GaugeCommands.Version, GaugeCommands.MachineReadable], options);
+        const gradleCommand = this.getGradleCommand();
+        if (!gaugeCommand) return new CLI(undefined, {}, mvnCommand, gradleCommand);
+        let gv = gaugeCommand.spawnSync([GaugeCommands.Version, GaugeCommands.MachineReadable]);
         let gaugeVersionInfo;
         try {
             gaugeVersionInfo = JSON.parse(gv.stdout.toString());
@@ -49,12 +43,12 @@ export class CLI {
         return this._gaugePlugins.some((p: any) => p.name === pluginName);
     }
 
-    public gaugeCommand(): string {
+    public gaugeCommand(): Command {
         return this._gaugeCommand;
     }
 
     public isGaugeInstalled(): boolean {
-        return !!this._gaugeCommand && this._gaugeCommand !== '';
+        return !!this._gaugeCommand;
     }
 
     public isGaugeVersionGreaterOrEqual(version: string): boolean {
@@ -65,31 +59,21 @@ export class CLI {
         return this._gaugePlugins.find((p) => p.name === language).version;
     }
 
-    public getGaugeVersion(): string {
-        return this._gaugeVersion;
-    }
-
     public async installGaugeRunner(language: string): Promise<any> {
         let oc = window.createOutputChannel("Gauge Install");
         let chan = new OutputChannel(oc, `Installing gauge ${language} plugin ...\n`, "");
         return new Promise((resolve, reject) => {
-            let options = CLI.getDefaultSpawnOptions();
-            let childProcess = spawn(this._gaugeCommand, [GaugeCommands.Install, language], options);
+            let childProcess = this._gaugeCommand.spawn([GaugeCommands.Install, language]);
             childProcess.stdout.on('data', (chunk) => chan.appendOutBuf(chunk.toString()));
             childProcess.stderr.on('data', (chunk) => chan.appendErrBuf(chunk.toString()));
             childProcess.on('exit', (code) => {
-                let postFailureMessage = '\nRefer https://docs.gauge.org/plugin.html' +
-                    ' to install manually';
+                let postFailureMessage = '\nRefer to https://docs.gauge.org/plugin.html to install manually';
                 chan.onFinish(resolve, code, "", postFailureMessage, false);
             });
         });
     }
 
-    public isMavenInstalled(): boolean {
-        return !!this._mvnCommand && this._mvnCommand !== '';
-    }
-
-    public mavenCommand(): string {
+    public mavenCommand(): Command {
         return this._mvnCommand;
     }
 
@@ -107,23 +91,55 @@ export class CLI {
         return `${v}\n${cm}\n\n${plugins}`;
     }
 
-    public static getCommandCandidates(command: string): string[] {
-        return (platform() === 'win32' ? [".exe", ".bat", ".cmd"] : [""])
-            .map((ext) => `${command}${ext}`);
+    public static getCommandCandidates(command: string): Command[] {
+        return platform() === 'win32' ? [
+            new Command(command, ".exe"),
+            new Command(command, ".bat", true),
+            new Command(command, ".cmd", true),
+        ] : [
+            new Command(command)
+        ]
     }
 
-    public static checkSpawnable(command: string): boolean {
-        const result = spawnSync(command, [], CLI.getDefaultSpawnOptions());
+    public static isSpawnable(command: Command): boolean {
+        const result = command.spawnSync();
         return result.status === 0 && !result.error;
     }
 
-    private static getCommand(command: string): string {
+    private static getCommand(command: string): Command | undefined {
         for (const candidate of this.getCommandCandidates(command)) {
-            if (this.checkSpawnable(candidate)) return candidate;
+            if (this.isSpawnable(candidate)) return candidate;
         }
     }
 
     private static getGradleCommand() {
-        return platform() === 'win32' ? `${GRADLE_COMMAND}.bat` : `./${GRADLE_COMMAND}`;
+        return platform() === 'win32' ? new Command(GRADLE_COMMAND, ".bat", true) : new Command(`./${GRADLE_COMMAND}`);
+    }
+}
+
+export type PlatformDependentSpawnOptions = {
+    shell?: boolean
+}
+
+export class Command {
+    public readonly command: string
+    public readonly defaultSpawnOptions: PlatformDependentSpawnOptions
+
+    constructor(public readonly cmdPrefix: string, public readonly cmdSuffix: string = "", public readonly shellMode: boolean = false) {
+        this.command = this.cmdPrefix + this.cmdSuffix;
+        this.defaultSpawnOptions = this.shellMode ? { shell: true } : {};
+    }
+
+    spawn(args: string[] = [], options: CommonSpawnOptions = {}): ChildProcess {
+        return spawn(this.command, this.argsForSpawnType(args), { ...options, ...this.defaultSpawnOptions });
+    }
+
+    spawnSync(args: string[] = [], options: CommonSpawnOptions = {}): SpawnSyncReturns<Buffer> {
+        return spawnSync(this.command, this.argsForSpawnType(args), { ...options, ...this.defaultSpawnOptions });
+    }
+
+    // See https://github.com/nodejs/node/issues/38490
+    argsForSpawnType(args: string[]): string[] {
+        return this.shellMode ? args.map(arg => arg.indexOf(" ") !== -1 ? `"${arg}"` : arg) : args;
     }
 }

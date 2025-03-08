@@ -1,2 +1,2 @@
 #!/bin/bash
-echo success
+echo "Success: \"${1}\""

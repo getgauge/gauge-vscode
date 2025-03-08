@@ -1,2 +1,2 @@
 @echo off
-echo success
+echo Success: %1

@@ -1,6 +1,5 @@
 'use strict';
 
-import { CommonSpawnOptions, spawn, spawnSync } from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { commands, Disposable, Progress, Uri, window, workspace } from 'vscode';
@@ -68,9 +67,9 @@ export class ProjectInitializer extends Disposable {
 
     private async createFromCommandLine(template: FileListItem, projectFolder: Uri, p: ProgressHandler) {
         let args = [GaugeCommands.Init, template.label];
-        let options: CommonSpawnOptions = { cwd: projectFolder.fsPath, env: process.env, ...CLI.getDefaultSpawnOptions() };
+        const cmd = this.cli.gaugeCommand();
         p.report("Initializing project...");
-        let proc = spawn(this.cli.gaugeCommand(), args, options);
+        let proc = cmd.spawn(args, { cwd: projectFolder.fsPath, env: process.env });
         proc.addListener('error', async (err) => {
             this.handleError(p, "Failed to create template. " + err.message, projectFolder.fsPath);
         });
@@ -83,8 +82,7 @@ export class ProjectInitializer extends Disposable {
 
     private async getTemplatesList(): Promise<Array<FileListItem>> {
         let args = ["template", "--list", "--machine-readable"];
-        let options: CommonSpawnOptions = { env: process.env, ...CLI.getDefaultSpawnOptions() };
-        let cp = spawnSync(this.cli.gaugeCommand(), args, options);
+        let cp = this.cli.gaugeCommand().spawnSync(args, { env: process.env });
         try {
             let _templates = JSON.parse(cp.stdout.toString());
             return _templates.map((tmpl) => new FileListItem(tmpl.key, tmpl.Description, tmpl.value));
