@@ -23,7 +23,7 @@ export class MavenProject extends GaugeProject {
 
     public envs(cli: CLI): NodeJS.ProcessEnv {
         try {
-            let classpath = execSync(`${cli.mavenCommand()} -q gauge:classpath`, {cwd: this.root()});
+            let classpath = execSync(`${this.getExecutionCommand(cli)?.command} -q gauge:classpath`, {cwd: this.root()});
             return {[GAUGE_CUSTOM_CLASSPATH]: classpath.toString().trim() };
         } catch (e) {
             window.showErrorMessage(`Error calculating project classpath.\t\n${e.output.toString()}`);
