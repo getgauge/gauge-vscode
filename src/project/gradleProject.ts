@@ -24,7 +24,7 @@ export class GradleProject extends GaugeProject {
 
     public envs(cli: CLI): NodeJS.ProcessEnv {
         try {
-            let classpath = execSync(`${cli.gradleCommand()} -q clean classpath`, {cwd: this.root()});
+            let classpath = execSync(`${this.getExecutionCommand(cli)?.command} -q clean classpath`, {cwd: this.root()});
             return {[GAUGE_CUSTOM_CLASSPATH]: classpath.toString().trim() };
         } catch (e) {
             window.showErrorMessage(`Error calculating project classpath.\t\n${e.output.toString()}`);
