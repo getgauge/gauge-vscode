@@ -534,7 +534,7 @@
     "@vscode/vsce": "^3.3.2",
     "cross-env": "^7.0.3",
     "glob": "^11.0.2",
-    "mocha": "^11.1.0",
+    "mocha": "^11.2.2",
     "sinon": "^20.0.0",
     "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
