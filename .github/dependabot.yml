@@ -3,18 +3,16 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: weekly
+      interval: monthly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: weekly
+      interval: monthly
     groups:
-      mocha:
+      npm:
         patterns:
-          - "*mocha*"
-      fs-extra:
-        patterns:
-          - "*fs-extra*"
-      sinon:
-        patterns:
-          - "*sinon*"
+          - "*"
