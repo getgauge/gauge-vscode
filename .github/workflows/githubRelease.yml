@@ -12,10 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use NodeJS 20
+      - name: Set up NodeJS
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Build artifacts
         run: |
@@ -47,10 +47,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use NodeJS 20
+      - name: Set up NodeJS
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Build artifacts
         run: |
