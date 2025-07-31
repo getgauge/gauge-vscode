@@ -23,7 +23,7 @@ $ code --install-extension getgauge.gauge
 * [Test Explorer](#test-explorer)
 * [Code Snippets](#snippets-for-specification-scenarios-and-tables)
 
-Gauge langauge plugins supported by the Gauge Visual Studio Code plugin are:
+Gauge language plugins supported by the Gauge Visual Studio Code plugin are:
 * [gauge-js](https://github.com/getgauge/gauge-js)
 * [gauge-java](https://github.com/getgauge/gauge-java)
 * [gauge-dotnet](https://github.com/getgauge/gauge-dotnet)
