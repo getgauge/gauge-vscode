@@ -10,6 +10,7 @@ const tokenTypes = [
   'tableHeaderSeparator',     // For table header separator dash characters (only '-' characters)
   'tableBorder',              // For table border characters (the '|' characters)
   'tableKeyword',             // For lines matching "table:" pattern (case-insensitive)
+  'tableFileValue',           // For the remainder of a table line after "table:"
   'tagKeyword',               // For the literal "tags:" at the beginning of a tag line
   'tagValue',                 // For the remainder of a tag line after "tags:"
   'disabledStep',             // For lines starting with "//" (used to disable a step)
@@ -27,13 +28,10 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
     const lines = document.getText().split(/\r?\n/);
 
     // Combined regular expression to match text within double quotes OR within angle brackets.
-    const argumentRegex = /(?:"([^"]+)"|<([^>]+)>)/g;
+    const argumentRegex = /(?:"[^"]*"|<[^>]*>)/g;
     // Regular expression to detect a table header separator line.
     // Matches lines that start and end with a pipe and contain only dashes, pipes, and optional spaces.
     const tableHeaderSeparatorRegex = /^\|\s*-+\s*(\|\s*-+\s*)+\|?$/;
-    // Regular expression to detect lines matching "table:" pattern (case-insensitive)
-    // Matches lines starting with optional whitespace, followed by "table" (case-insensitive), optional whitespace, colon, and optional whitespace
-    const tableKeywordRegex = /^\s*[tT][aA][bB][lL][eE]\s*:\s*/;
 
     // Process the document with a manual loop (to allow multi‑line heading handling).
     for (let i = 0; i < lines.length;) {
@@ -98,9 +96,15 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
         continue;
       }
 
-      // 3. Check for table keyword lines (lines matching "table:" pattern case-insensitively).
-      else if (tableKeywordRegex.test(line)) {
-        builder.push(i, 0, line.length, tokenTypes.indexOf('tableKeyword'), 0);
+      // 3. Check for table keyword lines (lines starting with "table:" case-insensitively).
+      else if (trimmedLine.toLowerCase().startsWith('table:')) {
+        const leadingSpaces = line.length - line.trimStart().length;
+        const keyword = "table:";
+        builder.push(i, leadingSpaces, keyword.length, tokenTypes.indexOf('tableKeyword'), 0);
+        const tagValueStart = leadingSpaces + keyword.length;
+        if (tagValueStart < line.length) {
+          builder.push(i, tagValueStart, line.length - tagValueStart, tokenTypes.indexOf('tableFileValue'), 0);
+        }
         i++;
         continue;
       }

@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.82.0"
@@ -322,7 +322,12 @@
         "gauge.semanticTokenColors.tableKeyword": {
           "type": "string",
           "default": "#ffffff",
-          "description": "Color for table keyword lines (lines matching 'table:' pattern)."
+          "description": "Color for table keywords."
+        },
+        "gauge.semanticTokenColors.tableFileValue": {
+          "type": "string",
+          "default": "#dddddd",
+          "description": "Color for table file values."
         },
         "gauge.semanticTokenColors.tagKeyword": {
           "type": "string",
