@@ -9,6 +9,7 @@ const tokenTypes = [
   'table',                    // For table cell text (non-border, non-separator)
   'tableHeaderSeparator',     // For table header separator dash characters (only '-' characters)
   'tableBorder',              // For table border characters (the '|' characters)
+  'tableKeyword',             // For lines matching "table:" pattern (case-insensitive)
   'tagKeyword',               // For the literal "tags:" at the beginning of a tag line
   'tagValue',                 // For the remainder of a tag line after "tags:"
   'disabledStep',             // For lines starting with "//" (used to disable a step)
@@ -30,6 +31,9 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
     // Regular expression to detect a table header separator line.
     // Matches lines that start and end with a pipe and contain only dashes, pipes, and optional spaces.
     const tableHeaderSeparatorRegex = /^\|\s*-+\s*(\|\s*-+\s*)+\|?$/;
+    // Regular expression to detect lines matching "table:" pattern (case-insensitive)
+    // Matches lines starting with optional whitespace, followed by "table" (case-insensitive), optional whitespace, colon, and optional whitespace
+    const tableKeywordRegex = /^\s*[tT][aA][bB][lL][eE]\s*:\s*/;
 
     // Process the document with a manual loop (to allow multi‑line heading handling).
     for (let i = 0; i < lines.length;) {
@@ -94,7 +98,14 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
         continue;
       }
 
-      // 3. Check for tag lines (lines starting with "tags:" case-insensitively).
+      // 3. Check for table keyword lines (lines matching "table:" pattern case-insensitively).
+      else if (tableKeywordRegex.test(line)) {
+        builder.push(i, 0, line.length, tokenTypes.indexOf('tableKeyword'), 0);
+        i++;
+        continue;
+      }
+
+      // 4. Check for tag lines (lines starting with "tags:" case-insensitively).
       else if (trimmedLine.toLowerCase().startsWith('tags:')) {
         const leadingSpaces = line.length - line.trimStart().length;
         const keyword = "tags:";
@@ -107,7 +118,7 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
         continue;
       }
 
-      // 4. Process step lines (lines starting with '*').
+      // 5. Process step lines (lines starting with '*').
       else if (trimmedLine.startsWith('*')) {
         const firstNonWhitespaceIndex = line.indexOf('*');
         if (firstNonWhitespaceIndex !== -1) {
@@ -136,7 +147,7 @@ export class GaugeSemanticTokensProvider implements vscode.DocumentSemanticToken
         continue;
       }
 
-      // 5. Process table lines (lines starting with '|').
+      // 6. Process table lines (lines starting with '|').
       else if (trimmedLine.startsWith('|')) {
         if (tableHeaderSeparatorRegex.test(trimmedLine)) {
           // Process the table separator line character-by-character.
