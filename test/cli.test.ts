@@ -1,7 +1,6 @@
 import * as assert from 'assert';
 import { CLI, Command } from '../src/cli';
 import path = require('path');
-import { spawnSync } from "child_process";
 
 let testCommandsPath = path.join(__dirname, '..', '..', 'test', 'commands');
 
@@ -149,12 +148,11 @@ ruby (1.2.0)`;
     });
 
     test('.getCommandCandidates choices all valid by .isSpawnable', (done) => {
-        let candidates = CLI.getCommandCandidates('test_command');
         const originalPath = process.env.PATH;
         process.env.PATH = testCommandsPath;
         let invalid_candidates = [];
         try {
-            for (const candidate of candidates) {
+            for (const candidate of CLI.getCommandCandidates('test_command')) {
                 if (!CLI.isSpawnable(candidate)) {
                     invalid_candidates.push(candidate);
                 }
@@ -166,13 +164,26 @@ ruby (1.2.0)`;
         done();
     });
 
-    test('.getCommandCandidates choices can be found as in valid via .isSpawnable', (done) => {
-        let candidates = CLI.getCommandCandidates('test_command_not_found');
+    test('.getCommandCandidates choices all valid by .isSpawnable when requiring an arg', (done) => {
+        const originalPath = process.env.PATH;
+        process.env.PATH = testCommandsPath;
+        try {
+            for (const candidate of CLI.getCommandCandidates('test_command_needs_version_arg').filter(c => c.cmdSuffix !== ".exe")) {
+                assert.ok(!CLI.isSpawnable(candidate), `candidate ${candidate.command} should not be spawnable without --version arg`);
+                assert.ok(CLI.isSpawnable(candidate, ["--version"]), `candidate ${candidate.command} should be spawnable with --version arg`);
+            }
+        } finally {
+            process.env.PATH = originalPath;
+        }
+        done();
+    });
+
+    test('.getCommandCandidates choices can be found as invalid via .isSpawnable', (done) => {
         const originalPath = process.env.PATH;
         process.env.PATH = testCommandsPath;
         let valid_candidates = [];
         try {
-            for (const candidate of candidates) {
+            for (const candidate of CLI.getCommandCandidates('test_command_not_found')) {
                 if (CLI.isSpawnable(candidate)) {
                     valid_candidates.push(candidate);
                 }
@@ -185,11 +196,10 @@ ruby (1.2.0)`;
     });
 
     test('.getCommandCandidates can be spawned with an arg', (done) => {
-        let candidates = CLI.getCommandCandidates('test_command');
         const originalPath = process.env.PATH;
         process.env.PATH = testCommandsPath;
         try {
-            for (const candidate of candidates.filter(c => (c.cmdSuffix !== ".exe"))) {
+            for (const candidate of CLI.getCommandCandidates('test_command').filter(c => c.cmdSuffix !== ".exe")) {
                 const result = candidate.spawnSync(["Hello World"]);
                 assert.ok(result.status === 0 && !result.error, `Command candidate ${candidate.command} failed to spawn`);
                 assert.equal(result.stdout.toString().trim(), 'Success: "Hello World"', `Command candidate ${candidate.command} has wrong output`)

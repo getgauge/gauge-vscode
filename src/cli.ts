@@ -3,7 +3,7 @@
 import { ChildProcess, CommonSpawnOptions, spawn, spawnSync, SpawnSyncReturns } from 'child_process';
 import { platform } from 'os';
 import { window } from 'vscode';
-import { GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND } from './constants';
+import { GaugeCommands, GRADLE_COMMAND, MAVEN_COMMAND, MAVEN_COMMAND_TEST_ARGS } from './constants';
 import { OutputChannel } from './execution/outputChannel';
 
 export class CLI {
@@ -25,7 +25,7 @@ export class CLI {
 
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
-        const mvnCommand = this.getCommand(MAVEN_COMMAND);
+        const mvnCommand = this.getCommand(MAVEN_COMMAND, MAVEN_COMMAND_TEST_ARGS);
         const gradleCommand = this.getGradleCommand();
         if (!gaugeCommand) return new CLI(undefined, {}, mvnCommand, gradleCommand);
         let gv = gaugeCommand.spawnSync([GaugeCommands.Version, GaugeCommands.MachineReadable]);
@@ -101,14 +101,14 @@ export class CLI {
         ]
     }
 
-    public static isSpawnable(command: Command): boolean {
-        const result = command.spawnSync();
+    public static isSpawnable(command: Command, testArgs: string[] = []): boolean {
+        const result = command.spawnSync(testArgs);
         return result.status === 0 && !result.error;
     }
 
-    private static getCommand(command: string): Command | undefined {
+    private static getCommand(command: string, testArgs: string[] = []): Command | undefined {
         for (const candidate of this.getCommandCandidates(command)) {
-            if (this.isSpawnable(candidate)) return candidate;
+            if (this.isSpawnable(candidate, testArgs)) return candidate;
         }
     }
 

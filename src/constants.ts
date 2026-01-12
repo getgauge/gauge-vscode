@@ -76,10 +76,10 @@ export enum GaugeRunners {
 export const LAST_REPORT_PATH = 'gauge.execution.report';
 export const COPY_TO_CLIPBOARD = 'Copy To Clipboard';
 export const NEW_FILE = 'New File';
-export const GAUGE_TEMPLATE_URL = 'https://downloads.gauge.org/templates';
 export const GAUGE_MANIFEST_FILE = 'manifest.json';
 export const MAVEN_POM = "pom.xml";
 export const MAVEN_COMMAND = "mvn";
+export const MAVEN_COMMAND_TEST_ARGS = ["--version"];
 export const GRADLE_COMMAND = "gradlew";
 export const GRADLE_BUILD = 'build.gradle';
 export const GAUGE_CUSTOM_CLASSPATH = 'gauge_custom_classpath';
