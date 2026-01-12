@@ -101,14 +101,19 @@ export class CLI {
         ]
     }
 
-    public static isSpawnable(command: Command): boolean {
-        const result = command.spawnSync();
-        return result.status === 0 && !result.error;
+    public static isCommandInPath(command: Command): boolean {
+        const checkCommand = platform() === 'win32' ? 'where' : 'which';
+        const result = spawnSync(checkCommand, [command.command]);
+
+        if (result.error)
+            return false;
+
+        return result.status === 0;
     }
 
     private static getCommand(command: string): Command | undefined {
         for (const candidate of this.getCommandCandidates(command)) {
-            if (this.isSpawnable(candidate)) return candidate;
+            if (this.isCommandInPath(candidate)) return candidate;
         }
     }
 

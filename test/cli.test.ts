@@ -155,7 +155,7 @@ ruby (1.2.0)`;
         let invalid_candidates = [];
         try {
             for (const candidate of candidates) {
-                if (!CLI.isSpawnable(candidate)) {
+                if (!CLI.isCommandInPath(candidate)) {
                     invalid_candidates.push(candidate);
                 }
             }
@@ -173,7 +173,7 @@ ruby (1.2.0)`;
         let valid_candidates = [];
         try {
             for (const candidate of candidates) {
-                if (CLI.isSpawnable(candidate)) {
+                if (CLI.isCommandInPath(candidate)) {
                     valid_candidates.push(candidate);
                 }
             }
