@@ -5,6 +5,12 @@ import { spawnSync } from "child_process";
 
 let testCommandsPath = path.join(__dirname, '..', '..', 'test', 'commands');
 
+function addTestCommandToPath(): string {
+    const originalPath = process.env.PATH;
+    const pathSeparator = process.platform === 'win32' ? ';' : ':';
+    return originalPath ? `${testCommandsPath}${pathSeparator}${originalPath}` : testCommandsPath;
+}
+
 suite('CLI', () => {
     test('.isPluginInstalled should tell a gauge plugin is installed or not', () => {
         let info = {
@@ -151,7 +157,7 @@ ruby (1.2.0)`;
     test('.getCommandCandidates choices all valid by .isSpawnable', (done) => {
         let candidates = CLI.getCommandCandidates('test_command');
         const originalPath = process.env.PATH;
-        process.env.PATH = testCommandsPath;
+        process.env.PATH = addTestCommandToPath();
         let invalid_candidates = [];
         try {
             for (const candidate of candidates) {
@@ -169,7 +175,7 @@ ruby (1.2.0)`;
     test('.getCommandCandidates choices can be found as in valid via .isSpawnable', (done) => {
         let candidates = CLI.getCommandCandidates('test_command_not_found');
         const originalPath = process.env.PATH;
-        process.env.PATH = testCommandsPath;
+        process.env.PATH = addTestCommandToPath();
         let valid_candidates = [];
         try {
             for (const candidate of candidates) {
@@ -187,7 +193,7 @@ ruby (1.2.0)`;
     test('.getCommandCandidates can be spawned with an arg', (done) => {
         let candidates = CLI.getCommandCandidates('test_command');
         const originalPath = process.env.PATH;
-        process.env.PATH = testCommandsPath;
+        process.env.PATH = addTestCommandToPath();
         try {
             for (const candidate of candidates.filter(c => (c.cmdSuffix !== ".exe"))) {
                 const result = candidate.spawnSync(["Hello World"]);
