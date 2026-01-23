@@ -8,7 +8,7 @@
   "description": "Gauge support for VScode.",
   "author": "ThoughtWorks",
   "license": "MIT",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "publisher": "getgauge",
   "engines": {
     "vscode": "^1.82.0"
@@ -526,7 +526,7 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.3",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^24.10.4",
+    "@types/node": "^24.10.9",
     "@types/ps-tree": "^1.1.4",
     "@types/sinon": "^21.0.0",
     "@types/vscode": "~1.82.0",

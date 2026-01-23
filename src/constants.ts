@@ -73,15 +73,17 @@ export enum GaugeRunners {
     Dotnet = "dotnet"
 }
 
-export enum MavenCommands {
-    Command = 'mvn',
-    CommandTestArg = '--version',
-    PomFile = 'pom.xml',
+export const MAVEN_COMMANDS = {
+    Command: {
+        Command: 'mvn',
+        TestArg: '--version',
+    },
+    PomFile: 'pom.xml',
 }
 
-export enum GradleCommands {
-    WrapperCommand = 'gradlew',
-    BuildFile = 'build.gradle',
+export const GRADLE_COMMANDS = {
+    WrapperCommand: 'gradlew',
+    BuildFiles: ['build.gradle', 'build.gradle.kts'],
 }
 
 export const LAST_REPORT_PATH = 'gauge.execution.report';
