@@ -3,7 +3,7 @@
 import { ChildProcess, CommonSpawnOptions, spawn, spawnSync, SpawnSyncReturns } from 'child_process';
 import { platform } from 'os';
 import { window } from 'vscode';
-import { GaugeCommands, GradleCommands, MavenCommands } from './constants';
+import { GaugeCommands, GRADLE_COMMANDS, MAVEN_COMMANDS } from './constants';
 import { OutputChannel } from './execution/outputChannel';
 
 export class CLI {
@@ -25,7 +25,7 @@ export class CLI {
 
     public static instance(): CLI {
         const gaugeCommand = this.getCommand(GaugeCommands.Gauge);
-        const mvnCommand = this.getCommand(MavenCommands.Command, [MavenCommands.CommandTestArg]);
+        const mvnCommand = this.getCommand(MAVEN_COMMANDS.Command.Command, [MAVEN_COMMANDS.Command.TestArg]);
         const gradleCommand = this.getGradleCommand();
         if (!gaugeCommand) return new CLI(undefined, {}, mvnCommand, gradleCommand);
         let gv = gaugeCommand.spawnSync([GaugeCommands.Version, GaugeCommands.MachineReadable]);
@@ -114,8 +114,8 @@ export class CLI {
 
     private static getGradleCommand() {
         return platform() === 'win32'
-            ? new Command(GradleCommands.WrapperCommand, ".bat", true)
-            : new Command(`./${GradleCommands.WrapperCommand}`);
+            ? new Command(GRADLE_COMMANDS.WrapperCommand, ".bat", true)
+            : new Command(`./${GRADLE_COMMANDS.WrapperCommand}`);
     }
 }
 
