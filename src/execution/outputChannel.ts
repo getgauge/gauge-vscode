@@ -50,7 +50,7 @@ export class OutputChannel {
     }
 
     public onFinish(resolve: (value?: boolean | PromiseLike<boolean>) => void,
-                    code: number, successMessage: string, failureMessage: string, aborted?: boolean) {
+        code: number, successMessage: string, failureMessage: string, aborted?: boolean) {
         this.outBuf.done();
         this.errBuf.done();
 

@@ -20,7 +20,7 @@ export class TerminalProvider extends Disposable {
                     () => window.showInformationMessage(`Please reload the project after Gauge is installed!`)
                     , 1000);
             }
-        ));
+            ));
     }
 }
 

@@ -110,6 +110,7 @@ export class GaugeWorkspace extends Disposable {
         return projects.sort((a: any, b: any) => a > b)[0];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     showProjectOptions(onChange: Function) {
         let projectItems = [];
         this._clientsMap.forEach((v, k) => projectItems.push({ label: path.basename(k), description: k }));
@@ -148,12 +149,12 @@ export class GaugeWorkspace extends Disposable {
         process.env.GAUGE_IGNORE_RUNNER_BUILD_FAILURES = "true";
         let cmd = this.cli.gaugeCommand();
         let serverOptions: ServerOptions = {
-          command: cmd.command,
-          args: cmd.argsForSpawnType(["daemon", "--lsp", "--dir", project.root()]),
-          options: {
-              env: { ...process.env, ...project.envs(this.cli) },
-              ...cmd.defaultSpawnOptions,
-          },
+            command: cmd.command,
+            args: cmd.argsForSpawnType(["daemon", "--lsp", "--dir", project.root()]),
+            options: {
+                env: { ...process.env, ...project.envs(this.cli) },
+                ...cmd.defaultSpawnOptions,
+            },
         };
 
         this._launchConfig = workspace.getConfiguration(GAUGE_LAUNCH_CONFIG);

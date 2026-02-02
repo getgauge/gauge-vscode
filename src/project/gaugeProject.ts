@@ -50,7 +50,7 @@ export class GaugeProject {
             `Plugins:${this._plugins.join(', ')}`;
     }
 
-    public equals(o: Object): boolean {
+    public equals(o: object): boolean {
         if (o == null) return false;
         if (!(o instanceof GaugeProject)) return false;
         if (o === this) return true;

@@ -29,7 +29,7 @@ export class ConfigProvider extends Disposable {
             }
             window.showInformationMessage("Gauge recommends " +
                 "some settings for best experience with Visual Studio Code.",
-                "Apply & Reload", "Remind me later", "Ignore")
+            "Apply & Reload", "Remind me later", "Ignore")
                 .then((option) => {
                     if (option === "Apply & Reload") {
                         this.applyAndReload(this.recommendedSettings, ConfigurationTarget.Workspace, false);
@@ -52,6 +52,7 @@ export class ConfigProvider extends Disposable {
     private applyDefaultSettings() {
         let workspaceConfig = workspace.getConfiguration().inspect(FILE_ASSOCIATIONS_KEY).workspaceValue;
         let recomendedConfig = {};
+        // eslint-disable-next-line no-extra-boolean-cast
         if (!!workspaceConfig) recomendedConfig = workspaceConfig;
         recomendedConfig["*.spec"] = "gauge";
         recomendedConfig["*.cpt"] = "gauge";
@@ -62,7 +63,7 @@ export class ConfigProvider extends Disposable {
         let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
         if (config.globalValue === "Ignore") return true;
         for (const key in this.recommendedSettings) {
-            if (this.recommendedSettings.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(this.recommendedSettings, key)) {
                 let configVal = workspace.getConfiguration().inspect(key);
                 if (!configVal.workspaceFolderValue && !configVal.workspaceValue &&
                     configVal.globalValue !== this.recommendedSettings[key]) {
@@ -73,10 +74,10 @@ export class ConfigProvider extends Disposable {
         return true;
     }
 
-    private applyAndReload(settings: Object, configurationTarget: number, shouldReload: boolean = true): Thenable<any> {
+    private applyAndReload(settings: object, configurationTarget: number, shouldReload: boolean = true): Thenable<any> {
         let updatePromises = [];
         for (const key in settings) {
-            if (settings.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(settings, key)) {
                 updatePromises.push(workspace.getConfiguration()
                     .update(key, settings[key], configurationTarget));
             }

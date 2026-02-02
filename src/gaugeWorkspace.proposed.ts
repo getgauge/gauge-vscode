@@ -58,9 +58,9 @@ export class GaugeWorkspaceFeature implements DynamicFeature<undefined> {
 
     public getState(): FeatureState {
         return {
-          kind: "workspace",
-          id: this.registrationType,
-          registrations: this._listeners.size > 0,
+            kind: "workspace",
+            id: this.registrationType,
+            registrations: this._listeners.size > 0,
         };
     }
 }

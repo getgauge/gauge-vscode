@@ -1,8 +1,6 @@
 'use strict';
 
 import { TextEditor } from 'vscode';
-import { spawnSync, exec } from 'child_process';
-import { platform } from 'os';
 
 export function getActiveGaugeDocument(activeTextEditor: TextEditor): Promise<any> {
     return new Promise((resolve) => {

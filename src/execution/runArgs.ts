@@ -63,7 +63,7 @@ const buildGaugeArgs: BuildRunArgs = (spec, option) => {
     return args;
 }
 
-const buildJavaRunArgs = (spec: string, option: GaugeRunOption, prefix: String, additionalFlags: (...keys: string[]) => string) => {
+const buildJavaRunArgs = (spec: string, option: GaugeRunOption, prefix: string, additionalFlags: (...keys: string[]) => string) => {
     const {
         failed, repeat, tags, parallel, n, env, ...rest
     } = {
