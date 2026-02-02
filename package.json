@@ -319,6 +319,16 @@
           "default": "#8349f0",
           "description": "Color for table table borders."
         },
+        "gauge.semanticTokenColors.tableKeyword": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "Color for table keywords."
+        },
+        "gauge.semanticTokenColors.tableFileValue": {
+          "type": "string",
+          "default": "#dddddd",
+          "description": "Color for table file values."
+        },
         "gauge.semanticTokenColors.tagKeyword": {
           "type": "string",
           "default": "#ff4689",
