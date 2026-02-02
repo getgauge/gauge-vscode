@@ -1,6 +1,6 @@
 'use strict';
 
-import { ChildProcess, spawn, SpawnOptions } from 'child_process';
+import { ChildProcess, SpawnOptions } from 'child_process';
 import { platform } from 'os';
 import {
     CancellationTokenSource, commands, Disposable, Position,
