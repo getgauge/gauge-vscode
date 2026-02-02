@@ -17,7 +17,7 @@ module.exports = function(env, argv) {
         new TerserPlugin({
             parallel: true,
             terserOptions: {
-                ecma: 8,
+                ecma: 'es2022',
                 compress: minify ? {} : false,
                 mangle: minify,
                 output: {
