@@ -1,4 +1,4 @@
-import assert = require('assert');
+import * as assert from 'assert';
 import { buildRunArgs, extractGaugeRunOption } from '../../src/execution/runArgs';
 
 suite('Gauge Run Args Tests', () => {

@@ -57,7 +57,8 @@ export class ProjectInitializer extends Disposable {
     }
 
     private async createProjectInDir(template: FileListItem, projectFolder: Uri) {
-        return window.withProgress({ location: 10 }, async (p: Progress<{}>) => {
+        return window.withProgress({ location: 10 }, async (p: Progress<unknown>) => {
+            // eslint-disable-next-line no-async-promise-executor
             return new Promise(async (res, rej) => {
                 let ph = new ProgressHandler(p, res, rej);
                 await this.createFromCommandLine(template, projectFolder, ph);
@@ -102,7 +103,7 @@ export class ProjectInitializer extends Disposable {
 
 class ProgressHandler {
     private progress: Progress<{ message: string }>;
-    resolve: (value?: {} | PromiseLike<{}>) => void;
+    resolve: (value?: object | PromiseLike<object>) => void;
     reject: (reason?: any) => void;
 
     constructor(progress, resolve, reject) {

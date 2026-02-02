@@ -14,7 +14,7 @@ export class MavenProject extends GaugeProject {
         return cli.mavenCommand();
     }
 
-    public equals(o: Object): boolean {
+    public equals(o: object): boolean {
         if (o == null) return false;
         if (!(o instanceof MavenProject)) return false;
         if (o === this) return true;

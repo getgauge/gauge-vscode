@@ -14,7 +14,7 @@ import { OutputChannel } from './outputChannel';
 import { ExecutionConfig } from './executionConfig';
 import { CLI } from '../cli';
 import { join, relative, extname } from 'path';
-import psTree = require('ps-tree');
+import * as psTree from 'ps-tree';
 import {
     LineTextProcessor, DebuggerAttachedEventProcessor, DebuggerNotAttachedEventProcessor, ReportEventProcessor
 } from './lineProcessors';
@@ -33,7 +33,9 @@ export class GaugeExecutor extends Disposable {
     private aborted: boolean = false;
     private outputChannel = window.createOutputChannel(outputChannelName);
     private childProcess: ChildProcess;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     private preExecute: Function[] = [];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     private postExecute: Function[] = [];
     private _disposables: Disposable[] = [];
     private gaugeDebugger: GaugeDebugger;
@@ -135,10 +137,12 @@ export class GaugeExecutor extends Disposable {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     public onBeforeExecute(hook: Function) {
         this.preExecute.push(hook);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     public onExecuted(hook: Function) {
         this.postExecute.push(hook);
     }
@@ -378,22 +382,22 @@ export class GaugeExecutor extends Disposable {
                 let client = this.gaugeWorkspace.getClientsMap().get(Uri.file(projectRoot).fsPath).client;
                 return client.sendRequest("gauge/executionStatus", {},
                     new CancellationTokenSource().token).then(
-                        (val: any) => {
-                            let status = '#999999';
-                            if (val.sceFailed > 0)
-                                status = '#E73E48';
-                            else if (val.scePassed > 0)
-                                status = '#66ff66';
-                            executionStatus.color = status;
-                            executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
+                    (val: any) => {
+                        let status = '#999999';
+                        if (val.sceFailed > 0)
+                            status = '#E73E48';
+                        else if (val.scePassed > 0)
+                            status = '#66ff66';
+                        executionStatus.color = status;
+                        executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
                                 `  $(issue-opened) ` + val.sceSkipped;
-                            executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
+                        executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
                                 + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
                                 + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
                                 + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
-                            executionStatus.show();
-                        }
-                    );
+                        executionStatus.show();
+                    }
+                );
             }
         });
     }

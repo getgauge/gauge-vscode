@@ -1,6 +1,5 @@
 'use strict';
 
-import getPort = require('get-port');
 import { debug, DebugSession, Uri, workspace } from 'vscode';
 import { GaugeRunners } from '../constants';
 import { GaugeClients } from '../gaugeClients';
@@ -119,14 +118,18 @@ export class GaugeDebugger {
             env.DEBUGGING = true;
             env.use_nested_specs = "false";
             env.SHOULD_BUILD_PROJECT = "true";
-            return getPort({ port: this.debugPort }).then((port) => {
-                if (this.config.getProject().isProjectLanguage(GaugeRunners.Dotnet)) {
-                    env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
-                }
-                if (this.config.getProject().isProjectLanguage(GaugeRunners.Java)) env.GAUGE_DEBUG_OPTS = port;
-                env.DEBUG_PORT = port;
-                this.debugPort = port;
-                return env;
+            // Use dynamic import so both ESM and CJS versions of `get-port` work.
+            return import('get-port').then((mod: any) => {
+                const getPort = (mod && (mod.default ?? mod)) as any;
+                return getPort({ port: this.debugPort }).then((port: number) => {
+                    if (this.config.getProject().isProjectLanguage(GaugeRunners.Dotnet)) {
+                        env.GAUGE_CSHARP_PROJECT_CONFIG = "Debug";
+                    }
+                    if (this.config.getProject().isProjectLanguage(GaugeRunners.Java)) env.GAUGE_DEBUG_OPTS = port;
+                    env.DEBUG_PORT = port;
+                    this.debugPort = port;
+                    return env;
+                });
             });
         } else {
             return Promise.resolve(env);

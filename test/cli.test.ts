@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { CLI, Command } from '../src/cli';
-import path = require('path');
+import * as path from 'path'
 
 let testCommandsPath = path.join(__dirname, '..', '..', 'test', 'commands');
 
@@ -103,25 +103,25 @@ ruby (1.2.0)`;
 
     test('.isVersionGreaterOrEqual should tell if version is greater than or' +
         'equal with minimum supported gauge version', (done) => {
-            let info = {
-                version: "1.2.3",
-                commitHash: "3db28e6",
-                plugins: [
-                    { name: "csharp", version: "1.2.0" },
-                    { name: "java", version: "1.0.0" },
-                    { name: "ruby", version: "1.2.0" },
-                ]
-            };
+        let info = {
+            version: "1.2.3",
+            commitHash: "3db28e6",
+            plugins: [
+                { name: "csharp", version: "1.2.0" },
+                { name: "java", version: "1.0.0" },
+                { name: "ruby", version: "1.2.0" },
+            ]
+        };
 
-            let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
+        let cli = new CLI(new Command("gauge"), info, new Command('mvn'), new Command('gradle'));
 
-            assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.3'));
-            assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.0'));
-            assert.ok(cli.isGaugeVersionGreaterOrEqual('0.9.0'));
-            assert.ok(cli.isGaugeVersionGreaterOrEqual('0.2.8'));
+        assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.3'));
+        assert.ok(cli.isGaugeVersionGreaterOrEqual('1.2.0'));
+        assert.ok(cli.isGaugeVersionGreaterOrEqual('0.9.0'));
+        assert.ok(cli.isGaugeVersionGreaterOrEqual('0.2.8'));
 
-            done();
-        });
+        done();
+    });
 
     test('.isVersionGreaterOrEqual should tell if version is lower than minimum supported gauge version', (done) => {
         let info = {

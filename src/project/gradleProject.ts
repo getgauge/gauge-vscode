@@ -15,7 +15,7 @@ export class GradleProject extends GaugeProject {
         return cli.gradleCommand();
     }
 
-    public equals(o: Object): boolean {
+    public equals(o: object): boolean {
         if (o == null) return false;
         if (!(o instanceof GradleProject)) return false;
         if (o === this) return true;

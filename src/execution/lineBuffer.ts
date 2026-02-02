@@ -15,6 +15,7 @@ export class LineBuffer {
 
             this.fireLine(this.buf.substring(0, idx));
             this.buf = this.buf.substring(idx + 1);
+            // eslint-disable-next-line no-constant-condition
         } while (true);
     }
 
