@@ -378,22 +378,22 @@ export class GaugeExecutor extends Disposable {
                 let client = this.gaugeWorkspace.getClientsMap().get(Uri.file(projectRoot).fsPath).client;
                 return client.sendRequest("gauge/executionStatus", {},
                     new CancellationTokenSource().token).then(
-                        (val: any) => {
-                            let status = '#999999';
-                            if (val.sceFailed > 0)
-                                status = '#E73E48';
-                            else if (val.scePassed > 0)
-                                status = '#66ff66';
-                            executionStatus.color = status;
-                            executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
+                    (val: any) => {
+                        let status = '#999999';
+                        if (val.sceFailed > 0)
+                            status = '#E73E48';
+                        else if (val.scePassed > 0)
+                            status = '#66ff66';
+                        executionStatus.color = status;
+                        executionStatus.text = `$(check) ` + val.scePassed + `  $(x) ` + val.sceFailed +
                                 `  $(issue-opened) ` + val.sceSkipped;
-                            executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
+                        executionStatus.tooltip = "Specs : " + val.specsExecuted + " Executed, "
                                 + val.specsPassed + " Passed, " + val.specsFailed + " Failed, " + val.specsSkipped
                                 + " Skipped" + "\n" + "Scenarios : " + val.sceExecuted + " Executed, " + val.scePassed
                                 + " Passed, " + val.sceFailed + " Failed, " + val.sceSkipped + " Skipped";
-                            executionStatus.show();
-                        }
-                    );
+                        executionStatus.show();
+                    }
+                );
             }
         });
     }
