@@ -185,7 +185,6 @@ export class SpecNodeProvider extends Disposable implements vscode.TreeDataProvi
 export abstract class GaugeNode extends vscode.TreeItem {
     protected constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
         public readonly file: string
     ) {
         super(label, vscode.TreeItemCollapsibleState.Collapsed);
@@ -198,7 +197,7 @@ export class Spec extends GaugeNode {
         public readonly label: string,
         public readonly file: string
     ) {
-        super(label, vscode.TreeItemCollapsibleState.Collapsed, file);
+        super(label, file);
     }
 
     contextValue = 'specification';
@@ -211,7 +210,7 @@ export class Scenario extends GaugeNode {
         public readonly file: string,
         public readonly lineNo: number,
     ) {
-        super(label, vscode.TreeItemCollapsibleState.None, file);
+        super(label, file);
         this.executionIdentifier = this.file + ":" + this.lineNo;
     }
 
