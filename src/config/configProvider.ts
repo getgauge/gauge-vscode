@@ -6,7 +6,7 @@ import { VSCodeCommands, GaugeVSCodeCommands } from "../constants";
 const FILE_ASSOCIATIONS_KEY = "files.associations";
 
 export class ConfigProvider extends Disposable {
-    private recommendedSettings = {
+    private readonly recommendedSettings = {
         "files.autoSave": "afterDelay",
         "files.autoSaveDelay": 500
     };
@@ -61,9 +61,15 @@ export class ConfigProvider extends Disposable {
 
     private verifyRecommendedConfig(): boolean {
         let config = workspace.getConfiguration().inspect("gauge.recommendedSettings.options");
-        if (config.globalValue === "Ignore") return true;
+        if (
+            config.globalValue === "Ignore" ||
+            config.workspaceValue === "Ignore" ||
+            config.workspaceFolderValue === "Ignore"
+        ) {
+            return true;
+        }
         for (const key in this.recommendedSettings) {
-            if (Object.prototype.hasOwnProperty.call(this.recommendedSettings, key)) {
+            if (Object.hasOwn(this.recommendedSettings, key)) {
                 let configVal = workspace.getConfiguration().inspect(key);
                 if (!configVal.workspaceFolderValue && !configVal.workspaceValue &&
                     configVal.globalValue !== this.recommendedSettings[key]) {
@@ -77,7 +83,7 @@ export class ConfigProvider extends Disposable {
     private applyAndReload(settings: object, configurationTarget: number, shouldReload: boolean = true): Thenable<any> {
         let updatePromises = [];
         for (const key in settings) {
-            if (Object.prototype.hasOwnProperty.call(settings, key)) {
+            if (Object.hasOwn(settings, key)) {
                 updatePromises.push(workspace.getConfiguration()
                     .update(key, settings[key], configurationTarget));
             }
