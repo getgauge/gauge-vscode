@@ -9,6 +9,11 @@ import { ConfigProvider } from '../../src/config/configProvider';
 // Helpers
 // ---------------------------------------------------------------------------
 
+const RECOMMENDED_SETTINGS = {
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 500
+};
+
 /**
  * Builds a minimal stub of the object returned by
  * workspace.getConfiguration().inspect(...).
@@ -145,9 +150,22 @@ suite('ConfigProvider - verifyRecommendedConfig / constructor ignore guard', () 
             showInformationMessageStub.notCalled,
             'Prompt must not appear when "Apply & Reload" is already stored'
         );
+        const updateStub = config.update as sinon.SinonStub;
         assert.ok(
-            (config.update as sinon.SinonStub).called,
-            'Settings must be applied when globalValue is "Apply & Reload"'
+            updateStub.calledWithMatch(
+                'files.autoSave',
+                sinon.match.any,
+                vscode.ConfigurationTarget.Workspace
+            ),
+            'files.autoSave must be applied when globalValue is "Apply & Reload"'
+        );
+        assert.ok(
+            updateStub.calledWithMatch(
+                'files.autoSaveDelay',
+                sinon.match.any,
+                vscode.ConfigurationTarget.Workspace
+            ),
+            'files.autoSaveDelay must be applied when globalValue is "Apply & Reload"'
         );
     });
 
@@ -249,11 +267,12 @@ suite('ConfigProvider - verifyRecommendedConfig / constructor ignore guard', () 
             showInformationMessageStub.notCalled,
             'workspaceFolderValue "Ignore" must suppress the prompt'
         );
+
         const updateStub = config.update as sinon.SinonStub;
-        assert.ok(
-            updateStub.args.every(([key]) => key !== 'files.autoSave'),
-            'Recommended settings must not be written when ignored'
-        );
+        for (const key of Object.keys(RECOMMENDED_SETTINGS)) {
+            const wasApplied = updateStub.args.some(([updatedKey]) => updatedKey === key);
+            assert.ok(!wasApplied, `Recommended setting "${key}" must not be written when ignored`);
+        }
     });
 
     test('workspaceValue "Ignore" takes precedence over globalValue "Apply & Reload"', () => {
