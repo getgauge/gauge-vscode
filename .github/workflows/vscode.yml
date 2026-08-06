@@ -13,9 +13,10 @@ jobs:
     name: Build
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-2022]
+      fail-fast: false
+
     steps:
       - uses: actions/checkout@v7
 
